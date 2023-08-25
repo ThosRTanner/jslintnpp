@@ -100,7 +100,7 @@ BOOL CALLBACK OutputDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
                         int iLint = ListView_GetNextItem(m_hWndListViews[iTab], -1, LVIS_FOCUSED | LVIS_SELECTED);
 						if (iLint != -1) {
 							const FileLint& fileLint = m_fileLints[iTab][iLint];
-							tstring var = fileLint.lint.GetUndefVar();
+							std::wstring var = fileLint.lint.GetUndefVar();
 							if (!var.empty()) {
                                 JSLintOptions::GetInstance().AppendOption(IDC_PREDEFINED, var);
 							}
@@ -410,14 +410,14 @@ void OutputDlg::ClearAllLints()
     }
 }
 
-void OutputDlg::AddLints(const tstring& strFilePath, const list<JSLintReportItem>& lints)
+void OutputDlg::AddLints(const std::wstring& strFilePath, const std::list<JSLintReportItem>& lints)
 {
-	basic_stringstream<TCHAR> stream;
+	std::basic_stringstream<TCHAR> stream;
 
 	LVITEM lvI;
 	lvI.mask = LVIF_TEXT | LVIF_STATE;
 
-	for (list<JSLintReportItem>::const_iterator it = lints.begin(); it != lints.end(); ++it) {
+	for (std::list<JSLintReportItem>::const_iterator it = lints.begin(); it != lints.end(); ++it) {
 		const JSLintReportItem& lint = *it;
 
         HWND hWndListView = m_hWndListViews[lint.GetType()];
@@ -429,7 +429,7 @@ void OutputDlg::AddLints(const tstring& strFilePath, const list<JSLintReportItem
 
 		stream.str(TEXT(""));
 		stream << lvI.iItem + 1;
-		tstring strNum = stream.str();
+		std::wstring strNum = stream.str();
 
 		lvI.pszText = (LPTSTR)strNum.c_str();
 		
@@ -438,33 +438,33 @@ void OutputDlg::AddLints(const tstring& strFilePath, const list<JSLintReportItem
         int iCol = 1;
 
         if (m_tabs[lint.GetType()].m_errorList) {
-		    tstring strReason = lint.GetReason();
+		    std::wstring strReason = lint.GetReason();
 		    ListView_SetItemText(hWndListView, lvI.iItem, iCol++, (LPTSTR)strReason.c_str());
         } else {
-		    tstring strVariable = lint.GetReason();
+		    std::wstring strVariable = lint.GetReason();
 		    ListView_SetItemText(hWndListView, lvI.iItem, iCol++, (LPTSTR)strVariable.c_str());
-		    tstring strFunction = lint.GetEvidence();
+		    std::wstring strFunction = lint.GetEvidence();
 		    ListView_SetItemText(hWndListView, lvI.iItem, iCol++, (LPTSTR)strFunction.c_str());
         }
 
-		tstring strFile = Path::GetFileName(strFilePath);
+		std::wstring strFile = Path::GetFileName(strFilePath);
 		ListView_SetItemText(hWndListView, lvI.iItem, iCol++, (LPTSTR)strFile.c_str());
 
 		stream.str(TEXT(""));
 		stream << lint.GetLine() + 1;
-		tstring strLine = stream.str();
+		std::wstring strLine = stream.str();
 		ListView_SetItemText(hWndListView, lvI.iItem, iCol++, (LPTSTR)strLine.c_str());
 		
 		stream.str(TEXT(""));
 		stream << lint.GetCharacter() + 1;
-		tstring strColumn = stream.str();
+		std::wstring strColumn = stream.str();
 		ListView_SetItemText(hWndListView, lvI.iItem, iCol++, (LPTSTR)strColumn.c_str());
 
         m_fileLints[lint.GetType()].push_back(FileLint(strFilePath, lint));
 	}
 
     for (int i = 0; i < NUM_LIST_VIEWS; ++i) {
-        tstring strTabName;
+        std::wstring strTabName;
         int count = ListView_GetItemCount(m_hWndListViews[i]);
         if (count > 0) {
             stream.str(TEXT(""));
@@ -584,7 +584,7 @@ void OutputDlg::ShowLint(int i)
 
 void OutputDlg::CopyToClipboard()
 {
-	basic_stringstream<TCHAR> stream;
+	std::basic_stringstream<TCHAR> stream;
 
     int iTab = TabCtrl_GetCurSel(m_hWndTab);
 
@@ -607,7 +607,7 @@ void OutputDlg::CopyToClipboard()
 		i = ListView_GetNextItem(m_hWndListViews[TabCtrl_GetCurSel(m_hWndTab)], i, LVNI_SELECTED);
 	}
 
-	tstring str = stream.str();
+	std::wstring str = stream.str();
 	if (str.empty())
 		return;
 

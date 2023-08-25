@@ -88,11 +88,11 @@ void Settings::SaveOptions()
     SaveOptions(TEXT("jshint"), m_jsHintScript);
 }
 
-void Settings::ReadOptions(const tstring& prefix, ScriptSourceDef& scriptSourceDef)
+void Settings::ReadOptions(const std::wstring& prefix, ScriptSourceDef& scriptSourceDef)
 {
     TCHAR szValue[65536]; // memory is cheap
 
-    tstring strConfigFileName = GetConfigFileName();
+    std::wstring strConfigFileName = GetConfigFileName();
     if (Path::IsFileExists(strConfigFileName)) {
 	    GetPrivateProfileString(PROFILE_JSLINT_GROUP_NAME, PROFILE_BUILD_KEY_NAME,
             NULL, szValue, _countof(szValue), strConfigFileName.c_str());
@@ -133,9 +133,9 @@ void Settings::ReadOptions(const tstring& prefix, ScriptSourceDef& scriptSourceD
     }
 }
 
-void Settings::SaveOptions(const tstring& prefix, const ScriptSourceDef& scriptSourceDef)
+void Settings::SaveOptions(const std::wstring& prefix, const ScriptSourceDef& scriptSourceDef)
 {
-	tstring strConfigFileName = GetConfigFileName();
+	std::wstring strConfigFileName = GetConfigFileName();
 
     WritePrivateProfileString(PROFILE_JSLINT_GROUP_NAME, PROFILE_BUILD_KEY_NAME,
         STR(VERSION_BUILD), strConfigFileName.c_str());
@@ -168,8 +168,8 @@ void Settings::LoadVersions(HWND hDlg, int versionsComboBoxID, Linter linter)
 {
     ComboBox_ResetContent(GetDlgItem(hDlg, versionsComboBoxID));
 
-    const map<tstring, JSLintVersion>& versions = DownloadJSLint::GetInstance().GetVersions(linter);
-    for (map<tstring, JSLintVersion>::const_iterator it = versions.begin(); it != versions.end(); ++it) {
+    const std::map<std::wstring, JSLintVersion>& versions = DownloadJSLint::GetInstance().GetVersions(linter);
+    for (std::map<std::wstring, JSLintVersion>::const_iterator it = versions.begin(); it != versions.end(); ++it) {
         ComboBox_AddString(GetDlgItem(hDlg, versionsComboBoxID), it->first.c_str());
     }
 }
@@ -195,7 +195,7 @@ BOOL Settings::UpdateOptions(HWND hDlg, bool bSaveOrValidate)
             if (IsDlgButtonChecked(hDlg, IDC_JSLINT_SPEC_UNDEF_VAR_ERR_MSG)) {
                 m_jsLintScript.m_bSpecUndefVarErrMsg = true;
                 
-                tstring undefVarErrMsg = GetWindowText(GetDlgItem(hDlg, IDC_JSLINT_UNDEF_VAR_ERR_MSG));
+                std::wstring undefVarErrMsg = GetWindowText(GetDlgItem(hDlg, IDC_JSLINT_UNDEF_VAR_ERR_MSG));
                 if (undefVarErrMsg.empty()) {
 				    MessageBox(hDlg,
                         TEXT("Please enter 'undefined variable' error message text!"),
@@ -246,7 +246,7 @@ BOOL Settings::UpdateOptions(HWND hDlg, bool bSaveOrValidate)
             if (IsDlgButtonChecked(hDlg, IDC_JSHINT_SPEC_UNDEF_VAR_ERR_MSG)) {
                 m_jsHintScript.m_bSpecUndefVarErrMsg = true;
                 
-                tstring undefVarErrMsg = GetWindowText(GetDlgItem(hDlg, IDC_JSHINT_UNDEF_VAR_ERR_MSG));
+                std::wstring undefVarErrMsg = GetWindowText(GetDlgItem(hDlg, IDC_JSHINT_UNDEF_VAR_ERR_MSG));
                 if (undefVarErrMsg.empty()) {
 				    MessageBox(hDlg,
                         TEXT("Please enter 'undefined variable' error message text!"),
@@ -315,7 +315,7 @@ INT_PTR CALLBACK Settings::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPAR
         CenterWindow(hDlg, g_nppData._nppHandle);
     } else if (uMessage == WM_COMMAND) {
 		if (HIWORD(wParam) == BN_CLICKED) {
-            tstring latestVersion;
+            std::wstring latestVersion;
 
 		    switch (LOWORD(wParam)) {
                 case IDC_RADIO1:

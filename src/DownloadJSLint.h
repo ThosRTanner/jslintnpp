@@ -24,16 +24,16 @@
 class JSLintVersion {
 public:
     JSLintVersion() {}
-    JSLintVersion(const tstring& fileName) : m_fileName(fileName) {}
-    JSLintVersion(const tstring& fileName, const string& content) 
+    JSLintVersion(const std::wstring& fileName) : m_fileName(fileName) {}
+    JSLintVersion(const std::wstring& fileName, const std::string& content) 
         : m_fileName(fileName), m_content(content) {}
 
-    tstring GetFileName() const { return m_fileName; }
-    string GetContent();
+    std::wstring GetFileName() const { return m_fileName; }
+    std::string GetContent();
 
 private:
-    tstring m_fileName;
-    string m_content;
+    std::wstring m_fileName;
+    std::string m_content;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,16 +52,16 @@ public:
         DOWNLOAD_NO_NEW_VERSION,
         DOWNLOAD_FAILED
     };
-    DownloadResult DownloadLatest(Linter linter, tstring& latestVersion);
+    DownloadResult DownloadLatest(Linter linter, std::wstring& latestVersion);
 
-    const map<tstring, JSLintVersion>& GetVersions(Linter linter) const;
-    bool HasVersion(Linter linter, const tstring& version);
-    JSLintVersion& GetVersion(Linter linter, const tstring& version);
+    const std::map<std::wstring, JSLintVersion>& GetVersions(Linter linter) const;
+    bool HasVersion(Linter linter, const std::wstring& version);
+    JSLintVersion& GetVersion(Linter linter, const std::wstring& version);
 
 private:
-    tstring m_versionsFolder;
-    map<tstring, JSLintVersion> m_jsLintVersions;
-    map<tstring, JSLintVersion> m_jsHintVersions;
+    std::wstring m_versionsFolder;
+    std::map<std::wstring, JSLintVersion> m_jsLintVersions;
+    std::map<std::wstring, JSLintVersion> m_jsHintVersions;
 
     HWND m_hDlg;
     int m_nStatusID;
@@ -71,14 +71,14 @@ private:
     DWORD m_dwSize;
     DWORD m_dwTotalSize;
     LPSTR m_lpBuffer;
-    tstring m_version;
+    std::wstring m_version;
     DownloadResult m_result;
 
     static Linter m_linter;
 
-    void LoadVersions(const tstring& fileSpec, map<tstring, JSLintVersion>& versions);
+    void LoadVersions(const std::wstring& fileSpec, std::map<std::wstring, JSLintVersion>& versions);
 
-    tstring GetVersionsFolder();
+    std::wstring GetVersionsFolder();
 
     void CleanupContext();
     void DownloadOK();

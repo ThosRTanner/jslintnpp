@@ -71,7 +71,7 @@ void commandMenuCleanUp();
 // Helper functions
 //
 HWND GetCurrentScintillaWindow();
-tstring GetConfigFileName();
+std::wstring GetConfigFileName();
 
 //
 // Plugin command functions

@@ -19,13 +19,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-tstring TrimSpaces(const tstring& str);
-void StringSplit(tstring str, tstring delim, vector<tstring>& results);
-tstring StringJoin(vector<tstring>& results, tstring delim);
-void FindReplace(tstring& str, const tstring& strOld, const tstring& strNew);
+std::wstring TrimSpaces(const std::wstring& str);
+void StringSplit(std::wstring str, std::wstring delim, std::vector<std::wstring>& results);
+std::wstring StringJoin(std::vector<std::wstring>& results, std::wstring delim);
+void FindReplace(std::wstring& str, const std::wstring& strOld, const std::wstring& strNew);
 
 BOOL CenterWindow(HWND hWnd, HWND hParentWnd, BOOL bRepaint = FALSE);
-tstring GetWindowText(HWND hWnd);
+std::wstring GetWindowText(HWND hWnd);
 void DoEvents();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class IOException : public exception
+class IOException : public std::exception
 {
 };
 
@@ -71,22 +71,22 @@ class IOException : public exception
 class Path
 {
 public:
-	static tstring GetPathRoot(const tstring& strPath);
-	static tstring GetDirectoryName(const tstring& strPath);
-	static tstring GetFileName(const tstring& strPath);
-	static tstring GetFileNameWithoutExtension(const tstring& strPath);
-	static tstring GetPathNameWithoutExtension(const tstring& strPath);
-	static tstring GetExtension(const tstring& strPath);
+	static std::wstring GetPathRoot(const std::wstring& strPath);
+	static std::wstring GetDirectoryName(const std::wstring& strPath);
+	static std::wstring GetFileName(const std::wstring& strPath);
+	static std::wstring GetFileNameWithoutExtension(const std::wstring& strPath);
+	static std::wstring GetPathNameWithoutExtension(const std::wstring& strPath);
+	static std::wstring GetExtension(const std::wstring& strPath);
 
-	static tstring GetFullPath(const tstring& strPath);
-	static tstring GetFullPath(const tstring& strPath, const tstring& strBaseDir);
+	static std::wstring GetFullPath(const std::wstring& strPath);
+	static std::wstring GetFullPath(const std::wstring& strPath, const std::wstring& strBaseDir);
 
-	static bool IsRelative(const tstring& strPath);
-	static bool IsDir(const tstring& strPath);
-	static bool IsFileExists(const tstring& strPath);
+	static bool IsRelative(const std::wstring& strPath);
+	static bool IsDir(const std::wstring& strPath);
+	static bool IsFileExists(const std::wstring& strPath);
 
-	static tstring GetTempFileName();
-	static tstring GetModuleFileName(HMODULE hModule);
+	static std::wstring GetTempFileName();
+	static std::wstring GetModuleFileName(HMODULE hModule);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,14 +111,14 @@ public:
 	// test if temp file is created
 	operator bool() const { return !m_strFileName.empty(); }
 
-	// return temp file name as std string
-	const tstring& GetFileName() const { return m_strFileName; }
+	// return temp file name as std std::string
+	const std::wstring& GetFileName() const { return m_strFileName; }
 
-	// return temp file name as Win32 string
+	// return temp file name as Win32 std::string
 	operator LPCTSTR() const { return m_strFileName.c_str(); }
 
 private:
-	tstring m_strFileName;
+	std::wstring m_strFileName;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ private:
 class TextConversion
 {
 public:
-	static string UTF8_To_A(const string& str) {
+	static std::string UTF8_To_A(const std::string& str) {
 		int wsize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
 		wchar_t* wbuffer = new wchar_t[wsize];
 		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wbuffer, wsize);
@@ -134,21 +134,21 @@ public:
 		char* buffer = new char[size];
 		WideCharToMultiByte(CP_ACP, 0, wbuffer, wsize, buffer, size, NULL, NULL);
 		delete [] wbuffer;
-		string result(buffer);
+		std::string result(buffer);
 		delete [] buffer;
 		return result;
 	}
 
-	static wstring UTF8_To_W(const string& str) {
+	static std::wstring UTF8_To_W(const std::string& str) {
 		int wsize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
 		wchar_t* wbuffer = new wchar_t[wsize];
 		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wbuffer, wsize);
-		wstring result(wbuffer);
+		std::wstring result(wbuffer);
 		delete [] wbuffer;
 		return result;
 	}
 
-	static tstring UTF8_To_T(const string& str) {
+	static std::wstring UTF8_To_T(const std::string& str) {
 	#if defined(UNICODE) || defined(_UNICODE)
 		return UTF8_To_W(str);
 	#else
@@ -156,7 +156,7 @@ public:
 	#endif
 	}
 
-	static string A_To_UTF8(const string& str) {
+	static std::string A_To_UTF8(const std::string& str) {
 		int wsize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
 		wchar_t* wbuffer = new wchar_t[wsize];
 		MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, wbuffer, wsize);
@@ -164,21 +164,21 @@ public:
 		char* buffer = new char[size];
 		WideCharToMultiByte(CP_UTF8, 0, wbuffer, wsize, buffer, size, NULL, NULL);
 		delete [] wbuffer;
-		string result(buffer);
+		std::string result(buffer);
 		delete [] buffer;
 		return result;
 	}
 
-	static string W_To_UTF8(const wstring& wstr) {
+	static std::string W_To_UTF8(const std::wstring& wstr) {
 		int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
 		char* buffer = new char[size];
 		WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buffer, size, NULL, NULL);
-		string result(buffer);
+		std::string result(buffer);
 		delete [] buffer;
 		return result;
 	}
 
-	static string T_To_UTF8(const tstring& tstr) {
+	static std::string T_To_UTF8(const std::wstring& tstr) {
 	#if defined(UNICODE) || defined(_UNICODE)
 		return W_To_UTF8(tstr);
 	#else
@@ -186,12 +186,12 @@ public:
 	#endif
 	}
 
-	static tstring A_To_T(const string& str) {
+	static std::wstring A_To_T(const std::string& str) {
 	#if defined(UNICODE) || defined(_UNICODE)
 		int wsize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
 		wchar_t* wbuffer = new wchar_t[wsize];
 		MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, wbuffer, wsize);
-		wstring result(wbuffer);
+		std::wstring result(wbuffer);
 		delete [] wbuffer;
 		return result;
 	#else

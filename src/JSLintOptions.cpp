@@ -44,7 +44,7 @@ void LinterOptions::ReadOptions()
 {
     TCHAR szValue[65536]; // memory is cheap
 
-    tstring strConfigFileName = GetConfigFileName();
+    std::wstring strConfigFileName = GetConfigFileName();
     if (Path::IsFileExists(strConfigFileName)) {
 	    GetPrivateProfileString(PROFILE_JSLINT_GROUP_NAME, PROFILE_BUILD_KEY_NAME,
             NULL, szValue, _countof(szValue), strConfigFileName.c_str());
@@ -54,7 +54,7 @@ void LinterOptions::ReadOptions()
 		        GetPrivateProfileString(m_optionsGroupName, it->second.name.c_str(),
                     NULL, szValue, _countof(szValue), strConfigFileName.c_str());
 		        if (_tcscmp(szValue, TEXT("")) != 0) {
-			        tstring strValue = TrimSpaces(szValue);
+			        std::wstring strValue = TrimSpaces(szValue);
 			        if (it->second.type == OPTION_TYPE_BOOL) {
                         if (strValue == TEXT("true") || strValue == TEXT("false") || strValue.empty()) {
 					        it->second.value = strValue;
@@ -79,7 +79,7 @@ void LinterOptions::ReadOptions()
 
 void LinterOptions::SaveOptions()
 {
-	tstring strConfigFileName = GetConfigFileName();
+	std::wstring strConfigFileName = GetConfigFileName();
 
     std::map<UINT, Option>::iterator it;
 	for (it = m_options.begin(); it != m_options.end(); ++it) {
@@ -92,9 +92,9 @@ void LinterOptions::SaveOptions()
         m_additionalOptions.c_str(), strConfigFileName.c_str());
 }
 
-UINT LinterOptions::GetOptionID(const tstring& optionName) const
+UINT LinterOptions::GetOptionID(const std::wstring& optionName) const
 {
-	map<UINT, Option>::const_iterator it;
+	std::map<UINT, Option>::const_iterator it;
 	for (it = m_options.begin(); it != m_options.end(); ++it) {
 		if (it->second.name == optionName) {
 			break;
@@ -108,9 +108,9 @@ bool LinterOptions::IsOptionIncluded(const Option& option) const
     return !option.value.empty();
 }
 
-tstring LinterOptions::GetOptionsCommentString() const
+std::wstring LinterOptions::GetOptionsCommentString() const
 {
-	tstring strOptions;
+	std::wstring strOptions;
 
 	std::map<UINT, Option>::const_iterator it;
 	for (it = m_options.begin(); it != m_options.end(); ++it) {
@@ -126,26 +126,26 @@ tstring LinterOptions::GetOptionsCommentString() const
 	return strOptions;
 }
 
-tstring LinterOptions::GetOptionsJSONString() const
+std::wstring LinterOptions::GetOptionsJSONString() const
 {
-	tstring strOptions;
+	std::wstring strOptions;
 
 	std::map<UINT, Option>::const_iterator it;
 	for (it = m_options.begin(); it != m_options.end(); ++it) {
 		if (IsOptionIncluded(it->second)) {
-			tstring value;
+			std::wstring value;
 
 			if (it->second.type == OPTION_TYPE_ARR_STRING) {
-				vector<tstring> arr;
+				std::vector<std::wstring> arr;
 				StringSplit(it->second.value, TEXT(","), arr);
-				vector<tstring>::const_iterator itArr;
+				std::vector<std::wstring>::const_iterator itArr;
 				for (itArr = arr.begin(); itArr != arr.end(); ++itArr) {
 					if (value.empty())
 						value += TEXT("[");
 					else
 						value += TEXT(", ");
 
-					tstring element = TrimSpaces(*itArr);
+					std::wstring element = TrimSpaces(*itArr);
 					FindReplace(element, TEXT("\\"), TEXT("\\\\"));
 					FindReplace(element, TEXT("\""), TEXT("\\\""));
 
@@ -189,12 +189,12 @@ void LinterOptions::ClearOption(UINT id)
 	m_options[id].value = TEXT("");
 }
 
-void LinterOptions::SetOption(UINT id, const tstring& value)
+void LinterOptions::SetOption(UINT id, const std::wstring& value)
 {
 	m_options[id].value = value;
 }
 
-void LinterOptions::AppendOption(UINT id, const tstring& value)
+void LinterOptions::AppendOption(UINT id, const std::wstring& value)
 {
 	Option& option = m_options[id];
 	if (option.value.empty())
@@ -208,7 +208,7 @@ void LinterOptions::ResetOption(UINT id)
 	m_options[id].value = m_options[id].defaultValue;
 }
 
-void LinterOptions::SetAdditionalOptions(const tstring& additionalOptions)
+void LinterOptions::SetAdditionalOptions(const std::wstring& additionalOptions)
 {
     m_additionalOptions = additionalOptions;
 }
@@ -241,7 +241,7 @@ BOOL LinterOptions::UpdateOptions(HWND hDlg, HWND hSubDlg, bool bSaveOrValidate,
 		}
 
 		// predefined
-		tstring strPredefined = TrimSpaces(GetWindowText(GetDlgItem(hDlg, IDC_PREDEFINED)));
+		std::wstring strPredefined = TrimSpaces(GetWindowText(GetDlgItem(hDlg, IDC_PREDEFINED)));
 		if (!strPredefined.empty()) {
 			SetOption(IDC_PREDEFINED, strPredefined);
 		} else {
@@ -249,7 +249,7 @@ BOOL LinterOptions::UpdateOptions(HWND hDlg, HWND hSubDlg, bool bSaveOrValidate,
 		}
 
 		// additional options
-		tstring strAdditionalOptions = TrimSpaces(GetWindowText(GetDlgItem(hDlg, IDC_ADDITIONAL_OPTIONS)));
+		std::wstring strAdditionalOptions = TrimSpaces(GetWindowText(GetDlgItem(hDlg, IDC_ADDITIONAL_OPTIONS)));
         SetAdditionalOptions(strAdditionalOptions);
     } else {
 	    std::map<UINT, Option>::iterator it;
@@ -336,7 +336,7 @@ BOOL JSLintLinterOptions::UpdateOptions(HWND hDlg, HWND hSubDlg, bool bSaveOrVal
 
     if (bSaveOrValidate) {
 		// indent
-		tstring strIndent = TrimSpaces(GetWindowText(GetDlgItem(hSubDlg, IDC_IDENT)));
+		std::wstring strIndent = TrimSpaces(GetWindowText(GetDlgItem(hSubDlg, IDC_IDENT)));
 		if (!strIndent.empty()) {
 			int indent;
 			if(_stscanf(strIndent.c_str(), TEXT("%d"), &indent) == EOF || indent < 0) {
@@ -352,7 +352,7 @@ BOOL JSLintLinterOptions::UpdateOptions(HWND hDlg, HWND hSubDlg, bool bSaveOrVal
 		SetOption(IDC_IDENT, strIndent);
 
 		// maxlen
-		tstring strMaxlen = TrimSpaces(GetWindowText(GetDlgItem(hSubDlg, IDC_MAXLEN)));
+		std::wstring strMaxlen = TrimSpaces(GetWindowText(GetDlgItem(hSubDlg, IDC_MAXLEN)));
 		if (!strMaxlen.empty()) {
 			int maxlen;
 			if(_stscanf(strMaxlen.c_str(), TEXT("%d"), &maxlen) == EOF || maxlen < 1) {
@@ -368,7 +368,7 @@ BOOL JSLintLinterOptions::UpdateOptions(HWND hDlg, HWND hSubDlg, bool bSaveOrVal
 		SetOption(IDC_MAXLEN, strMaxlen);
 
 		// maxerr
-		tstring strMaxerr = TrimSpaces(GetWindowText(GetDlgItem(hSubDlg, IDC_MAXERR)));
+		std::wstring strMaxerr = TrimSpaces(GetWindowText(GetDlgItem(hSubDlg, IDC_MAXERR)));
 		if (!strMaxerr.empty()) {
 			int maxerr;
 			if(_stscanf(strMaxerr.c_str(), TEXT("%d"), &maxerr) == EOF || maxerr < 1) {
@@ -387,7 +387,7 @@ BOOL JSLintLinterOptions::UpdateOptions(HWND hDlg, HWND hSubDlg, bool bSaveOrVal
     return TRUE;
 }
 
-tstring JSLintLinterOptions::GetOptionsCommentString() const
+std::wstring JSLintLinterOptions::GetOptionsCommentString() const
 {
     return TEXT("/*jslint ") + LinterOptions::GetOptionsCommentString() + TEXT(" */");
 }
@@ -424,7 +424,7 @@ int JSHintLinterOptions::GetTabWidth()
 	return 4;
 }
 
-tstring JSHintLinterOptions::GetOptionsCommentString() const
+std::wstring JSHintLinterOptions::GetOptionsCommentString() const
 {
     return TEXT("/*jshint ") + LinterOptions::GetOptionsCommentString() + TEXT(" */");
 }
@@ -453,7 +453,7 @@ void JSLintOptions::ReadOptions()
 
     m_selectedLinter = LINTER_JSLINT;
 
-    tstring strConfigFileName = GetConfigFileName();
+    std::wstring strConfigFileName = GetConfigFileName();
     if (Path::IsFileExists(strConfigFileName)) {
 	    GetPrivateProfileString(PROFILE_JSLINT_GROUP_NAME, PROFILE_SELECTED_LINTER_KEY_NAME,
             NULL, szValue, _countof(szValue), strConfigFileName.c_str());
@@ -468,7 +468,7 @@ void JSLintOptions::ReadOptions()
 
 void JSLintOptions::SaveOptions()
 {
-	tstring strConfigFileName = GetConfigFileName();
+	std::wstring strConfigFileName = GetConfigFileName();
 
     WritePrivateProfileString(PROFILE_JSLINT_GROUP_NAME, PROFILE_SELECTED_LINTER_KEY_NAME,
         m_selectedLinter == LINTER_JSLINT ? TEXT("JSLint") : TEXT("JSHint"), strConfigFileName.c_str());
@@ -503,7 +503,7 @@ const LinterOptions* JSLintOptions::GetSelectedLinterOptions() const
     return &m_jsHintOptions;
 }
 
-tstring JSLintOptions::GetOptionsJSONString() const
+std::wstring JSLintOptions::GetOptionsJSONString() const
 {
     return GetSelectedLinterOptions()->GetOptionsJSONString();
 }
@@ -524,7 +524,7 @@ BOOL JSLintOptions::UpdateOptions(HWND hDlg, HWND hSubDlg, bool bSaveOrValidate,
     return TRUE;
 }
 
-void JSLintOptions::AppendOption(UINT id, const tstring& value)
+void JSLintOptions::AppendOption(UINT id, const std::wstring& value)
 {
     GetSelectedLinterOptions()->AppendOption(id, value);
 }
@@ -543,9 +543,9 @@ INT_PTR CALLBACK JSLintOptions::PredefinedControlWndProc(HWND hWnd, UINT uMessag
 				if (hGlobal) {
 					LPSTR lpData = (LPSTR)GlobalLock(hGlobal);
 					if (lpData != NULL) {
-						tstring str(TextConversion::A_To_T(lpData));
+						std::wstring str(TextConversion::A_To_T(lpData));
 						
-						vector<tstring> results;
+						std::vector<std::wstring> results;
 						StringSplit(str, TEXT(" \t\r\n"), results);
 						str = StringJoin(results, TEXT(", "));
 						

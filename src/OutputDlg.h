@@ -46,7 +46,7 @@ public :
 	HICON GetTabIcon();
 
 	void ClearAllLints();
-	void AddLints(const tstring& strFilePath, const list<JSLintReportItem>& lints);
+	void AddLints(const std::wstring& strFilePath, const std::list<JSLintReportItem>& lints);
 	void SelectNextLint();
 	void SelectPrevLint();
 
@@ -75,12 +75,12 @@ private:
     static TabDefinition m_tabs[NUM_LIST_VIEWS];
 
 	struct FileLint {
-		FileLint(const tstring& strFilePath, const JSLintReportItem& lint)
+		FileLint(const std::wstring& strFilePath, const JSLintReportItem& lint)
 			: strFilePath(strFilePath), lint(lint) {}
-		tstring strFilePath;
+		std::wstring strFilePath;
 		JSLintReportItem lint;
 	};
-	vector<FileLint> m_fileLints[NUM_LIST_VIEWS];
+	std::vector<FileLint> m_fileLints[NUM_LIST_VIEWS];
 
 	void InitializeToolbar();
     void InitializeTab();

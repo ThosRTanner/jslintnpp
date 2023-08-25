@@ -20,18 +20,18 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-tstring TrimSpaces(const tstring& str)
+std::wstring TrimSpaces(const std::wstring& str)
 {
     size_t first = str.find_first_not_of(TEXT(" \t\r\n"));
     size_t last = str.find_last_not_of(TEXT(" \t\r\n"));
  
-    if (first == string::npos || last == string::npos)
-		return tstring();
+    if (first == std::string::npos || last == std::string::npos)
+		return std::wstring();
 
 	return str.substr(first, last - first + 1 );
 }
 
-void StringSplit(tstring str, tstring delim, vector<tstring>& results)
+void StringSplit(std::wstring str, std::wstring delim, std::vector<std::wstring>& results)
 {
 	int cutAt;
 	while ((cutAt = str.find_first_of(delim)) != str.npos) {
@@ -43,11 +43,11 @@ void StringSplit(tstring str, tstring delim, vector<tstring>& results)
 		results.push_back(str);
 }
 
-tstring StringJoin(vector<tstring>& results, tstring delim)
+std::wstring StringJoin(std::vector<std::wstring>& results, std::wstring delim)
 {
-	tstring result;
+	std::wstring result;
 
-	for (vector<tstring>::const_iterator it = results.begin(); it != results.end(); ++it) {
+	for (std::vector<std::wstring>::const_iterator it = results.begin(); it != results.end(); ++it) {
 		if (!result.empty())
 			result += delim;
 		result += *it;
@@ -56,10 +56,10 @@ tstring StringJoin(vector<tstring>& results, tstring delim)
 	return result;
 }
 
-void FindReplace(tstring& str, const tstring& strOld, const tstring& strNew)
+void FindReplace(std::wstring& str, const std::wstring& strOld, const std::wstring& strNew)
 {
   size_t pos = 0;
-  while ((pos = str.find(strOld, pos)) != tstring::npos)
+  while ((pos = str.find(strOld, pos)) != std::wstring::npos)
   {
      str.replace(pos, strOld.length(), strNew);
      pos += strNew.length();
@@ -84,12 +84,12 @@ BOOL CenterWindow(HWND hWnd, HWND hParentWnd, BOOL bRepaint)
     return ::MoveWindow(hWnd, x, y, width, height, bRepaint);
 }
 
-tstring GetWindowText(HWND hWnd)
+std::wstring GetWindowText(HWND hWnd)
 {
 	int nLength = GetWindowTextLength(hWnd);
 	TCHAR *szBuffer = new TCHAR[nLength + 1];
 	GetWindowText(hWnd, szBuffer, nLength + 1);
-	tstring result = szBuffer;
+	std::wstring result = szBuffer;
 	delete [] szBuffer;
     return result;
 }
@@ -109,7 +109,7 @@ void DoEvents()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-tstring Path::GetDirectoryName(const tstring& strPath)
+std::wstring Path::GetDirectoryName(const std::wstring& strPath)
 {
 	TCHAR szPathCopy[MAX_PATH];
 	_tcsncpy_s(szPathCopy, _countof(szPathCopy), strPath.c_str(), _TRUNCATE);
@@ -119,12 +119,12 @@ tstring Path::GetDirectoryName(const tstring& strPath)
 	return szPathCopy;
 }
 
-tstring Path::GetFileName(const tstring& strPath)
+std::wstring Path::GetFileName(const std::wstring& strPath)
 {
 	return ::PathFindFileName(strPath.c_str());
 }
 
-tstring Path::GetFileNameWithoutExtension(const tstring& strPath)
+std::wstring Path::GetFileNameWithoutExtension(const std::wstring& strPath)
 {
 	TCHAR szPathCopy[MAX_PATH];
 	_tcsncpy_s(szPathCopy, _countof(szPathCopy), GetFileName(strPath).c_str(), _TRUNCATE);
@@ -134,7 +134,7 @@ tstring Path::GetFileNameWithoutExtension(const tstring& strPath)
 	return szPathCopy;
 }
 
-tstring Path::GetPathNameWithoutExtension(const tstring& strPath)
+std::wstring Path::GetPathNameWithoutExtension(const std::wstring& strPath)
 {
 	TCHAR szPathCopy[MAX_PATH];
 	_tcsncpy_s(szPathCopy, _countof(szPathCopy), strPath.c_str(), _TRUNCATE);
@@ -144,12 +144,12 @@ tstring Path::GetPathNameWithoutExtension(const tstring& strPath)
 	return szPathCopy;
 }
 
-tstring Path::GetExtension(const tstring& strPath)
+std::wstring Path::GetExtension(const std::wstring& strPath)
 {
 	return ::PathFindExtension(strPath.c_str());
 }
 
-tstring Path::GetFullPath(const tstring& strPath)
+std::wstring Path::GetFullPath(const std::wstring& strPath)
 {
 	TCHAR strCurrentDirectory[MAX_PATH];
 	if (GetCurrentDirectory(MAX_PATH, strCurrentDirectory) == 0)
@@ -157,7 +157,7 @@ tstring Path::GetFullPath(const tstring& strPath)
 	return GetFullPath(strPath, strCurrentDirectory);
 }
 
-tstring Path::GetFullPath(const tstring& strPath, const tstring& strBaseDir)
+std::wstring Path::GetFullPath(const std::wstring& strPath, const std::wstring& strBaseDir)
 {
 	if (!Path::IsRelative(strPath))
 		return strPath;
@@ -165,22 +165,22 @@ tstring Path::GetFullPath(const tstring& strPath, const tstring& strBaseDir)
 	return ::PathCombine(strFullPath, strBaseDir.c_str(), strPath.c_str());
 }
 
-bool Path::IsRelative(const tstring& strPath)
+bool Path::IsRelative(const std::wstring& strPath)
 {
 	return ::PathIsRelative(strPath.c_str()) ? true : false;
 }
 
-bool Path::IsDir(const tstring& strPath)
+bool Path::IsDir(const std::wstring& strPath)
 {
 	return ::PathIsDirectory(strPath.c_str()) ? true : false;
 }
 
-bool Path::IsFileExists(const tstring& strPath)
+bool Path::IsFileExists(const std::wstring& strPath)
 {
 	return ::PathFileExists(strPath.c_str()) ? true : false;
 }
 
-tstring Path::GetTempFileName()
+std::wstring Path::GetTempFileName()
 {
     TCHAR szTempPath[MAX_PATH];	
 	if (::GetTempPath(MAX_PATH, szTempPath) == 0) {
@@ -195,7 +195,7 @@ tstring Path::GetTempFileName()
 	return szTempFileName;
 }
 
-tstring Path::GetModuleFileName(HMODULE hModule)
+std::wstring Path::GetModuleFileName(HMODULE hModule)
 {
 	TCHAR szPath[MAX_PATH] = { 0 };
 	::GetModuleFileName(hModule, szPath, MAX_PATH);

@@ -22,7 +22,7 @@
 #include "resource.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-
+#pragma comment(lib, "winhttp.lib")
 
 #define JSLINT_GITHUB_URL_W L"https://raw.github.com/douglascrockford/JSLint/master/jslint.js"
 #define JSLINT_GITHUB_URL_T TEXT("https://raw.github.com/douglascrockford/JSLint/master/jslint.js")
@@ -34,7 +34,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-string JSLintVersion::GetContent()
+std::string JSLintVersion::GetContent()
 {
     if (m_content.empty()) {
         FILE* fp = _tfopen(m_fileName.c_str(), TEXT("rb"));
@@ -46,7 +46,7 @@ string JSLintVersion::GetContent()
                 char* buffer = new char[size + 1];
                 size_t nRead = fread(buffer, 1, size, fp);
                 if (nRead == size) {
-                    m_content = string(buffer, size);
+                    m_content = std::string(buffer, size);
                 }
                 delete [] buffer;
             }
@@ -76,7 +76,7 @@ void DownloadJSLint::LoadVersions()
     LoadVersions(TEXT("jshint.*.js"), m_jsHintVersions);
 }
 
-void DownloadJSLint::LoadVersions(const tstring& fileSpec, map<tstring, JSLintVersion>& versions)
+void DownloadJSLint::LoadVersions(const std::wstring& fileSpec, std::map<std::wstring, JSLintVersion>& versions)
 {
     TCHAR szConfigDir[MAX_PATH];
     szConfigDir[0] = 0;
@@ -91,8 +91,8 @@ void DownloadJSLint::LoadVersions(const tstring& fileSpec, map<tstring, JSLintVe
     HANDLE findFileHandle = FindFirstFile(Path::GetFullPath(fileSpec.c_str(), m_versionsFolder).c_str(), &findFileData);
     if (findFileHandle != INVALID_HANDLE_VALUE) {
         do {
-            versions.insert(make_pair<tstring, JSLintVersion>(
-                    tstring(findFileData.cFileName).substr(7, _tcslen(findFileData.cFileName) - 10),
+            versions.insert(std::make_pair<std::wstring, JSLintVersion>(
+                    std::wstring(findFileData.cFileName).substr(7, _tcslen(findFileData.cFileName) - 10),
                     JSLintVersion(Path::GetFullPath(findFileData.cFileName, m_versionsFolder))
                 ));
         } while (FindNextFile(findFileHandle, &findFileData));
@@ -100,12 +100,12 @@ void DownloadJSLint::LoadVersions(const tstring& fileSpec, map<tstring, JSLintVe
     }
 }
 
-const map<tstring, JSLintVersion>& DownloadJSLint::GetVersions(Linter linter) const
+const std::map<std::wstring, JSLintVersion>& DownloadJSLint::GetVersions(Linter linter) const
 { 
     return linter == LINTER_JSLINT ? m_jsLintVersions : m_jsHintVersions;
 }
 
-bool DownloadJSLint::HasVersion(Linter linter, const tstring& version)
+bool DownloadJSLint::HasVersion(Linter linter, const std::wstring& version)
 {
     if (linter == LINTER_JSLINT) {
         return m_jsLintVersions.find(version) != m_jsLintVersions.end();
@@ -114,12 +114,12 @@ bool DownloadJSLint::HasVersion(Linter linter, const tstring& version)
     }
 }
 
-JSLintVersion& DownloadJSLint::GetVersion(Linter linter, const tstring& version)
+JSLintVersion& DownloadJSLint::GetVersion(Linter linter, const std::wstring& version)
 {
     return linter == LINTER_JSLINT ? m_jsLintVersions[version] : m_jsHintVersions[version];
 }
 
-DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(Linter linter, tstring& latestVersion)
+DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(Linter linter, std::wstring& latestVersion)
 {
     m_linter = linter;    
 
@@ -137,7 +137,7 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(Linter linter, tst
             latestVersion = szTime;
         }
 
-        tstring fileName = Path::GetFullPath((linter == LINTER_JSLINT ? TEXT("jslint.") : TEXT("jshint.")) + latestVersion + TEXT(".js"), m_versionsFolder);
+        std::wstring fileName = Path::GetFullPath((linter == LINTER_JSLINT ? TEXT("jslint.") : TEXT("jshint.")) + latestVersion + TEXT(".js"), m_versionsFolder);
 
         size_t nWritten = 0;
 
@@ -147,7 +147,7 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(Linter linter, tst
             fclose(fp);
         }
 
-        string content(m_lpBuffer, m_dwTotalSize);
+        std::string content(m_lpBuffer, m_dwTotalSize);
 
         if (nWritten == m_dwTotalSize) {
             if (linter == LINTER_JSLINT) {
@@ -217,7 +217,7 @@ bool DownloadJSLint::CheckVersion()
                 if (*i == '\n') {
                     if (j) {
                         j += 3; // skip '// '
-                        m_version = TextConversion::A_To_T(string(j, i - j));
+                        m_version = TextConversion::A_To_T(std::string(j, i - j));
                         m_version = TrimSpaces(m_version);
                         if (HasVersion(m_linter, m_version)) {
                             return false;
@@ -233,7 +233,7 @@ bool DownloadJSLint::CheckVersion()
             for (char* i = m_lpBuffer; i < m_lpBuffer + m_dwTotalSize; ++i) {
                 if (*i == '\n') {
                     char *j = m_lpBuffer + 3; // skip '// '
-                    m_version = TextConversion::A_To_T(string(j, i - j));
+                    m_version = TextConversion::A_To_T(std::string(j, i - j));
                     m_version = TrimSpaces(m_version);
                     if (HasVersion(m_linter, m_version)) {
                         return false;
@@ -259,7 +259,7 @@ void CALLBACK DownloadJSLint::AsyncCallback(HINTERNET hInternet,
 void DownloadJSLint::AsyncCallbackHandler(DWORD dwInternetStatus,
     LPVOID lpvStatusInformation, DWORD dwStatusInformationLength)
 {
-    // Create a string that reflects the status flag.
+    // Create a std::string that reflects the status flag.
     switch (dwInternetStatus) {
         case WINHTTP_CALLBACK_STATUS_SENDREQUEST_COMPLETE:
             if (!WinHttpReceiveResponse(m_hRequest, NULL)) {

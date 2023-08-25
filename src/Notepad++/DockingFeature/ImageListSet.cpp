@@ -18,6 +18,7 @@
 #include "StdHeaders.h"
 #include "ImageListSet.h"
 //#include "resource.h"
+#pragma comment(lib, "comctl32.lib")
 
 void ToolBarIcons::init(ToolBarButtonUnit *buttonUnitArray, int arraySize)
 {

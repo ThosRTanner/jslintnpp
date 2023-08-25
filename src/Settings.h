@@ -37,9 +37,9 @@ struct ScriptSourceDef {
     Linter m_linter;
 
     ScriptSource m_scriptSource;
-    tstring m_scriptVersion;
+    std::wstring m_scriptVersion;
     bool m_bSpecUndefVarErrMsg;
-    tstring m_undefVarErrMsg;
+    std::wstring m_undefVarErrMsg;
 
     int GetScriptResourceID();
     LPCTSTR GetDefaultUndefVarErrMsg();
@@ -70,8 +70,8 @@ private:
     BOOL UpdateOptions(HWND hDlg, bool bSaveOrValidate);
     void UpdateControls(HWND hDlg);
 
-	void ReadOptions(const tstring& prefix, ScriptSourceDef& scriptSourceDef);
-	void SaveOptions(const tstring& prefix, const ScriptSourceDef& scriptSourceDef);
+	void ReadOptions(const std::wstring& prefix, ScriptSourceDef& scriptSourceDef);
+	void SaveOptions(const std::wstring& prefix, const ScriptSourceDef& scriptSourceDef);
 
     static INT_PTR CALLBACK DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
 };

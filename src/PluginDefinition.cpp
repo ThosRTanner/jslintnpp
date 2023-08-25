@@ -292,9 +292,9 @@ HWND GetCurrentScintillaWindow()
 		return g_nppData._scintillaSecondHandle;
 }
 
-tstring GetConfigFileName()
+std::wstring GetConfigFileName()
 {
-	static tstring strConfigFileName;
+	static std::wstring strConfigFileName;
 
 	if (strConfigFileName.empty()) {
 		TCHAR szConfigDir[MAX_PATH];
@@ -349,7 +349,7 @@ void doJSLint()
 	tr.lpstrText[0] = 0;
 
 	::SendMessage(hWndScintilla, SCI_GETTEXTRANGE, 0, (LPARAM)&tr);
-	string strScript = tr.lpstrText;
+	std::string strScript = tr.lpstrText;
 	delete tr.lpstrText;
 
 	// get code page of the text
@@ -361,9 +361,9 @@ void doJSLint()
 	try {
 		JSLint jsLint;
 
-		string strOptions = TextConversion::T_To_UTF8(
+		std::string strOptions = TextConversion::T_To_UTF8(
 			JSLintOptions::GetInstance().GetOptionsJSONString());
-		list<JSLintReportItem> lints;
+		std::list<JSLintReportItem> lints;
 
 		int nppTabWidth = (int) ::SendMessage(hWndScintilla, SCI_GETTABWIDTH, 0, 0);
 		int jsLintTabWidth = JSLintOptions::GetInstance().GetTabWidth();
@@ -373,7 +373,7 @@ void doJSLint()
 		g_outputDlg.AddLints(filePath, lints);
 
 		DoEvents();
-	} catch (exception& e) {
+	} catch (std::exception& e) {
 		::MessageBox(
 			g_nppData._nppHandle, 
             TextConversion::A_To_T(e.what()).c_str(),

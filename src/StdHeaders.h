@@ -40,10 +40,11 @@
 #include <algorithm>
 #include <float.h>
 
-using namespace std;
+/*using namespace std;
 
 #if defined(UNICODE) || defined(_UNICODE)
-typedef wstring tstring;
+typedef std::wstring std::wstring;
 #else
-typedef string tstring;
+typedef std::string std::wstring;
 #endif
+*/

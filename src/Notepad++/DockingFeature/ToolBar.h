@@ -112,7 +112,7 @@ private :
 	TBBUTTON *_pTBB;
 	ToolBarIcons _toolBarIcons;
 	toolBarStatusType _state;
-	vector<tDynamicList> _vDynBtnReg;
+	std::vector<tDynamicList> _vDynBtnReg;
 	size_t _nrButtons;
 	size_t _nrDynButtons;
 	size_t _nrTotalButtons;
@@ -158,7 +158,7 @@ public :
 	bool getIDVisible(int id);
 
 private:
-	vector<int> usedIDs;
+	std::vector<int> usedIDs;
 
 	int getNewID();
 	void releaseID(int id);

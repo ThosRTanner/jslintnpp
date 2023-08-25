@@ -31,22 +31,22 @@ enum OptionType {
 struct Option {
 	Option() : type(OPTION_TYPE_UNKNOW) {}
 
-	Option(const tstring& name) 
+	Option(const std::wstring& name) 
 		: type(OPTION_TYPE_BOOL)
 		, name(name)
 		, value(TEXT(""))
 		, defaultValue(TEXT("")) {}
 
-	Option(OptionType type, const tstring& name, const tstring& value) 
+	Option(OptionType type, const std::wstring& name, const std::wstring& value) 
 		: type(type)
 		, name(name)
 		, value(value)
 		, defaultValue(value) {}
 
 	OptionType type;
-	tstring name;
-	tstring value;
-	tstring defaultValue;
+	std::wstring name;
+	std::wstring value;
+	std::wstring defaultValue;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,21 +59,21 @@ public:
 	void ReadOptions();
 	void SaveOptions();
 
-	virtual tstring GetOptionsCommentString() const;
-	tstring GetOptionsJSONString() const;
+	virtual std::wstring GetOptionsCommentString() const;
+	std::wstring GetOptionsJSONString() const;
 
-	tstring GetOptionName(UINT id) const;
-	UINT GetOptionID(const tstring& name) const;
+	std::wstring GetOptionName(UINT id) const;
+	UINT GetOptionID(const std::wstring& name) const;
 
 	void CheckOption(UINT id);
 	void UncheckOption(UINT id);
     void ClearOption(UINT id);
 
-	void SetOption(UINT id, const tstring& value);
-	void AppendOption(UINT id, const tstring& value);
+	void SetOption(UINT id, const std::wstring& value);
+	void AppendOption(UINT id, const std::wstring& value);
 	void ResetOption(UINT id);
 
-    void SetAdditionalOptions(const tstring& additionalOptions);
+    void SetAdditionalOptions(const std::wstring& additionalOptions);
 
 	void ClearAllOptions();
 
@@ -86,7 +86,7 @@ public:
 protected:
     LPCTSTR m_optionsGroupName;
 	std::map<UINT, Option> m_options;
-    tstring m_additionalOptions;
+    std::wstring m_additionalOptions;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ public:
 
     int GetTabWidth();
     BOOL UpdateOptions(HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage);
-    tstring GetOptionsCommentString() const;
+    std::wstring GetOptionsCommentString() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ public:
     JSHintLinterOptions();
 
     int GetTabWidth();
-    tstring GetOptionsCommentString() const;
+    std::wstring GetOptionsCommentString() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -136,11 +136,11 @@ public:
     const LinterOptions* GetSelectedLinterOptions() const;
     LinterOptions* GetSelectedLinterOptions();
 
-	tstring GetOptionsJSONString() const;
+	std::wstring GetOptionsJSONString() const;
 
     int GetTabWidth();
     BOOL UpdateOptions(HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage);
-	void AppendOption(UINT id, const tstring& value);
+	void AppendOption(UINT id, const std::wstring& value);
     void ClearAllOptions();
     void ShowDialog();
 

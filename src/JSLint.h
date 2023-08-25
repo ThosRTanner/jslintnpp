@@ -36,7 +36,7 @@ public:
         LINT_TYPE_UNUSED
     };
 
-	JSLintReportItem(Type type, int line, int character, const tstring& strReason, const tstring& strEvidence)
+	JSLintReportItem(Type type, int line, int character, const std::wstring& strReason, const std::wstring& strEvidence)
 		: m_type(type)
         , m_line(line)
 		, m_character(character)
@@ -48,18 +48,18 @@ public:
 	Type GetType() const { return m_type; }
 	int GetLine() const { return m_line; }
 	int GetCharacter() const { return m_character; }
-	tstring GetReason() const { return m_strReason; }
-	tstring GetEvidence() const { return m_strEvidence; }
+	std::wstring GetReason() const { return m_strReason; }
+	std::wstring GetEvidence() const { return m_strEvidence; }
 
 	bool IsReasonUndefVar() const;
-	tstring GetUndefVar() const;
+	std::wstring GetUndefVar() const;
 
 private:
     Type m_type;
 	int m_line;
 	int m_character;
-	tstring m_strReason;
-	tstring m_strEvidence;
+	std::wstring m_strReason;
+	std::wstring m_strEvidence;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,21 +67,21 @@ private:
 class JSLint
 {
 public:
-	void CheckScript(const string& strOptions, const string& strScript, 
-		int nppTabWidth, int jsLintTabWidth, list<JSLintReportItem>& items);
+	void CheckScript(const std::string& strOptions, const std::string& strScript, 
+		int nppTabWidth, int jsLintTabWidth, std::list<JSLintReportItem>& items);
 
 private:
-	string LoadCustomDataResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType);
+	std::string LoadCustomDataResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType);
 	
-	int GetNumTabs(const string& strScript, int line, int character, int tabWidth);
+	int GetNumTabs(const std::string& strScript, int line, int character, int tabWidth);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class JSLintException : public exception 
+class JSLintException : public std::exception
 {
 public:
-    JSLintException(const char* what) : exception(what) {}
+    JSLintException(const char* what) : std::exception(what) {}
 };
 
 class JSLintResourceException : public JSLintException
