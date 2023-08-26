@@ -19,7 +19,6 @@
 #define OUTPUT_DLG_H
 
 #include "DockingFeature/DockingDlgInterface.h"
-#include "DockingFeature/Toolbar.h"
 #include "resource.h"
 #include "JSLint.h"
 
@@ -35,10 +34,6 @@ public :
             ::SetFocus(::GetDlgItem(_hSelf, IDC_OUTPUT));
     };
 
-	virtual void redraw(void) {
-		::RedrawWindow(m_toolbar.getHSelf(), NULL, NULL, TRUE);
-	};
-
 	void setParent(HWND parent2set){
 		_hParent = parent2set;
 	};
@@ -51,17 +46,13 @@ public :
 	void SelectPrevLint();
 
 protected :
-	virtual BOOL CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
+	virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
 
 	void OnToolbarCmd(UINT message);
 	void OnToolbarDropDown(LPNMTOOLBAR lpnmtb);
 
 private:
 	HICON m_hTabIcon;
-
-    ReBar m_rebar;
-	ToolBar m_toolbar;
-
     HWND m_hWndTab;
 
     static const int NUM_LIST_VIEWS = 2;
@@ -82,13 +73,14 @@ private:
 	};
 	std::vector<FileLint> m_fileLints[NUM_LIST_VIEWS];
 
-	void InitializeToolbar();
     void InitializeTab();
     void InitializeListView(int i);
 	void Resize();
     void OnTabSelChanged();
 	void GetNameStrFromCmd(UINT resID, LPTSTR tip, UINT count);
 	void ShowLint(int i);
+	//FIXME This needs to exist but apparently it's OK not for it to be implemented.
+	//This is very very confusing.
 	void CopyToClipboard();
 };
 

@@ -16,23 +16,8 @@
     <Filter Include="Notepad++">
       <UniqueIdentifier>{afb51bde-2ed3-445d-b889-078cd83d43f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Notepad++\WinControls">
+    <Filter Include="Notepad++\DockingFeature">
       <UniqueIdentifier>{9cbb6497-b7a3-42dc-8cf7-7ce3ea692a54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Notepad++\WinControls\StaticDialog">
-      <UniqueIdentifier>{b36353a7-3806-4b9d-9c8c-a13c2b5fe8ff}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Notepad++\WinControls\Toolbar">
-      <UniqueIdentifier>{d0ff178f-b345-429d-a014-57ff60667b7c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Notepad++\WinControls\DockingWnd">
-      <UniqueIdentifier>{e5b9d12d-2c79-48b9-ad26-362d79b623c6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Notepad++\WinControls\ImageListSet">
-      <UniqueIdentifier>{9f4e50d3-78a7-4e2e-a7d1-45fe58286c3b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Notepad++\MISC">
-      <UniqueIdentifier>{d204bf94-9955-4725-a09d-daf1e279295a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -66,17 +51,8 @@
     <ClCompile Include="Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Notepad++\DockingFeature\ToolBar.cpp">
-      <Filter>Notepad++\WinControls\Toolbar</Filter>
-    </ClCompile>
     <ClCompile Include="Notepad++\DockingFeature\StaticDialog.cpp">
-      <Filter>Notepad++\WinControls\StaticDialog</Filter>
-    </ClCompile>
-    <ClCompile Include="Notepad++\DockingFeature\ImageListSet.cpp">
-      <Filter>Notepad++\WinControls\ImageListSet</Filter>
-    </ClCompile>
-    <ClCompile Include="Notepad++\DockingFeature\SysMsg.cpp">
-      <Filter>Notepad++\MISC</Filter>
+      <Filter>Notepad++\DockingFeature</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -128,35 +104,20 @@
     <ClInclude Include="Notepad++\Scintilla.h">
       <Filter>Notepad++</Filter>
     </ClInclude>
-    <ClInclude Include="Notepad++\DockingFeature\ToolBar.h">
-      <Filter>Notepad++\WinControls\Toolbar</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad++\DockingFeature\StaticDialog.h">
-      <Filter>Notepad++\WinControls\StaticDialog</Filter>
-    </ClInclude>
     <ClInclude Include="Notepad++\DockingFeature\Window.h">
-      <Filter>Notepad++\WinControls</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad++\DockingFeature\DockingDlgInterface.h">
-      <Filter>Notepad++\WinControls\DockingWnd</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad++\DockingFeature\dockingResource.h">
-      <Filter>Notepad++\WinControls\DockingWnd</Filter>
+      <Filter>Notepad++\DockingFeature</Filter>
     </ClInclude>
     <ClInclude Include="Notepad++\DockingFeature\Docking.h">
-      <Filter>Notepad++\WinControls\DockingWnd</Filter>
+      <Filter>Notepad++\DockingFeature</Filter>
     </ClInclude>
-    <ClInclude Include="Notepad++\DockingFeature\ImageListSet.h">
-      <Filter>Notepad++\WinControls\ImageListSet</Filter>
+    <ClInclude Include="Notepad++\DockingFeature\DockingDlgInterface.h">
+      <Filter>Notepad++\DockingFeature</Filter>
     </ClInclude>
-    <ClInclude Include="Notepad++\NppDarkMode.h">
-      <Filter>Notepad++</Filter>
+    <ClInclude Include="Notepad++\DockingFeature\dockingResource.h">
+      <Filter>Notepad++\DockingFeature</Filter>
     </ClInclude>
-    <ClInclude Include="Notepad++\Common.h">
-      <Filter>Notepad++</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad++\DockingFeature\SysMsg.h">
-      <Filter>Notepad++\MISC</Filter>
+    <ClInclude Include="Notepad++\DockingFeature\StaticDialog.h">
+      <Filter>Notepad++\DockingFeature</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

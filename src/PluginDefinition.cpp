@@ -137,7 +137,7 @@ void jsLintCurrentFile()
 	int type;
 	::SendMessage(g_nppData._nppHandle, NPPM_GETCURRENTLANGTYPE, 0, (LPARAM)&type);
     if (JSLintOptions::GetInstance().GetSelectedLinter() == LINTER_JSLINT) {
-	    if (type != L_JS && type != L_HTML && type != L_CSS) {
+	    if (type != L_JS && type != L_JAVASCRIPT && type != L_HTML && type != L_CSS) {
 		    ::MessageBox(
 			    g_nppData._nppHandle, 
 			    TEXT("JSLint can operate only on JavaScript, HTML or CSS files."),
@@ -147,7 +147,7 @@ void jsLintCurrentFile()
 		    return;
 	    }
     } else {
-	    if (type != L_JS) {
+	    if (type != L_JS && type != L_JAVASCRIPT) {
 		    ::MessageBox(
 			    g_nppData._nppHandle, 
 			    TEXT("JSHint can operate only on JavaScript files."),

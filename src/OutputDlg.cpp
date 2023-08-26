@@ -65,14 +65,13 @@ OutputDlg::~OutputDlg()
 	DestroyIcon(m_hTabIcon);
 }
 
-BOOL CALLBACK OutputDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK OutputDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
     int i;
 
 	switch (message) 
 	{
 		case WM_INITDIALOG:
-			InitializeToolbar();
             InitializeTab();
             for (i = 0; i < NUM_LIST_VIEWS; ++i) {
 			    InitializeListView(i);
@@ -81,35 +80,30 @@ BOOL CALLBACK OutputDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case WM_COMMAND: {
-				if ((HWND)lParam == m_toolbar.getHSelf()) {
-					OnToolbarCmd(LOWORD(wParam));
+				if (LOWORD(wParam) == ID_COPY_LINTS) {
+					CopyToClipboard();
 					return TRUE;
-				} else {
-					if (LOWORD(wParam) == ID_COPY_LINTS) {
-						CopyToClipboard();
-						return TRUE;
-					} else if (LOWORD(wParam) == ID_SHOW_LINT) {
-                        int iTab = TabCtrl_GetCurSel(m_hWndTab);
-                        int iLint = ListView_GetNextItem(m_hWndListViews[iTab], -1, LVIS_FOCUSED | LVIS_SELECTED);
-						if (iLint != -1) {
-							ShowLint(iLint);
-						}
-						return TRUE;
-					} else if (LOWORD(wParam) == ID_ADD_PREDEFINED) {
-                        int iTab = TabCtrl_GetCurSel(m_hWndTab);
-                        int iLint = ListView_GetNextItem(m_hWndListViews[iTab], -1, LVIS_FOCUSED | LVIS_SELECTED);
-						if (iLint != -1) {
-							const FileLint& fileLint = m_fileLints[iTab][iLint];
-							std::wstring var = fileLint.lint.GetUndefVar();
-							if (!var.empty()) {
-                                JSLintOptions::GetInstance().AppendOption(IDC_PREDEFINED, var);
-							}
-						}
-						return TRUE;
-					} else if (LOWORD(wParam) == ID_SELECT_ALL) {
-                        ListView_SetItemState(m_hWndListViews[TabCtrl_GetCurSel(m_hWndTab)], -1, LVIS_SELECTED, LVIS_SELECTED);
-						return TRUE;
+				} else if (LOWORD(wParam) == ID_SHOW_LINT) {
+                    int iTab = TabCtrl_GetCurSel(m_hWndTab);
+                    int iLint = ListView_GetNextItem(m_hWndListViews[iTab], -1, LVIS_FOCUSED | LVIS_SELECTED);
+					if (iLint != -1) {
+						ShowLint(iLint);
 					}
+					return TRUE;
+				} else if (LOWORD(wParam) == ID_ADD_PREDEFINED) {
+                    int iTab = TabCtrl_GetCurSel(m_hWndTab);
+                    int iLint = ListView_GetNextItem(m_hWndListViews[iTab], -1, LVIS_FOCUSED | LVIS_SELECTED);
+					if (iLint != -1) {
+						const FileLint& fileLint = m_fileLints[iTab][iLint];
+						std::wstring var = fileLint.lint.GetUndefVar();
+						if (!var.empty()) {
+                            JSLintOptions::GetInstance().AppendOption(IDC_PREDEFINED, var);
+						}
+					}
+					return TRUE;
+				} else if (LOWORD(wParam) == ID_SELECT_ALL) {
+                    ListView_SetItemState(m_hWndListViews[TabCtrl_GetCurSel(m_hWndTab)], -1, LVIS_SELECTED, LVIS_SELECTED);
+					return TRUE;
 				}
 			}
 			break;
@@ -128,19 +122,6 @@ BOOL CALLBACK OutputDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
                     int iFocused = lpnmitem->iItem;
 					if (iFocused != -1) {
 						ShowLint(iFocused);
-					}
-				} else if (pNMHDR->hwndFrom == m_toolbar.getHSelf() && pNMHDR->code == TBN_DROPDOWN) {
-					OnToolbarDropDown((LPNMTOOLBAR) lParam);
-					return TBDDRET_NODEFAULT;
-				} else if (pNMHDR->hwndFrom == m_rebar.getHSelf() && pNMHDR->code == RBN_CHEVRONPUSHED) {
-					NMREBARCHEVRON* lpnm = (NMREBARCHEVRON*) pNMHDR;
-					if (lpnm->wID == REBAR_BAR_TOOLBAR) {
-						POINT pt;
-						pt.x = lpnm->rc.left;
-						pt.y = lpnm->rc.bottom;
-						ClientToScreen(pNMHDR->hwndFrom, &pt);
-						OnToolbarCmd(m_toolbar.doPopop(pt));
-						return TRUE;
 					}
 				} else if (pNMHDR->code == TTN_GETDISPINFO) {
 					LPTOOLTIPTEXT lpttt; 
@@ -218,11 +199,13 @@ BOOL CALLBACK OutputDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 
 		case WM_SIZE:
 		case WM_MOVE:
+			//FIXME Resize currently does nothing.
 			Resize();
 			break;
 
 		case WM_PAINT:
-			::RedrawWindow(m_toolbar.getHSelf(), NULL, NULL, TRUE);
+			//FIXME Should we just drop through?
+			/*::RedrawWindow(m_toolbar.getHSelf(), NULL, NULL, TRUE);*/
 			break;
 
 		default:
@@ -255,24 +238,6 @@ void OutputDlg::OnToolbarCmd(UINT message)
 
 void OutputDlg::OnToolbarDropDown(LPNMTOOLBAR lpnmtb)
 {
-}
-
-void OutputDlg::InitializeToolbar()
-{
-	static ToolBarButtonUnit toolBarIcons[] = {
-		{IDM_TB_JSLINT_CURRENT_FILE, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDB_TB_JSLINT_CURRENT_FILE, 0},
-		{IDM_TB_JSLINT_ALL_FILES,    IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDB_TB_JSLINT_ALL_FILES, 0},	 
-		{0,                          IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, 0},
-		{IDM_TB_PREV_LINT,           IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDB_TB_PREV_LINT, 0},
-		{IDM_TB_NEXT_LINT,           IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDB_TB_NEXT_LINT, 0},
-		{0,                          IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, 0},
-		{IDM_TB_JSLINT_OPTIONS,      IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDB_TB_LINT_OPTIONS, 0},
-	};
-
-	m_toolbar.init(_hInst, _hSelf, TB_STANDARD, toolBarIcons, sizeof(toolBarIcons) / sizeof(ToolBarButtonUnit));
-	m_rebar.init(_hInst, _hSelf);
-	m_toolbar.addToRebar(&m_rebar);
-	m_rebar.setIDVisible(REBAR_BAR_TOOLBAR, true);
 }
 
 void OutputDlg::InitializeTab()
@@ -351,14 +316,15 @@ void OutputDlg::Resize()
 	RECT rc;
 	getClientRect(rc);
 
-	m_toolbar.reSizeTo(rc);
-	m_rebar.reSizeTo(rc);
-
+	//m_toolbar.reSizeTo(rc);
+	//m_rebar.reSizeTo(rc);
+	/* Not sure what is going on here as we don't have a toolbar
     RECT rcToolbar;
     GetWindowRect(m_toolbar.getHSelf(), &rcToolbar);
 
 	getClientRect(rc);
     rc.top += rcToolbar.bottom - rcToolbar.top;
+	*/
 
     //InflateRect(&rc, -4, -4);
     ::MoveWindow(m_hWndTab, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);

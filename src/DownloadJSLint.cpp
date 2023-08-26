@@ -24,8 +24,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma comment(lib, "winhttp.lib")
 
-#define JSLINT_GITHUB_URL_W L"https://raw.github.com/douglascrockford/JSLint/master/jslint.js"
-#define JSLINT_GITHUB_URL_T TEXT("https://raw.github.com/douglascrockford/JSLint/master/jslint.js")
+//This thinks it runs in node so it might not run any more. not sure.
+#define JSLINT_GITHUB_URL_W L"https://raw.github.com/jslint-org/jslint/master/jslint.mjs"
+#define JSLINT_GITHUB_URL_T TEXT("https://raw.github.com/jslint-org/jslint/master/jslint.mjs")
 
 #define JSHINT_GITHUB_URL_W L"https://raw.github.com/jshint/jshint/master/dist/jshint.js"
 #define JSHINT_GITHUB_URL_T TEXT("https://raw.github.com/jshint/jshint/master/dist/jshint.js")
@@ -212,6 +213,7 @@ bool DownloadJSLint::CheckVersion()
     if (m_version.empty()) {
         if (m_linter == LINTER_JSLINT) {
             // JSLint has version identification, in the form of date (for example: 2013-11-23), on the second line of source file
+            //FIXME No it doesn't. it's on a line line 'let jslint_edition = "v2023.8.20";'
             char *j = NULL; // skipt first line
             for (char* i = m_lpBuffer; i < m_lpBuffer + m_dwTotalSize; ++i) {
                 if (*i == '\n') {
@@ -229,10 +231,10 @@ bool DownloadJSLint::CheckVersion()
                 }
             }
         } else if (m_linter == LINTER_JSHINT) {
-            // JSLint has version identification, in the form of version number (for example 2.3.0), on the second line of source file
+            // JSHint has version identification, in the form of version number (for example 2.3.0), on the 1st line of source file
             for (char* i = m_lpBuffer; i < m_lpBuffer + m_dwTotalSize; ++i) {
                 if (*i == '\n') {
-                    char *j = m_lpBuffer + 3; // skip '// '
+                    char *j = m_lpBuffer + 3; // skip '/*!'
                     m_version = TextConversion::A_To_T(std::string(j, i - j));
                     m_version = TrimSpaces(m_version);
                     if (HasVersion(m_linter, m_version)) {

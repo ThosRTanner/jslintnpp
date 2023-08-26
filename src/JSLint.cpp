@@ -92,8 +92,12 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
     unsigned int cwOriginal = _controlfp(cw, MCW_EM);
 
     // Initialize V8.
-    v8::V8::InitializeICUDefaultLocation("notepad.exe"/*argv[0]*/);
-    v8::V8::InitializeExternalStartupData("notepad.exe"/*argv[0]*/);
+    //FIXME Remove hardcoded path
+    v8::V8::InitializeICUDefaultLocation(
+        "C:\\Program Files\\Notepad++\\notepad++.exe",
+        "C:\\Program Files\\Notepad++\\plugins\\JSLintNpp\\icudtl.dat"
+    );
+    //v8::V8::InitializeExternalStartupData("notepad.exe"/*argv[0]*/);
     std::unique_ptr<Platform> platform = ::v8::platform::NewDefaultPlatform();
     v8::V8::InitializePlatform(platform.get());
     v8::V8::Initialize();
@@ -103,130 +107,133 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
     create_params.array_buffer_allocator =
         v8::ArrayBuffer::Allocator::NewDefaultAllocator();
     v8::Isolate* isolate = v8::Isolate::New(create_params);
-    v8::Isolate::Scope isolate_scope(isolate);
 
-    // Create a stack-allocated handle scope.
-    v8::HandleScope handle_scope(isolate);
+    {
+        v8::Isolate::Scope isolate_scope(isolate);
 
-    // Create a new context.
-    v8::Local<v8::Context> context = v8::Context::New(isolate);
+        // Create a stack-allocated handle scope.
+        v8::HandleScope handle_scope(isolate);
 
-    // Enter the context for compiling and running the hello world script.
-    v8::Context::Scope context_scope(context);
+        // Create a new context.
+        v8::Local<v8::Context> context = v8::Context::New(isolate);
 
-    ScriptSourceDef& scriptSource = Settings::GetInstance().GetScriptSource(JSLintOptions::GetInstance().GetSelectedLinter());
+        // Enter the context for compiling and running the hello world script.
+        v8::Context::Scope context_scope(context);
 
-    std::string strJSLintScript;
-    if (scriptSource.m_scriptSource == SCRIPT_SOURCE_BUILTIN) {
-        strJSLintScript = LoadCustomDataResource((HMODULE)g_hDllModule, MAKEINTRESOURCE(scriptSource.GetScriptResourceID()), TEXT("JS"));
-    } else {
-        strJSLintScript = DownloadJSLint::GetInstance().GetVersion(scriptSource.m_linter, scriptSource.m_scriptVersion).GetContent();
-    }
-    if (strJSLintScript.empty()) {
-        throw JSLintException("Invalid JSLint script!");
-    }
+        ScriptSourceDef& scriptSource = Settings::GetInstance().GetScriptSource(JSLintOptions::GetInstance().GetSelectedLinter());
 
-    Local<Script> script = Script::Compile(
-        context,
-        String::NewFromUtf8(isolate, strJSLintScript.c_str()).ToLocalChecked()
-    ).ToLocalChecked();
-    if (script.IsEmpty()) {
-        throw JSLintException("Invalid JSLint script!");
-    }
-    script->Run(context);
+        std::string strJSLintScript;
+        if (scriptSource.m_scriptSource == SCRIPT_SOURCE_BUILTIN) {
+            strJSLintScript = LoadCustomDataResource((HMODULE)g_hDllModule, MAKEINTRESOURCE(scriptSource.GetScriptResourceID()), TEXT("JS"));
+        }
+        else {
+            strJSLintScript = DownloadJSLint::GetInstance().GetVersion(scriptSource.m_linter, scriptSource.m_scriptVersion).GetContent();
+        }
+        if (strJSLintScript.empty()) {
+            throw JSLintException("Invalid JSLint script!");
+        }
 
-    // init script variable
-    context->Global()->Set(context,
-        String::NewFromUtf8Literal(isolate, "script"),
-        String::NewFromUtf8(isolate, strScript.c_str()).ToLocalChecked()
-    );
+        Local<Script> script = Script::Compile(
+            context,
+            String::NewFromUtf8(isolate, strJSLintScript.c_str()).ToLocalChecked()
+        ).ToLocalChecked();
+        if (script.IsEmpty()) {
+            throw JSLintException("Invalid JSLint script!");
+        }
+        script->Run(context);
 
-    // init options variable
-    script = Script::Compile(context, String::NewFromUtf8(isolate, ("options = " + strOptions).c_str()).ToLocalChecked()).ToLocalChecked();
-    if (script.IsEmpty()) {
-        throw JSLintException("Invalid JSLint options (probably error in additional options)!");
-    }
-    script->Run(context);
+        // init script variable
+        context->Global()->Set(context,
+            String::NewFromUtf8Literal(isolate, "script"),
+            String::NewFromUtf8(isolate, strScript.c_str()).ToLocalChecked()
+        );
 
-    // call JSLINT
-    script = Script::Compile(
-        context,
-        String::NewFromUtf8(isolate, (std::string(scriptSource.GetNamespace()) + "(script, options);").c_str()).ToLocalChecked()
-    ).ToLocalChecked();
-    if (script.IsEmpty()) {
-        throw JSLintUnexpectedException();
-    }
-    script->Run(context);
+        // init options variable
+        script = Script::Compile(context, String::NewFromUtf8(isolate, ("options = " + strOptions).c_str()).ToLocalChecked()).ToLocalChecked();
+        if (script.IsEmpty()) {
+            throw JSLintException("Invalid JSLint options (probably error in additional options)!");
+        }
+        script->Run(context);
 
-    // get JSLINT data
-    script = Script::Compile(
-        context,
-        String::NewFromUtf8(isolate, (std::string(scriptSource.GetNamespace()) + ".data();").c_str()).ToLocalChecked()
-    ).ToLocalChecked();
-    if (script.IsEmpty()) {
-        throw JSLintUnexpectedException();
-    }
+        // call JSLINT
+        script = Script::Compile(
+            context,
+            String::NewFromUtf8(isolate, (std::string(scriptSource.GetNamespace()) + "(script, options);").c_str()).ToLocalChecked()
+        ).ToLocalChecked();
+        if (script.IsEmpty()) {
+            throw JSLintUnexpectedException();
+        }
+        script->Run(context);
 
-    Handle<Object> data = script->Run(context).ToLocalChecked().As<Object>();
+        // get JSLINT data
+        script = Script::Compile(
+            context,
+            String::NewFromUtf8(isolate, (std::string(scriptSource.GetNamespace()) + ".data();").c_str()).ToLocalChecked()
+        ).ToLocalChecked();
+        if (script.IsEmpty()) {
+            throw JSLintUnexpectedException();
+        }
 
-    // read errors
-    Handle<Object> errors = data->Get(context, String::NewFromUtf8Literal(isolate, "errors")).ToLocalChecked()->ToObject(context).ToLocalChecked();
-    if (!errors.IsEmpty()) {
-        int32_t length = errors->Get(context, String::NewFromUtf8Literal(isolate, "length")).ToLocalChecked()->Int32Value(context).ToChecked();
-        for (int32_t i = 0; i < length; ++i) {
-            Local<Value> eVal = errors->Get(context, Int32::New(isolate, i)).ToLocalChecked();
-            if (eVal->IsObject()) {
-                Local<Object> e = eVal->ToObject(context).ToLocalChecked();
+        Handle<Object> data = script->Run(context).ToLocalChecked().As<Object>();
 
-                int line = e->Get(context, String::NewFromUtf8Literal(isolate, "line")).ToLocalChecked()->Int32Value(context).ToChecked();
-                int character = e->Get(context, String::NewFromUtf8Literal(isolate, "character")).ToLocalChecked()->Int32Value(context).ToChecked();
-                String::Utf8Value reason(
-                    isolate,
-                    e->Get(context, String::NewFromUtf8Literal(isolate, "reason")).ToLocalChecked()
-                );
-                String::Utf8Value evidence(
-                    isolate,
-                    e->Get(context, String::NewFromUtf8Literal(isolate, "evidence")).ToLocalChecked()
-                );
+        // read errors
+        Handle<Object> errors = data->Get(context, String::NewFromUtf8Literal(isolate, "errors")).ToLocalChecked()->ToObject(context).ToLocalChecked();
+        if (!errors.IsEmpty()) {
+            int32_t length = errors->Get(context, String::NewFromUtf8Literal(isolate, "length")).ToLocalChecked()->Int32Value(context).ToChecked();
+            for (int32_t i = 0; i < length; ++i) {
+                Local<Value> eVal = errors->Get(context, Int32::New(isolate, i)).ToLocalChecked();
+                if (eVal->IsObject()) {
+                    Local<Object> e = eVal->ToObject(context).ToLocalChecked();
 
-                // adjust character position if there is a difference 
-                // in tab width between Notepad++ and JSLint
-                if (nppTabWidth != jsLintTabWidth) {
-	                character += GetNumTabs(strScript, line, character, jsLintTabWidth) * (nppTabWidth - jsLintTabWidth);
+                    int line = e->Get(context, String::NewFromUtf8Literal(isolate, "line")).ToLocalChecked()->Int32Value(context).ToChecked();
+                    int character = e->Get(context, String::NewFromUtf8Literal(isolate, "character")).ToLocalChecked()->Int32Value(context).ToChecked();
+                    String::Utf8Value reason(
+                        isolate,
+                        e->Get(context, String::NewFromUtf8Literal(isolate, "reason")).ToLocalChecked()
+                    );
+                    String::Utf8Value evidence(
+                        isolate,
+                        e->Get(context, String::NewFromUtf8Literal(isolate, "evidence")).ToLocalChecked()
+                    );
+
+                    // adjust character position if there is a difference 
+                    // in tab width between Notepad++ and JSLint
+                    if (nppTabWidth != jsLintTabWidth) {
+                        character += GetNumTabs(strScript, line, character, jsLintTabWidth) * (nppTabWidth - jsLintTabWidth);
+                    }
+
+                    items.push_back(JSLintReportItem(JSLintReportItem::LINT_TYPE_ERROR,
+                        line - 1, character - 1,
+                        TextConversion::UTF8_To_T(*reason),
+                        TextConversion::UTF8_To_T(*evidence)));
                 }
+            }
+        }
 
-                items.push_back(JSLintReportItem(JSLintReportItem::LINT_TYPE_ERROR,
-                    line - 1, character - 1, 
-                    TextConversion::UTF8_To_T(*reason), 
-	                TextConversion::UTF8_To_T(*evidence)));
+        // read unused
+        Handle<Object> unused = data->Get(context, String::NewFromUtf8Literal(isolate, "unused")).ToLocalChecked()->ToObject(context).ToLocalChecked();
+        if (!unused.IsEmpty()) {
+            int32_t length = unused->Get(context, String::NewFromUtf8Literal(isolate, "length")).ToLocalChecked()->Int32Value(context).ToChecked();
+            for (int32_t i = 0; i < length; ++i) {
+                Handle<Value> eVal = unused->Get(context, Int32::New(isolate, i)).ToLocalChecked();
+                if (eVal->IsObject()) {
+                    Handle<Object> e = eVal->ToObject(context).ToLocalChecked();
+
+                    int line = e->Get(context, String::NewFromUtf8Literal(isolate, "line")).ToLocalChecked()->Int32Value(context).ToChecked();
+                    String::Utf8Value name(isolate, e->Get(context, String::NewFromUtf8Literal(isolate, "name")).ToLocalChecked());
+                    String::Utf8Value function(isolate, e->Get(context, String::NewFromUtf8Literal(isolate, "function")).ToLocalChecked());
+
+                    std::wstring reason = TEXT("'") + TextConversion::UTF8_To_T(*name) +
+                        TEXT("' in '") + TextConversion::UTF8_To_T(*function) + TEXT("'");
+
+                    items.push_back(JSLintReportItem(JSLintReportItem::LINT_TYPE_UNUSED,
+                        line - 1, 0,
+                        TextConversion::UTF8_To_T(*name),
+                        TextConversion::UTF8_To_T(*function)));
+                }
             }
         }
     }
-
-    // read unused
-    Handle<Object> unused = data->Get(context, String::NewFromUtf8Literal(isolate, "unused")).ToLocalChecked()->ToObject(context).ToLocalChecked();
-    if (!unused.IsEmpty()) {
-        int32_t length = unused->Get(context, String::NewFromUtf8Literal(isolate, "length")).ToLocalChecked()->Int32Value(context).ToChecked();
-        for (int32_t i = 0; i < length; ++i) {
-            Handle<Value> eVal = unused->Get(context, Int32::New(isolate,i)).ToLocalChecked();
-            if (eVal->IsObject()) {
-                Handle<Object> e = eVal->ToObject(context).ToLocalChecked();
-
-                int line = e->Get(context, String::NewFromUtf8Literal(isolate, "line")).ToLocalChecked()->Int32Value(context).ToChecked();
-                String::Utf8Value name(isolate, e->Get(context, String::NewFromUtf8Literal(isolate, "name")).ToLocalChecked());
-                String::Utf8Value function(isolate, e->Get(context, String::NewFromUtf8Literal(isolate, "function")).ToLocalChecked());
-
-                std::wstring reason = TEXT("'") + TextConversion::UTF8_To_T(*name) + 
-                    TEXT("' in '") + TextConversion::UTF8_To_T(*function) + TEXT("'");
-
-                items.push_back(JSLintReportItem(JSLintReportItem::LINT_TYPE_UNUSED,
-                    line - 1, 0, 
-                    TextConversion::UTF8_To_T(*name),
-	                TextConversion::UTF8_To_T(*function)));
-            }
-        }
-    }
-
 
     // Dispose the isolate and tear down V8.
     isolate->Dispose();
