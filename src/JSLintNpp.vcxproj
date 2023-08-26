@@ -124,6 +124,12 @@
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)JSLintNpp.lib</ImportLibrary>
     </Link>
+    <PostBuildEvent>
+      <Command>powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File ..\post-build.ps1  $(OutDir)</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy dll to notepad folder</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -146,9 +152,7 @@
       <ImportLibrary>$(OutDir)JSLintNpp.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
-    <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(SolutionDir)..\..\..\Notepad++\unicode\plugins"</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -171,8 +175,12 @@
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)JSLintNpp.lib</ImportLibrary>
     </Link>
+    <PostBuildEvent />
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(SolutionDir)..\..\..\Notepad++\unicode\plugins"</Command>
+      <Command>powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File ..\post-build.ps1  $(OutDir)</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy dll to notepad folder</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -237,6 +245,7 @@
     <ClInclude Include="DownloadJSLint.h" />
     <ClInclude Include="JSLint.h" />
     <ClInclude Include="JSLintOptions.h" />
+    <ClInclude Include="Notepad++\Common.h" />
     <ClInclude Include="Notepad++\DockingFeature\Docking.h" />
     <ClInclude Include="Notepad++\DockingFeature\DockingDlgInterface.h" />
     <ClInclude Include="Notepad++\DockingFeature\dockingResource.h" />
@@ -247,6 +256,7 @@
     <ClInclude Include="Notepad++\DockingFeature\Window.h" />
     <ClInclude Include="Notepad++\menuCmdID.h" />
     <ClInclude Include="Notepad++\Notepad_plus_msgs.h" />
+    <ClInclude Include="Notepad++\NppDarkMode.h" />
     <ClInclude Include="Notepad++\PluginInterface.h" />
     <ClInclude Include="Notepad++\Scintilla.h" />
     <ClInclude Include="OutputDlg.h" />

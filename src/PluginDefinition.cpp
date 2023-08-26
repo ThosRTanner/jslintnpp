@@ -339,7 +339,7 @@ void doJSLint()
 	}
 
 	// get all the text from the scintilla window
-	TextRange tr;
+	Sci_TextRange tr;
 
 	tr.chrg.cpMin = 0;
     tr.chrg.cpMax = -1;
