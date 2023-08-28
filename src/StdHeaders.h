@@ -39,12 +39,3 @@
 #include <memory>
 #include <algorithm>
 #include <float.h>
-
-/*using namespace std;
-
-#if defined(UNICODE) || defined(_UNICODE)
-typedef std::wstring std::wstring;
-#else
-typedef std::string std::wstring;
-#endif
-*/

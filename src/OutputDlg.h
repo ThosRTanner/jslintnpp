@@ -79,8 +79,7 @@ private:
     void OnTabSelChanged();
 	void GetNameStrFromCmd(UINT resID, LPTSTR tip, UINT count);
 	void ShowLint(int i);
-	//FIXME This needs to exist but apparently it's OK not for it to be implemented.
-	//This is very very confusing.
+	//FIXME vs is saying it can't find it. but it's defined at line 551 of the cpp.
 	void CopyToClipboard();
 };
 
