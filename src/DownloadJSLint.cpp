@@ -17,9 +17,12 @@
 
 #include "StdHeaders.h"
 #include "DownloadJSLint.h"
+
 #include "PluginDefinition.h"
 #include "Util.h"
 #include "resource.h"
+
+#include <cstring>
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma comment(lib, "winhttp.lib")
@@ -210,42 +213,26 @@ void DownloadJSLint::DownloadFailed()
 
 bool DownloadJSLint::CheckVersion()
 {
-    if (m_version.empty()) {
-        if (m_linter == LINTER_JSLINT) {
-            // JSLint has version identification, in the form of date (for example: 2013-11-23), on the second line of source file
-            //FIXME No it doesn't. it's on a line line 'let jslint_edition = "v2023.8.20";'
-            char *j = NULL; // skipt first line
-            for (char* i = m_lpBuffer; i < m_lpBuffer + m_dwTotalSize; ++i) {
-                if (*i == '\n') {
-                    if (j) {
-                        j += 3; // skip '// '
-                        m_version = TextConversion::A_To_T(std::string(j, i - j));
-                        m_version = TrimSpaces(m_version);
-                        if (HasVersion(m_linter, m_version)) {
-                            return false;
-                        }
-                        return true;
-                    } else {
-                        j = i;
-                    }
-                }
-            }
-        } else if (m_linter == LINTER_JSHINT) {
-            // JSHint has version identification, in the form of version number (for example 2.3.0), on the 1st line of source file
-            for (char* i = m_lpBuffer; i < m_lpBuffer + m_dwTotalSize; ++i) {
-                if (*i == '\n') {
-                    char *j = m_lpBuffer + 3; // skip '/*!'
-                    m_version = TextConversion::A_To_T(std::string(j, i - j));
-                    m_version = TrimSpaces(m_version);
-                    if (HasVersion(m_linter, m_version)) {
-                        return false;
-                    }
-                    return true;
-                }
-            }
-        }
+    if (!m_version.empty())
+    {
+        return true;
     }
-    return true;
+    std::string const match_start{m_linter == LINTER_JSLINT ? "\nlet jslint_edition = \"v" : "/*! "};
+    std::string const match_end{m_linter == LINTER_JSLINT ? "\";\n" : " */\n"};
+    std::string const code{m_lpBuffer, m_dwTotalSize};
+    auto pos = code.find(match_start);
+    if (pos == std::string::npos)
+    {
+        return true;
+    }
+    pos += match_start.length();
+    auto pos2 = code.find(match_end, pos);
+    if (pos2 == std::string::npos)
+    {
+        return true;
+    }
+    m_version = TextConversion::A_To_T(code.substr(pos, pos2 - pos));
+    return !HasVersion(m_linter, m_version);
 }
 
 void CALLBACK DownloadJSLint::AsyncCallback(HINTERNET hInternet,
