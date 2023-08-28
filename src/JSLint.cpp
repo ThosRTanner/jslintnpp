@@ -97,7 +97,6 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
         "C:\\Program Files\\Notepad++\\notepad++.exe",
         "C:\\Program Files\\Notepad++\\plugins\\JSLintNpp\\icudtl.dat"
     );
-    //v8::V8::InitializeExternalStartupData("notepad.exe"/*argv[0]*/);
     std::unique_ptr<Platform> platform = ::v8::platform::NewDefaultPlatform();
     v8::V8::InitializePlatform(platform.get());
     v8::V8::Initialize();
@@ -133,12 +132,17 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
             throw JSLintException("Invalid JSLint script!");
         }
 
-        Local<Script> script = Script::Compile(
+        TryCatch catcher(isolate);
+
+        Local<Script> script;
+        Script::Compile(
             context,
             String::NewFromUtf8(isolate, strJSLintScript.c_str()).ToLocalChecked()
-        ).ToLocalChecked();
+        ).ToLocal(&script);
+
         if (script.IsEmpty()) {
-            throw JSLintException("Invalid JSLint script!");
+            String::Utf8Value error(isolate, catcher.Exception());
+            throw JSLintException((std::string("Invalid JSLint script!: ") + *error).c_str());
         }
         script->Run(context);
 
@@ -149,27 +153,27 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
         );
 
         // init options variable
-        script = Script::Compile(context, String::NewFromUtf8(isolate, ("options = " + strOptions).c_str()).ToLocalChecked()).ToLocalChecked();
+        Script::Compile(context, String::NewFromUtf8(isolate, ("options = " + strOptions).c_str()).ToLocalChecked()).ToLocal(&script);
         if (script.IsEmpty()) {
             throw JSLintException("Invalid JSLint options (probably error in additional options)!");
         }
         script->Run(context);
 
         // call JSLINT
-        script = Script::Compile(
+        Script::Compile(
             context,
             String::NewFromUtf8(isolate, (std::string(scriptSource.GetNamespace()) + "(script, options);").c_str()).ToLocalChecked()
-        ).ToLocalChecked();
+        ).ToLocal(&script);
         if (script.IsEmpty()) {
             throw JSLintUnexpectedException();
         }
         script->Run(context);
 
         // get JSLINT data
-        script = Script::Compile(
+        Script::Compile(
             context,
             String::NewFromUtf8(isolate, (std::string(scriptSource.GetNamespace()) + ".data();").c_str()).ToLocalChecked()
-        ).ToLocalChecked();
+        ).ToLocal(&script);
         if (script.IsEmpty()) {
             throw JSLintUnexpectedException();
         }
@@ -177,7 +181,8 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
         Handle<Object> data = script->Run(context).ToLocalChecked().As<Object>();
 
         // read errors
-        Handle<Object> errors = data->Get(context, String::NewFromUtf8Literal(isolate, "errors")).ToLocalChecked()->ToObject(context).ToLocalChecked();
+        Handle<Object> errors;
+        data->Get(context, String::NewFromUtf8Literal(isolate, "errors")).ToLocalChecked()->ToObject(context).ToLocal(&errors);
         if (!errors.IsEmpty()) {
             int32_t length = errors->Get(context, String::NewFromUtf8Literal(isolate, "length")).ToLocalChecked()->Int32Value(context).ToChecked();
             for (int32_t i = 0; i < length; ++i) {
@@ -211,7 +216,8 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
         }
 
         // read unused
-        Handle<Object> unused = data->Get(context, String::NewFromUtf8Literal(isolate, "unused")).ToLocalChecked()->ToObject(context).ToLocalChecked();
+        Handle<Object> unused;
+        data->Get(context, String::NewFromUtf8Literal(isolate, "unused")).ToLocalChecked()->ToObject(context).ToLocal(&unused);
         if (!unused.IsEmpty()) {
             int32_t length = unused->Get(context, String::NewFromUtf8Literal(isolate, "length")).ToLocalChecked()->Int32Value(context).ToChecked();
             for (int32_t i = 0; i < length; ++i) {
@@ -235,6 +241,8 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
         }
     }
 
+    // FIXME If we throw an exception this doesn't get done and bad things happen
+    // Apparently bad things happen even if we do do the teardown >.<
     // Dispose the isolate and tear down V8.
     isolate->Dispose();
     v8::V8::Dispose();
