@@ -18,6 +18,8 @@
 #pragma once
 
 ////////////////////////////////////////////////////////////////////////////////
+#include <string>
+#include <vector>
 
 std::wstring TrimSpaces(const std::wstring& str);
 void StringSplit(std::wstring str, std::wstring delim, std::vector<std::wstring>& results);

@@ -21,6 +21,8 @@
 
 #include "Util.h"
 
+#include <list>
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #define JSLINT_DEFAULT_UNDEF_VAR_ERR_MSG TEXT("'%s' was used before it was defined.")

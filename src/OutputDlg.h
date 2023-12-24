@@ -22,6 +22,10 @@
 #include "resource.h"
 #include "JSLint.h"
 
+#include <CommCtrl.h>
+
+#include <list>
+
 class OutputDlg : public DockingDlgInterface
 {
 public :

@@ -18,6 +18,9 @@
 #include "StdHeaders.h"
 #include "Util.h"
 
+#include <Shlwapi.h>
+#include <tchar.h>
+
 ////////////////////////////////////////////////////////////////////////////////
 
 std::wstring TrimSpaces(const std::wstring& str)
@@ -188,7 +191,7 @@ std::wstring Path::GetTempFileName()
 	}
 
 	TCHAR szTempFileName[MAX_PATH];  
-	if (::GetTempFileName(szTempPath, NULL, 0, szTempFileName) == 0) {
+	if (::GetTempFileName(szTempPath, nullptr, 0, szTempFileName) == 0) {
 		return TEXT("");
 	}
 

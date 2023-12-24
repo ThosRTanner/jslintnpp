@@ -17,11 +17,14 @@
 
 #include "StdHeaders.h"
 #include "Settings.h"
+
 #include "PluginDefinition.h"
 #include "JSLint.h"
 #include "resource.h"
 #include "Util.h"
 #include "Version.h"
+
+#include <windowsx.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -91,7 +94,7 @@ void Settings::SaveOptions()
 void Settings::ReadOptions(const std::wstring& prefix, ScriptSourceDef& scriptSourceDef)
 {
     TCHAR szValue[65536]; // memory is cheap
-
+    /*
     std::wstring strConfigFileName = GetConfigFileName();
     if (Path::IsFileExists(strConfigFileName)) {
 	    GetPrivateProfileString(PROFILE_JSLINT_GROUP_NAME, PROFILE_BUILD_KEY_NAME,
@@ -131,10 +134,12 @@ void Settings::ReadOptions(const std::wstring& prefix, ScriptSourceDef& scriptSo
             }
         }
     }
+    */
 }
 
 void Settings::SaveOptions(const std::wstring& prefix, const ScriptSourceDef& scriptSourceDef)
 {
+    /*
 	std::wstring strConfigFileName = GetConfigFileName();
 
     WritePrivateProfileString(PROFILE_JSLINT_GROUP_NAME, PROFILE_BUILD_KEY_NAME,
@@ -162,6 +167,7 @@ void Settings::SaveOptions(const std::wstring& prefix, const ScriptSourceDef& sc
     WritePrivateProfileString(PROFILE_SETTINGS_GROUP_NAME, 
         (prefix + PROFILE_UNDEF_VAR_ERR_MSG_KEY_NAME).c_str(),
         scriptSourceDef.m_undefVarErrMsg.c_str(), strConfigFileName.c_str());
+        */
 }
 
 void Settings::LoadVersions(HWND hDlg, int versionsComboBoxID, Linter linter)
@@ -305,7 +311,7 @@ void Settings::UpdateControls(HWND hDlg)
 INT_PTR CALLBACK Settings::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
     static Settings settings;
-
+#if 0
     if (uMessage == WM_INITDIALOG) {
         settings = GetInstance();
         settings.LoadVersions(hDlg, IDC_JSLINT_SCRIPT_VERSION, LINTER_JSLINT);
@@ -376,13 +382,14 @@ INT_PTR CALLBACK Settings::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPAR
             return 1;
         }
     }
-
+#endif
 	return 0;
 }
 
 void Settings::ShowDialog()
 {
-	pluginDialogBox(IDD_SETTINGS, DlgProc);
+    //FIXME
+	//pluginDialogBox(IDD_SETTINGS, DlgProc);
 }
 
 ScriptSourceDef& Settings::GetScriptSource(Linter linter)

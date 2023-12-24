@@ -17,6 +17,7 @@
 
 #include "StdHeaders.h"
 #include "JSLint.h"
+
 #include "Settings.h"
 #include "DownloadJSLint.h"
 #include "resource.h"
@@ -26,7 +27,7 @@
 
 using namespace v8;
 
-extern HANDLE g_hDllModule;
+//extern HANDLE g_hDllModule;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +39,7 @@ bool JSLintReportItem::IsReasonUndefVar() const
 std::wstring JSLintReportItem::GetUndefVar() const
 {
     std::wstring var;
-
+#if 0
     if (m_type == LINT_TYPE_ERROR) {
         ScriptSourceDef& scriptSource = Settings::GetInstance().GetScriptSource(JSLintOptions::GetInstance().GetSelectedLinter());
 
@@ -55,7 +56,7 @@ std::wstring JSLintReportItem::GetUndefVar() const
             }
         }
     }
-
+#endif
     return var;
 }
 
@@ -81,6 +82,7 @@ void messageListener(Handle<Message> message, Handle<Value> data)
 void JSLint::CheckScript(const std::string& strOptions, const std::string& strScript, 
 	int nppTabWidth, int jsLintTabWidth, std::list<JSLintReportItem>& items)
 {
+#if 0
     //V8::SetFatalErrorHandler(fatalErrorHandler);
     //V8::AddMessageListener(messageListener);
 
@@ -128,6 +130,7 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
         else {
             strJSLintScript = DownloadJSLint::GetInstance().GetVersion(scriptSource.m_linter, scriptSource.m_scriptVersion).GetContent();
         }
+
         if (strJSLintScript.empty()) {
             throw JSLintException("Invalid JSLint script!");
         }
@@ -250,6 +253,7 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
     delete create_params.array_buffer_allocator;
 
     _controlfp(cwOriginal, MCW_EM);  // Restore the original gp control world
+#endif
 }
 
 std::string JSLint::LoadCustomDataResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType)

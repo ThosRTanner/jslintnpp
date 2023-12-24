@@ -19,6 +19,11 @@
 
 #include "JSLintOptions.h"
 
+#include <winhttp.h>
+
+#include <map>
+#include <string>
+
 ////////////////////////////////////////////////////////////////////////////////
 
 class JSLintVersion {

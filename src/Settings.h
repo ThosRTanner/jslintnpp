@@ -19,6 +19,8 @@
 
 #include "DownloadJSLint.h"
 
+#include <string>
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #define PROFILE_JSLINT_GROUP_NAME TEXT("JSLint")

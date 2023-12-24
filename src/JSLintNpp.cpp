@@ -16,76 +16,32 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "StdHeaders.h"
+
+#include "PluginInterface.h"
+
+// Modify these 2 lines as appropriate for your plugin.
 #include "PluginDefinition.h"
+typedef JSLintNpp Npp_Plugin;
 
-BOOL APIENTRY DllMain( HANDLE hModule, 
-                       DWORD  reasonForCall, 
-                       LPVOID lpReserved )
-{
-    switch (reasonForCall)
-    {
-      case DLL_PROCESS_ATTACH:
-        pluginInit(hModule);
-        break;
+#include <memory>
 
-      case DLL_PROCESS_DETACH:
-		commandMenuCleanUp();
-        pluginCleanUp();
-        break;
-
-      case DLL_THREAD_ATTACH:
-        break;
-
-      case DLL_THREAD_DETACH:
-        break;
-    }
-
-    return TRUE;
-}
-
-
-extern "C" __declspec(dllexport) void setInfo(NppData notpadPlusData)
-{
-	g_nppData = notpadPlusData;
-	commandMenuInit();
-	loadConfig();
-}
+std::unique_ptr<Npp_Plugin> plugin;
 
 extern "C" __declspec(dllexport) const TCHAR * getName()
 {
-	return NPP_PLUGIN_NAME;
+    return Npp_Plugin::get_plugin_name();
 }
 
-extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
+extern "C" __declspec(dllexport) void setInfo(NppData data)
 {
-	*nbF = NB_FUNC;
-	return g_funcItem;
+    plugin = std::make_unique<Npp_Plugin>(data);
 }
 
-
-extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
-{
-}
-
-
-// Here you can process the Npp Messages 
-// I will make the messages accessible little by little, according to the need of plugin development.
-// Please let me know if you need to access to some messages :
-// http://sourceforge.net/forum/forum.php?forum_id=482781
-//
-extern "C" __declspec(dllexport) LRESULT messageProc(UINT Message, WPARAM wParam, LPARAM lParam)
-{/*
-	if (Message == WM_MOVE)
-	{
-		::MessageBox(NULL, "move", "", MB_OK);
-	}
-*/
-	return TRUE;
-}
-
-#ifdef UNICODE
+/** This must be defined and must always return TRUE
+ *
+ * It dates from when notepad++ had a unicode and a non unicode version
+ */
 extern "C" __declspec(dllexport) BOOL isUnicode()
 {
     return TRUE;
 }
-#endif //UNICODE

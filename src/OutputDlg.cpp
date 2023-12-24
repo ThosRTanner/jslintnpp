@@ -17,8 +17,12 @@
 
 #include "StdHeaders.h"
 #include "OutputDlg.h"
-#include "PluginDefinition.h"
+
 #include "JSLintOptions.h"
+
+#include "PluginDefinition.h"
+
+#include <sstream>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +101,9 @@ INT_PTR CALLBACK OutputDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPar
 						const FileLint& fileLint = m_fileLints[iTab][iLint];
 						std::wstring var = fileLint.lint.GetUndefVar();
 						if (!var.empty()) {
+#if 0
                             JSLintOptions::GetInstance().AppendOption(IDC_PREDEFINED, var);
+#endif
 						}
 					}
 					return TRUE;
@@ -215,8 +221,9 @@ INT_PTR CALLBACK OutputDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPar
 	return FALSE;
 }
 
-void OutputDlg::OnToolbarCmd(UINT message)
+void OutputDlg::OnToolbarCmd(UINT /*message*/)
 {
+	/*
 	switch (message) {
 		case IDM_TB_JSLINT_CURRENT_FILE:
 			jsLintCurrentFile();
@@ -234,6 +241,7 @@ void OutputDlg::OnToolbarCmd(UINT message)
 			showJSLintOptionsDlg();
 			break;
 	}
+	*/
 }
 
 void OutputDlg::OnToolbarDropDown(LPNMTOOLBAR lpnmtb)
@@ -267,45 +275,45 @@ void OutputDlg::InitializeListView(int i)
     int iCol = 0;
 
 	lvc.iSubItem = iCol;
-	lvc.pszText = TEXT("");
+	lvc.pszText = const_cast<wchar_t *>(TEXT(""));
 	lvc.cx = 28;
 	lvc.fmt = LVCFMT_RIGHT;
 	ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
 
     if (m_tabs[i].m_errorList) {
 	    lvc.iSubItem = iCol;
-	    lvc.pszText = TEXT("Reason");
+	    lvc.pszText = const_cast<wchar_t*>(TEXT("Reason"));
 	    lvc.cx = 500;
 	    lvc.fmt = LVCFMT_LEFT;
 	    ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
     } else {
 	    lvc.iSubItem = iCol;
-	    lvc.pszText = TEXT("Variable");
+	    lvc.pszText = const_cast<wchar_t*>(TEXT("Variable"));
 	    lvc.cx = 250;
 	    lvc.fmt = LVCFMT_LEFT;
 	    ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
 
 	    lvc.iSubItem = iCol;
-	    lvc.pszText = TEXT("Function");
+	    lvc.pszText = const_cast<wchar_t*>(TEXT("Function"));
 	    lvc.cx = 250;
 	    lvc.fmt = LVCFMT_LEFT;
 	    ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
     }
 
     lvc.iSubItem = iCol;
-	lvc.pszText = TEXT("File");
+	lvc.pszText = const_cast<wchar_t*>(TEXT("File"));
 	lvc.cx = 200;
 	lvc.fmt = LVCFMT_LEFT;
 	ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
 
 	lvc.iSubItem = iCol;
-	lvc.pszText = TEXT("Line");
+	lvc.pszText = const_cast<wchar_t*>(TEXT("Line"));
 	lvc.cx = 50;
 	lvc.fmt = LVCFMT_RIGHT;
 	ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
 
 	lvc.iSubItem = iCol;
-	lvc.pszText = TEXT("Column");
+	lvc.pszText = const_cast<wchar_t*>(TEXT("Column"));
 	lvc.cx = 50;
 	lvc.fmt = LVCFMT_RIGHT;
 	ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
@@ -346,18 +354,20 @@ void OutputDlg::OnTabSelChanged()
 
 HICON OutputDlg::GetTabIcon()
 {
+	/*
 	if (m_hTabIcon == NULL) {
 		m_hTabIcon = (HICON) ::LoadImage((HINSTANCE)g_hDllModule,
 			MAKEINTRESOURCE(IDI_JSLINT_TAB), IMAGE_ICON, 0, 0,
 			LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT );
 	}
+	*/
 	return m_hTabIcon;
 }
 
 void OutputDlg::GetNameStrFromCmd(UINT resID, LPTSTR tip, UINT count)
 {
 	// NOTE: On change, keep sure to change order of IDM_EX_... in toolBarIcons also
-	static LPTSTR szToolTip[] = {
+	static wchar_t const * szToolTip[] = {
 		TEXT("JSLint Current File"),
 		TEXT("JSLint All Files"),
 		TEXT("Go To Previous Lint"),
@@ -459,8 +469,10 @@ void OutputDlg::SelectNextLint()
 	int count = ListView_GetItemCount(hWndListView);
     if (count == 0) {
         // no lints, set focus to editor
+		/*
         HWND hWndScintilla = GetCurrentScintillaWindow();
         SetFocus(hWndScintilla);
+		*/
 		return;
     }
 
@@ -484,12 +496,14 @@ void OutputDlg::SelectPrevLint()
     HWND hWndListView = m_hWndListViews[iTab];
 
     int count = ListView_GetItemCount(hWndListView);
+	/*
     if (count == 0) {
         // no lints, set focus to editor
         HWND hWndScintilla = GetCurrentScintillaWindow();
         SetFocus(hWndScintilla);
 		return;
     }
+	*/
 
 	int i = ListView_GetNextItem(hWndListView, -1, LVNI_FOCUSED | LVNI_SELECTED);
 	if (--i == -1)
@@ -511,6 +525,7 @@ void OutputDlg::ShowLint(int i)
 	int column = fileLint.lint.GetCharacter();
 	
 	if (!fileLint.strFilePath.empty() && line >= 0 && column >= 0) {
+		/*
 		LRESULT lRes = ::SendMessage(g_nppData._nppHandle, NPPM_SWITCHTOFILE, 0, (LPARAM)fileLint.strFilePath.c_str());
 		if (lRes) {
 			HWND hWndScintilla = GetCurrentScintillaWindow();
@@ -543,6 +558,7 @@ void OutputDlg::ShowLint(int i)
 				}
 			}
 		}
+		*/
 	}
 
     InvalidateRect(getHSelf(), NULL, TRUE);

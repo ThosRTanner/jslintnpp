@@ -16,378 +16,337 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "StdHeaders.h"
+
+#include "PluginDefinition.h"
+
 #include "AboutDlg.h"
 #include "JSLint.h"
-#include "menuCmdID.h"
 #include "JSLintOptions.h"
 #include "Settings.h"
 #include "DownloadJSLint.h"
 #include "OutputDlg.h"
-#include "PluginDefinition.h"
 
-//
-// The data of Notepad++ that you can use in your plugin commands
-//
-NppData g_nppData;
-HANDLE g_hDllModule;
 
-//
-// The plugin data that Notepad++ needs
-//
-FuncItem g_funcItem[NB_FUNC];
+#include "Plugin/Callback_Context.h"
 
-OutputDlg g_outputDlg;
+#include "menuCmdID.h"
 
-//
-// Private helper functions forward declarations
-//
-bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey *sk = NULL, bool check0nInit = false);
-void createOutputWindow();
-void doJSLint();
+#include <memory>
 
-//
-// Interface functions
-//
-void pluginInit(HANDLE hModule)
+typedef Callback_Context_Base<JSLintNpp> Callbacks;
+
+#define CALLBACK_ENTRY(N)                                                     \
+    {                                                                         \
+        JSLintNpp::N,                                                       \
+            std::make_shared<Callback_Context<JSLintNpp, JSLintNpp::N>>() \
+    }
+
+template <>
+Callbacks::Contexts Callbacks::contexts = {
+#pragma warning(push)
+#pragma warning(disable : 26426)
+    CALLBACK_ENTRY(FUNC_INDEX_JSLINT_CURRENT_FILE),
+    CALLBACK_ENTRY(FUNC_INDEX_JSLINT_ALL_FILES),
+    CALLBACK_ENTRY(FUNC_INDEX_SEP_2),
+    CALLBACK_ENTRY(FUNC_INDEX_GOTO_PREV_LINT),
+    CALLBACK_ENTRY(FUNC_INDEX_GOTO_NEXT_LINT),
+    CALLBACK_ENTRY(FUNC_INDEX_SHOW_LINTS),
+    CALLBACK_ENTRY(FUNC_INDEX_SEP_6),
+    CALLBACK_ENTRY(FUNC_INDEX_JSLINT_OPTIONS),
+    CALLBACK_ENTRY(FUNC_INDEX_SETTINGS),
+    CALLBACK_ENTRY(FUNC_INDEX_SEP_9),
+    CALLBACK_ENTRY(FUNC_INDEX_ABOUT),
+#pragma warning(pop)
+};
+
+JSLintNpp::JSLintNpp(NppData const& data) :
+    Plugin(data),
+    config_file_name_(get_config_file_name()),
+    options_(std::make_unique<JSLintOptions>(config_file_name_))
 {
-	// Initialize your plugin data here
-	// It will be called while plugin loading   
-	g_hDllModule = hModule;
-	g_outputDlg.init((HINSTANCE)g_hDllModule, NULL);
-}
 
-void loadConfig()
-{
+    //FIXME. Seriously? Singletons?
     Settings::GetInstance().ReadOptions();
-    JSLintOptions::GetInstance().ReadOptions();
+    options_->ReadOptions();
     DownloadJSLint::GetInstance().LoadVersions();
 }
 
-void pluginCleanUp()
+JSLintNpp::~JSLintNpp()
 {
+    //FIXME. Seriously? Singletons?
     Settings::GetInstance().SaveOptions();
-	JSLintOptions::GetInstance().SaveOptions();
+    options_->SaveOptions();
 }
 
-void commandMenuInit()
+#define MAKE_CALLBACK(entry, text, method, shortcut) \
+    make_callback(entry, text, Callbacks::contexts, this, &JSLintNpp::method, false, shortcut)
+
+#define MAKE_SEPARATOR(entry) \
+    make_callback(entry, TEXT("---"), Callbacks::contexts, this, nullptr)
+
+std::vector<FuncItem>& JSLintNpp::on_get_menu_entries()
 {
-	ShortcutKey *shKey;
-	
-	shKey = new ShortcutKey; // Ctrl+Shift+F5
-	shKey->_isAlt = false;
-	shKey->_isCtrl = true;
-	shKey->_isShift = true;
-	shKey->_key = VK_F5;
-	setCommand(FUNC_INDEX_JSLINT_CURRENT_FILE, TEXT("JSLint Current File"),
-		jsLintCurrentFile, shKey, false);
+    static ShortcutKey f5 = { true, false, true, VK_F5 };
+    static ShortcutKey f6 = { true, false, true, VK_F6 };
+    static ShortcutKey f7 = { true, false, true, VK_F7 };
+    static ShortcutKey f8 = { true, false, true, VK_F8 };
 
-	shKey = new ShortcutKey; // Ctrl+Shift+F6
-	shKey->_isAlt = false;
-	shKey->_isCtrl = true;
-	shKey->_isShift = true;
-	shKey->_key = VK_F6;
-	setCommand(FUNC_INDEX_JSLINT_ALL_FILES, TEXT("JSLint All Files"),
-		jsLintAllFiles, shKey, false);
-
-	setCommand(2, TEXT("---"), NULL, NULL, false);
-	
-	shKey = new ShortcutKey; // Ctrl+Shift+F7
-	shKey->_isAlt = false;
-	shKey->_isCtrl = true;
-	shKey->_isShift = true;
-	shKey->_key = VK_F7;
-	setCommand(FUNC_INDEX_GOTO_PREV_LINT, TEXT("Go To Previous Lint"),
-		gotoPrevLint, shKey, false);
-	
-	shKey = new ShortcutKey; // Ctrl+Shift+F8
-	shKey->_isAlt = false;
-	shKey->_isCtrl = true;
-	shKey->_isShift = true;
-	shKey->_key = VK_F8;
-	setCommand(FUNC_INDEX_GOTO_NEXT_LINT, TEXT("Go To Next Lint"),
-		gotoNextLint, shKey, false);
-	
-	setCommand(FUNC_INDEX_SHOW_LINTS, TEXT("Show Lints"), showLints, NULL, false);
-
-	setCommand(6, TEXT("---"), NULL, NULL, false);
-	setCommand(FUNC_INDEX_JSLINT_OPTIONS, TEXT("JSLint Options"), showJSLintOptionsDlg, NULL, false);
-    setCommand(FUNC_INDEX_SETTINGS, TEXT("Settings"), showSettingsDlg, NULL, false);
-
-    setCommand(9, TEXT("---"), NULL, NULL, false);
-	setCommand(FUNC_INDEX_ABOUT, TEXT("About"), showAboutDlg, NULL, false);
-}
-
-void commandMenuCleanUp()
-{
-	for (int i = 0; i < NB_FUNC; ++i) {
-		delete g_funcItem[i]._pShKey;
-	}
+    static std::vector<FuncItem> res = {
+        MAKE_CALLBACK(FUNC_INDEX_JSLINT_CURRENT_FILE, TEXT("JSLint Current File"), jsLintCurrentFile, &f5),
+        MAKE_CALLBACK(FUNC_INDEX_JSLINT_ALL_FILES, TEXT("JSLint All Files"), jsLintAllFiles, &f6),
+        MAKE_SEPARATOR(FUNC_INDEX_SEP_2),
+        MAKE_CALLBACK(FUNC_INDEX_GOTO_PREV_LINT, TEXT("Go To Previous Lint"), gotoPrevLint, &f7),
+        MAKE_CALLBACK(FUNC_INDEX_GOTO_NEXT_LINT, TEXT("Go To Next Lint"), gotoNextLint, &f8),
+        MAKE_CALLBACK(FUNC_INDEX_SHOW_LINTS, TEXT("Show Lints"), showLints, nullptr),
+        MAKE_SEPARATOR(FUNC_INDEX_SEP_6),
+        MAKE_CALLBACK(FUNC_INDEX_JSLINT_OPTIONS, TEXT("JSLint Options"), showJSLintOptionsDlg, nullptr),
+        MAKE_CALLBACK(FUNC_INDEX_SETTINGS, TEXT("Settings"), showSettingsDlg, nullptr),
+        MAKE_SEPARATOR(FUNC_INDEX_SEP_9),
+        MAKE_CALLBACK(FUNC_INDEX_ABOUT, TEXT("About"), showAboutDlg, nullptr)
+    };
+    return res;
 }
 
 //
 // Plugin command functions
 //
 
-void jsLintCurrentFile()
+void JSLintNpp::jsLintCurrentFile()
 {
-	createOutputWindow();
+    createOutputWindow();
 
-	DoEvents();
+    DoEvents();
 
-	int type;
-	::SendMessage(g_nppData._nppHandle, NPPM_GETCURRENTLANGTYPE, 0, (LPARAM)&type);
-    if (JSLintOptions::GetInstance().GetSelectedLinter() == LINTER_JSLINT) {
-	    if (type != L_JS && type != L_JAVASCRIPT && type != L_HTML && type != L_CSS) {
-		    ::MessageBox(
-			    g_nppData._nppHandle, 
-			    TEXT("JSLint can operate only on JavaScript, HTML or CSS files."),
-			    TEXT("JSLint"),
-			    MB_OK | MB_ICONINFORMATION
-		    );
-		    return;
-	    }
-    } else {
-	    if (type != L_JS && type != L_JAVASCRIPT) {
-		    ::MessageBox(
-			    g_nppData._nppHandle, 
-			    TEXT("JSHint can operate only on JavaScript files."),
-			    TEXT("JSLint"),
-			    MB_OK | MB_ICONINFORMATION
-		    );
-		    return;
-	    }
+    int type;
+    send_to_notepad(NPPM_GETCURRENTLANGTYPE, 0, &type);
+    if (options_->GetSelectedLinter() == LINTER_JSLINT) {
+        if (type != L_JS && type != L_JAVASCRIPT && type != L_HTML && type != L_CSS) {
+            ::MessageBox(
+                get_notepad_window(),
+                TEXT("JSLint can operate only on JavaScript, HTML or CSS files."),
+                TEXT("JSLint"),
+                MB_OK | MB_ICONINFORMATION
+            );
+            return;
+        }
+    }
+    else {
+        if (type != L_JS && type != L_JAVASCRIPT) {
+            ::MessageBox(
+                get_notepad_window(),
+                TEXT("JSHint can operate only on JavaScript files."),
+                TEXT("JSLint"),
+                MB_OK | MB_ICONINFORMATION
+            );
+            return;
+        }
     }
 
-	// set hourglass cursor
-	SetCursor(LoadCursor(NULL, IDC_WAIT));
+    // set hourglass cursor
+    SetCursor(LoadCursor(NULL, IDC_WAIT));
 
-	g_outputDlg.ClearAllLints();
-	
-	doJSLint();
-	
-	showLints();
-	gotoNextLint();
+    //g_outputDlg.ClearAllLints();
 
-	// restore normal cursor:
-	POINT pt;
-	GetCursorPos(&pt);
-	SetCursorPos(pt.x, pt.y);
+    doJSLint();
+
+    showLints();
+    gotoNextLint();
+
+    // restore normal cursor:
+    POINT pt;
+    GetCursorPos(&pt);
+    SetCursorPos(pt.x, pt.y);
 }
 
-void jsLintAllFiles()
+void JSLintNpp::jsLintAllFiles()
 {
-	// set hourglass cursor
-	SetCursor(LoadCursor(NULL, IDC_WAIT));
+    // set hourglass cursor
+    SetCursor(LoadCursor(NULL, IDC_WAIT));
 
-	int numJSFiles = 0;
+    int numJSFiles = 0;
 
-	int numOpenFiles = ::SendMessage(g_nppData._nppHandle, NPPM_GETNBOPENFILES, 0, PRIMARY_VIEW);
-	if (numOpenFiles > 0) {
-		createOutputWindow();
+    int numOpenFiles = send_to_notepad(NPPM_GETNBOPENFILES, 0, PRIMARY_VIEW);
+    if (numOpenFiles > 0) {
+        createOutputWindow();
 
-		DoEvents();
+        DoEvents();
 
-		g_outputDlg.ClearAllLints();
+        //g_outputDlg.ClearAllLints();
 
-		for (int i = 0; i < numOpenFiles; ++i) {
-			::SendMessage(g_nppData._nppHandle, NPPM_ACTIVATEDOC, 0, (LPARAM)i);
+        for (int i = 0; i < numOpenFiles; ++i) {
+            send_to_notepad(NPPM_ACTIVATEDOC, 0, i);
 
-			int type;
-			::SendMessage(g_nppData._nppHandle, NPPM_GETCURRENTLANGTYPE, 0, (LPARAM)&type);
-			if (type == L_JS || (JSLintOptions::GetInstance().GetSelectedLinter() == LINTER_JSLINT && (type == L_HTML || type == L_CSS))) {
-				++numJSFiles;
-				doJSLint();
-			}
-		}
-
-		showLints();
-		gotoNextLint();
-	}
-
-	// restore normal cursor:
-	POINT pt;
-	GetCursorPos(&pt);
-	SetCursorPos(pt.x, pt.y);
-
-	if (numJSFiles == 0) {
-        if (JSLintOptions::GetInstance().GetSelectedLinter() == LINTER_JSLINT) {
-		    ::MessageBox(
-			    g_nppData._nppHandle, 
-			    TEXT("There is no JavaScript, HTML or CSS file opened in Notepad++!"),
-			    TEXT("JSLint"),
-			    MB_OK | MB_ICONINFORMATION
-		    );
-        } else {
-		    ::MessageBox(
-			    g_nppData._nppHandle, 
-			    TEXT("There is no JavaScript file opened in Notepad++!"),
-			    TEXT("JSLint"),
-			    MB_OK | MB_ICONINFORMATION
-		    );
+            int type;
+            send_to_notepad(NPPM_GETCURRENTLANGTYPE, 0, &type);
+            if (type == L_JS || (options_->GetSelectedLinter() == LINTER_JSLINT && (type == L_HTML || type == L_CSS))) {
+                ++numJSFiles;
+                doJSLint();
+            }
         }
-		return;
-	}
+
+        showLints();
+        gotoNextLint();
+    }
+
+    // restore normal cursor:
+    POINT pt;
+    GetCursorPos(&pt);
+    SetCursorPos(pt.x, pt.y);
+
+    if (numJSFiles == 0) {
+        if (options_->GetSelectedLinter() == LINTER_JSLINT) {
+            ::MessageBox(
+                get_notepad_window(),
+                TEXT("There is no JavaScript, HTML or CSS file opened in Notepad++!"),
+                TEXT("JSLint"),
+                MB_OK | MB_ICONINFORMATION
+            );
+        }
+        else {
+            ::MessageBox(
+                get_notepad_window(),
+                TEXT("There is no JavaScript file opened in Notepad++!"),
+                TEXT("JSLint"),
+                MB_OK | MB_ICONINFORMATION
+            );
+        }
+        return;
+    }
 }
 
-void gotoNextLint()
+void JSLintNpp::gotoNextLint()
 {
-	g_outputDlg.SelectNextLint();
+    //g_outputDlg.SelectNextLint();
 }
 
-void gotoPrevLint()
+void JSLintNpp::gotoPrevLint()
 {
-	g_outputDlg.SelectPrevLint();
+    //g_outputDlg.SelectPrevLint();
 }
 
-void showLints()
+void JSLintNpp::showLints()
 {
-	createOutputWindow();
-	g_outputDlg.display();
+    createOutputWindow();
+    //g_outputDlg.display();
 }
 
-void showJSLintOptionsDlg()
+void JSLintNpp::showJSLintOptionsDlg()
 {
-    JSLintOptions::GetInstance().ShowDialog();
+    options_->ShowDialog(this);
 }
 
-void showSettingsDlg()
+void JSLintNpp::showSettingsDlg()
 {
-	Settings::GetInstance().ShowDialog();
+    Settings::GetInstance().ShowDialog();
 }
 
-void showAboutDlg()
+void JSLintNpp::showAboutDlg()
 {
-	pluginDialogBox(IDD_ABOUT, AboutDlgProc);
+    pluginDialogBox(IDD_ABOUT, AboutDlgProc);
 }
 
-//
-// Helper functions
-//
-
-bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey *sk, bool check0nInit) 
+/*
+std::wstring JSLintNpp::GetConfigFileName() const 
 {
-    if (index >= NB_FUNC)
-        return false;
+    static std::wstring strConfigFileName;
 
-    if (!pFunc)
-        return false;
+    if (strConfigFileName.empty()) {
+        TCHAR szConfigDir[MAX_PATH];
+        szConfigDir[0] = 0;
+        send_to_notepad(NPPM_GETPLUGINSCONFIGDIR, sizeof(szConfigDir), szConfigDir);
+        strConfigFileName = Path::GetFullPath(TEXT("JSLint.ini"), szConfigDir);
+    }
 
-    lstrcpy(g_funcItem[index]._itemName, cmdName);
-    g_funcItem[index]._pFunc = pFunc;
-    g_funcItem[index]._init2Check = check0nInit;
-    g_funcItem[index]._pShKey = sk;
+    return strConfigFileName;
+}
+*/
 
-    return true;
+void JSLintNpp::createOutputWindow()
+{
+    /*
+    if (!g_outputDlg.isCreated())
+    {
+        g_outputDlg.setParent(g_nppData._nppHandle);
+
+        tTbData	data = { 0 };
+
+        g_outputDlg.create(&data);
+
+        // define the default docking behaviour
+        data.uMask = DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
+        data.pszModuleName = g_outputDlg.getPluginFileName();
+        data.hIconTab = g_outputDlg.GetTabIcon();
+        data.dlgID = FUNC_INDEX_SHOW_LINTS;
+        ::SendMessage(g_nppData._nppHandle, NPPM_DMMREGASDCKDLG, 0, (LPARAM)&data);
+    }
+    */
 }
 
-HWND GetCurrentScintillaWindow()
+void JSLintNpp::doJSLint()
 {
-    int which = -1;
-    ::SendMessage(g_nppData._nppHandle, NPPM_GETCURRENTSCINTILLA, 0, (LPARAM)&which);
-    if (which == -1)
-        return NULL;
-    else if (which == 0) 
-		return g_nppData._scintillaMainHandle;
-	else
-		return g_nppData._scintillaSecondHandle;
-}
+    // get current file path and document index
+    TCHAR filePath[MAX_PATH];
+    send_to_notepad(NPPM_GETFULLCURRENTPATH, 0, filePath);
 
-std::wstring GetConfigFileName()
-{
-	static std::wstring strConfigFileName;
+    // get all the text from the scintilla window
+    Sci_TextRange tr;
 
-	if (strConfigFileName.empty()) {
-		TCHAR szConfigDir[MAX_PATH];
-		szConfigDir[0] = 0;
-		::SendMessage(g_nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, 
-			MAX_PATH, (LPARAM)szConfigDir);
-		strConfigFileName = Path::GetFullPath(TEXT("JSLint.ini"), szConfigDir);
-	}
-
-	return strConfigFileName;
-}
-
-void createOutputWindow()
-{
-	if (!g_outputDlg.isCreated())
-	{
-		g_outputDlg.setParent(g_nppData._nppHandle);
-		
-		tTbData	data = {0};
-		
-		g_outputDlg.create(&data);
-
-		// define the default docking behaviour
-		data.uMask = DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
-		data.pszModuleName = g_outputDlg.getPluginFileName();
-		data.hIconTab = g_outputDlg.GetTabIcon();
-		data.dlgID = FUNC_INDEX_SHOW_LINTS;
-		::SendMessage(g_nppData._nppHandle, NPPM_DMMREGASDCKDLG, 0, (LPARAM)&data);
-	}
-}
-
-void doJSLint()
-{
-	// get current file path and document index
-	TCHAR filePath[MAX_PATH];
-	::SendMessage(g_nppData._nppHandle, NPPM_GETFULLCURRENTPATH, 0, (LPARAM)filePath);
-
-    // get the current scintilla window
-    HWND hWndScintilla = GetCurrentScintillaWindow();
-	if (hWndScintilla == NULL) {
-		return;
-	}
-
-	// get all the text from the scintilla window
-	Sci_TextRange tr;
-
-	tr.chrg.cpMin = 0;
+    tr.chrg.cpMin = 0;
     tr.chrg.cpMax = -1;
 
-	int length = (int) ::SendMessage(hWndScintilla, SCI_GETLENGTH, 0, 0);
-	tr.lpstrText = new char[length + 1];
-	tr.lpstrText[0] = 0;
+    int length = (int)send_to_editor(SCI_GETLENGTH);
+    tr.lpstrText = new char[length + 1];
+    tr.lpstrText[0] = 0;
 
-	::SendMessage(hWndScintilla, SCI_GETTEXTRANGE, 0, (LPARAM)&tr);
-	std::string strScript = tr.lpstrText;
-	delete tr.lpstrText;
+    send_to_editor(SCI_GETTEXTRANGE, 0, &tr);
+    std::string strScript = tr.lpstrText;
+    delete tr.lpstrText;
 
-	// get code page of the text
-	int nSciCodePage = (int) ::SendMessage(hWndScintilla, SCI_GETCODEPAGE, 0, 0);
-	if (nSciCodePage != SC_CP_UTF8) {
-		strScript = TextConversion::A_To_UTF8(strScript); // convert to UTF-8
-	}
+    // get code page of the text
+    int nSciCodePage = send_to_editor(SCI_GETCODEPAGE);
+    if (nSciCodePage != SC_CP_UTF8) {
+        strScript = TextConversion::A_To_UTF8(strScript); // convert to UTF-8
+    }
 
-	try {
-		JSLint jsLint;
+    try {
+        JSLint jsLint;
 
-		std::string strOptions = TextConversion::T_To_UTF8(
-			JSLintOptions::GetInstance().GetOptionsJSONString());
-		std::list<JSLintReportItem> lints;
+        std::string strOptions = TextConversion::T_To_UTF8(
+            options_->GetOptionsJSONString());
+        std::list<JSLintReportItem> lints;
 
-		int nppTabWidth = (int) ::SendMessage(hWndScintilla, SCI_GETTABWIDTH, 0, 0);
-		int jsLintTabWidth = JSLintOptions::GetInstance().GetTabWidth();
+        int nppTabWidth = (int)send_to_editor(SCI_GETTABWIDTH);
+        int jsLintTabWidth = options_->GetTabWidth();
 
-		jsLint.CheckScript(strOptions, strScript, nppTabWidth, jsLintTabWidth, lints);
+        jsLint.CheckScript(strOptions, strScript, nppTabWidth, jsLintTabWidth, lints);
 
-		g_outputDlg.AddLints(filePath, lints);
+        //g_outputDlg.AddLints(filePath, lints);
 
-		DoEvents();
-	} catch (std::exception& e) {
-		::MessageBox(
-			g_nppData._nppHandle, 
+        DoEvents();
+    }
+    catch (std::exception& e) {
+        ::MessageBox(
+            get_notepad_window(),
             TextConversion::A_To_T(e.what()).c_str(),
-			TEXT("JSLint"),
-			MB_OK | MB_ICONERROR
-		);
-	}
+            TEXT("JSLint"),
+            MB_OK | MB_ICONERROR
+        );
+    }
 }
 
-INT_PTR pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc)
+INT_PTR JSLintNpp::pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc) const
 {
-	HWND hWndFocus = ::GetFocus();
-	INT_PTR nRet = ::DialogBox((HINSTANCE)g_hDllModule, MAKEINTRESOURCE(idDlg),
-		g_nppData._nppHandle, lpDlgProc);
-	::SetFocus(hWndFocus);
-	return nRet;
+    HWND hWndFocus = ::GetFocus();
+    INT_PTR nRet = ::DialogBoxParam(module(), MAKEINTRESOURCE(idDlg),
+        get_notepad_window(), lpDlgProc, reinterpret_cast<LPARAM>(this));
+    ::SetFocus(hWndFocus);
+    return nRet;
+}
+
+inline std::wstring JSLintNpp::get_config_file_name() const
+{
+    TCHAR szConfigDir[MAX_PATH];
+    szConfigDir[0] = 0;
+    send_to_notepad(NPPM_GETPLUGINSCONFIGDIR, sizeof(szConfigDir), szConfigDir);
+    return Path::GetFullPath(TEXT("JSLint.ini"), szConfigDir);
 }

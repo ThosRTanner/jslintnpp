@@ -84,8 +84,9 @@ void DownloadJSLint::LoadVersions(const std::wstring& fileSpec, std::map<std::ws
 {
     TCHAR szConfigDir[MAX_PATH];
     szConfigDir[0] = 0;
-    ::SendMessage(g_nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, 
-	    MAX_PATH, (LPARAM)szConfigDir);
+    //FIXME
+    //::SendMessage(g_nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, 
+//	    MAX_PATH, (LPARAM)szConfigDir);
     m_versionsFolder = Path::GetFullPath(TEXT("JSLint"), szConfigDir);
     if (!Path::IsFileExists(m_versionsFolder)) {
         CreateDirectory(m_versionsFolder.c_str(), NULL);
@@ -126,7 +127,7 @@ JSLintVersion& DownloadJSLint::GetVersion(Linter linter, const std::wstring& ver
 DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(Linter linter, std::wstring& latestVersion)
 {
     m_linter = linter;    
-
+#if 0
     if (pluginDialogBox(IDD_DOWNLOAD_PROGRESS, JSLintDownloadProgressDlgProc) == IDOK) {
         latestVersion = m_version;
         if (latestVersion.empty()) {
@@ -164,7 +165,7 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(Linter linter, std
             m_result = DOWNLOAD_FAILED;
         }
     }
-
+#endif
     delete [] m_lpBuffer;
     m_lpBuffer = NULL;
 
@@ -402,7 +403,8 @@ INT_PTR CALLBACK DownloadJSLint::JSLintDownloadProgressDlgProc(
         SetWindowText(GetDlgItem(hDlg, IDC_PROGRESS), TEXT("Starting ..."));
         GetInstance().StartDownload(hDlg, IDC_PROGRESS);
 
-        CenterWindow(hDlg, g_nppData._nppHandle);
+        //FIXME
+        //CenterWindow(hDlg, g_nppData._nppHandle);
     } else if (uMessage == WM_DOWNLOAD_FINISHED) {
         EndDialog(hDlg, wParam);
     }

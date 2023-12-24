@@ -19,6 +19,9 @@
     <Filter Include="Notepad++\DockingFeature">
       <UniqueIdentifier>{9cbb6497-b7a3-42dc-8cf7-7ce3ea692a54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DockingDialog">
+      <UniqueIdentifier>{b22a21d1-a696-4df0-8859-517095043ef0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp">
@@ -53,6 +56,12 @@
     </ClCompile>
     <ClCompile Include="Notepad++\DockingFeature\StaticDialog.cpp">
       <Filter>Notepad++\DockingFeature</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.cpp">
+      <Filter>DockingDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.cpp">
+      <Filter>DockingDialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +127,15 @@
     </ClInclude>
     <ClInclude Include="Notepad++\DockingFeature\StaticDialog.h">
       <Filter>Notepad++\DockingFeature</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Callback_Context.h">
+      <Filter>DockingDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.h">
+      <Filter>DockingDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.h">
+      <Filter>DockingDialog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

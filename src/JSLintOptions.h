@@ -17,10 +17,16 @@
 
 #pragma once
 
+class JSLintNpp;
+
+#include <map>
+#include <memory>
+#include <string>
+
 ////////////////////////////////////////////////////////////////////////////////
 
 enum OptionType {
-	OPTION_TYPE_UNKNOW,
+	OPTION_TYPE_UNKNOWN,
 	OPTION_TYPE_BOOL,
 	OPTION_TYPE_INT,
 	OPTION_TYPE_ARR_STRING
@@ -29,7 +35,7 @@ enum OptionType {
 ////////////////////////////////////////////////////////////////////////////////
 
 struct Option {
-	Option() : type(OPTION_TYPE_UNKNOW) {}
+	Option() : type(OPTION_TYPE_UNKNOWN) {}
 
 	Option(const std::wstring& name) 
 		: type(OPTION_TYPE_BOOL)
@@ -54,7 +60,7 @@ struct Option {
 class LinterOptions
 {
 public:
-    LinterOptions(LPCTSTR optionsGroupName);
+    LinterOptions(LPCTSTR optionsGroupName, std::wstring const & options_file);
 
 	void ReadOptions();
 	void SaveOptions();
@@ -62,7 +68,7 @@ public:
 	virtual std::wstring GetOptionsCommentString() const;
 	std::wstring GetOptionsJSONString() const;
 
-	std::wstring GetOptionName(UINT id) const;
+	//std::wstring GetOptionName(UINT id) const;
 	UINT GetOptionID(const std::wstring& name) const;
 
 	void CheckOption(UINT id);
@@ -87,6 +93,9 @@ protected:
     LPCTSTR m_optionsGroupName;
 	std::map<UINT, Option> m_options;
     std::wstring m_additionalOptions;
+
+private:
+    std::wstring options_file_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -94,7 +103,7 @@ protected:
 class JSLintLinterOptions : public LinterOptions
 {
 public:
-    JSLintLinterOptions();
+    JSLintLinterOptions(std::wstring const & options_file);
 
     int GetTabWidth();
     BOOL UpdateOptions(HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage);
@@ -106,7 +115,7 @@ public:
 class JSHintLinterOptions : public LinterOptions
 {
 public:
-    JSHintLinterOptions();
+    JSHintLinterOptions(std::wstring const & config_file);
 
     int GetTabWidth();
     std::wstring GetOptionsCommentString() const;
@@ -123,10 +132,8 @@ enum Linter {
 
 class JSLintOptions
 {
-	JSLintOptions();
-
 public:
-    static JSLintOptions& GetInstance();
+    JSLintOptions(std::wstring const &);
 
 	void ReadOptions();
 	void SaveOptions();
@@ -142,14 +149,19 @@ public:
     BOOL UpdateOptions(HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage);
 	void AppendOption(UINT id, const std::wstring& value);
     void ClearAllOptions();
-    void ShowDialog();
+    void ShowDialog(JSLintNpp const *);
 
 private:
+    std::wstring options_file_;
     Linter m_selectedLinter;
     JSLintLinterOptions m_jsLintOptions;
     JSHintLinterOptions m_jsHintOptions;
 
-    static JSLintOptions m_options;
+    //Get rid of this crapness
+    //
+    //MAYBE A DIALOGUE_INTERFACE like thing. these methods are contorted.
+    static JSLintOptions m_options; //copy of options whilst editing
+    static JSLintOptions *m_m_options; //pointer to current options so it can be overwritten.
     static HWND m_hDlg;
     static HWND m_hWndJSLintOptionsSubdlg;
     static HWND m_hWndJSHintOptionsSubdlg;

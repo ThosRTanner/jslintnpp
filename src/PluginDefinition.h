@@ -16,75 +16,85 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-#ifndef PLUGINDEFINITION_H
-#define PLUGINDEFINITION_H
+#pragma once
 
-#include "PluginInterface.h"
+//#include "PluginInterface.h"
 
-//
-// All definitions of plugin interface
-//
-const TCHAR NPP_PLUGIN_NAME[] = TEXT("JSLint");
-const int NB_FUNC = 11;
+#include "Plugin/Plugin.h"
 
-extern NppData g_nppData;
-extern HANDLE g_hDllModule;
-extern FuncItem g_funcItem[NB_FUNC];
+#include <memory>
+#include <string>
 
-#define FUNC_INDEX_JSLINT_CURRENT_FILE 0
-#define FUNC_INDEX_JSLINT_ALL_FILES    1
-#define FUNC_INDEX_GOTO_PREV_LINT      3
-#define FUNC_INDEX_GOTO_NEXT_LINT      4
-#define FUNC_INDEX_SHOW_LINTS          5
-#define FUNC_INDEX_JSLINT_OPTIONS      7
-#define FUNC_INDEX_SETTINGS            8
-#define FUNC_INDEX_ABOUT               10
+class JSLintOptions;
 
-//
-// Initialization of your plugin data
-// It will be called while plugin loading
-//
-void pluginInit(HANDLE hModule);
+class JSLintNpp : public Plugin
+{
+public:
+	JSLintNpp(NppData const&);
 
-//
-// Load plugin configuration 
-//
-void loadConfig();
+	~JSLintNpp();
 
-//
-// Cleaning of your plugin
-// It will be called while plugin unloading
-//
-void pluginCleanUp();
+	JSLintNpp(JSLintNpp const&) = delete;
+	JSLintNpp(JSLintNpp&&) = delete;
+	JSLintNpp& operator=(JSLintNpp const&) = delete;
+	JSLintNpp& operator=(JSLintNpp&&) = delete;
 
-//
-// Initialization of your plugin commands
-//
-void commandMenuInit();
+	static TCHAR const* get_plugin_name() noexcept
+	{
+		return TEXT("JSLint");
+	}
 
-//
-// Clean up your plugin commands allocation (if any)
-//
-void commandMenuCleanUp();
+	enum Menu_Entries
+	{
+		FUNC_INDEX_JSLINT_CURRENT_FILE,
+		FUNC_INDEX_JSLINT_ALL_FILES,
+		FUNC_INDEX_SEP_2,
+		FUNC_INDEX_GOTO_PREV_LINT,
+		FUNC_INDEX_GOTO_NEXT_LINT,
+		FUNC_INDEX_SHOW_LINTS,
+		FUNC_INDEX_SEP_6,
+		FUNC_INDEX_JSLINT_OPTIONS,
+		FUNC_INDEX_SETTINGS,
+		FUNC_INDEX_SEP_9,
+		FUNC_INDEX_ABOUT
+	};
 
-//
-// Helper functions
-//
-HWND GetCurrentScintillaWindow();
-std::wstring GetConfigFileName();
+	std::wstring GetConfigFileName() const
+	{
+		return config_file_name_;
+	}
 
-//
-// Plugin command functions
-//
-void jsLintCurrentFile();
-void jsLintAllFiles();
-void gotoNextLint();
-void gotoPrevLint();
-void showLints();
-void showJSLintOptionsDlg();
-void showSettingsDlg();
-void showAboutDlg();
+private:
+	std::vector<FuncItem>& on_get_menu_entries() override;
 
-INT_PTR pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc);
+#if 0
+	void on_notification(SCNotification const*) noexcept override;
 
-#endif //PLUGINDEFINITION_H
+	LRESULT on_message(UINT, WPARAM, LPARAM) noexcept override;
+#endif
+
+	void doJSLint();
+
+	void createOutputWindow();
+
+	//
+	// Plugin command functions
+	//
+	void jsLintCurrentFile();
+	void jsLintAllFiles();
+	void gotoNextLint();
+	void gotoPrevLint();
+	void showLints();
+	void showJSLintOptionsDlg();
+	void showSettingsDlg();
+	void showAboutDlg();
+
+public:
+	INT_PTR pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc) const;
+private:
+
+	std::wstring get_config_file_name() const;
+
+	std::wstring config_file_name_;
+	std::unique_ptr<JSLintOptions> options_;
+};
