@@ -25,7 +25,9 @@
 #include <memory>
 #include <string>
 
+class DownloadJSLint;
 class JSLintOptions;
+class Settings;
 
 class JSLintNpp : public Plugin
 {
@@ -64,6 +66,11 @@ public:
 		return config_file_name_;
 	}
 
+	DownloadJSLint* get_downloader() const
+	{
+		return downloader_.get();
+	}
+
 private:
 	std::vector<FuncItem>& on_get_menu_entries() override;
 
@@ -90,11 +97,24 @@ private:
 	void showAboutDlg();
 
 public:
-	INT_PTR pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc) const;
-private:
+	template <class T> INT_PTR pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc, T* self) const
+	{
+		return pluginDialogBox(idDlg, lpDlgProc, static_cast<void const *>(self));
+	}
+
+	template <> INT_PTR pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc, void const *) const;
+
+public:
 
 	std::wstring get_config_file_name() const;
 
+	std::wstring get_config_dir() const;
+
+private:
+	std::wstring config_dir_;
 	std::wstring config_file_name_;
 	std::unique_ptr<JSLintOptions> options_;
+	std::unique_ptr<Settings> settings_;
+	std::unique_ptr<DownloadJSLint> downloader_;
+
 };

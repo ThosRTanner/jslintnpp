@@ -16,14 +16,18 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "StdHeaders.h"
+
 #include "Settings.h"
 
-#include "PluginDefinition.h"
+#include "DownloadJSLint.h"
 #include "JSLint.h"
-#include "resource.h"
+#include "PluginDefinition.h"
 #include "Util.h"
 #include "Version.h"
 
+#include "resource.h"
+
+#include <tchar.h>
 #include <windowsx.h>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,16 +71,18 @@ LPCSTR ScriptSourceDef::GetNamespace()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Settings::Settings()
-    : m_jsLintScript(LINTER_JSLINT)
+Settings* Settings::m_m_instance;
+
+Settings::Settings(JSLintNpp const* plugin)
+    : plugin_(plugin)
+    , config_file_(plugin == nullptr ? L"" : plugin->GetConfigFileName())
+    , m_jsLintScript(LINTER_JSLINT)
     , m_jsHintScript(LINTER_JSHINT)
 {
-}
-
-Settings& Settings::GetInstance()
-{
-    static Settings singleton;
-    return singleton;
+    if (plugin != nullptr)
+    {
+        m_m_instance = this;
+    }
 }
 
 void Settings::ReadOptions()
@@ -93,11 +99,10 @@ void Settings::SaveOptions()
 
 void Settings::ReadOptions(const std::wstring& prefix, ScriptSourceDef& scriptSourceDef)
 {
-    TCHAR szValue[65536]; // memory is cheap
-    /*
-    std::wstring strConfigFileName = GetConfigFileName();
+    std::wstring strConfigFileName = config_file_;
     if (Path::IsFileExists(strConfigFileName)) {
-	    GetPrivateProfileString(PROFILE_JSLINT_GROUP_NAME, PROFILE_BUILD_KEY_NAME,
+        TCHAR szValue[65536]; // memory is cheap
+        GetPrivateProfileString(PROFILE_JSLINT_GROUP_NAME, PROFILE_BUILD_KEY_NAME,
             NULL, szValue, _countof(szValue), strConfigFileName.c_str());
         if (_ttoi(szValue) >= MIN_VERSION_BUILD) {
             if (_ttoi(szValue) >= VERSION_BUILD) {
@@ -134,13 +139,11 @@ void Settings::ReadOptions(const std::wstring& prefix, ScriptSourceDef& scriptSo
             }
         }
     }
-    */
 }
 
 void Settings::SaveOptions(const std::wstring& prefix, const ScriptSourceDef& scriptSourceDef)
 {
-    /*
-	std::wstring strConfigFileName = GetConfigFileName();
+	std::wstring strConfigFileName = config_file_;
 
     WritePrivateProfileString(PROFILE_JSLINT_GROUP_NAME, PROFILE_BUILD_KEY_NAME,
         STR(VERSION_BUILD), strConfigFileName.c_str());
@@ -167,14 +170,13 @@ void Settings::SaveOptions(const std::wstring& prefix, const ScriptSourceDef& sc
     WritePrivateProfileString(PROFILE_SETTINGS_GROUP_NAME, 
         (prefix + PROFILE_UNDEF_VAR_ERR_MSG_KEY_NAME).c_str(),
         scriptSourceDef.m_undefVarErrMsg.c_str(), strConfigFileName.c_str());
-        */
 }
 
 void Settings::LoadVersions(HWND hDlg, int versionsComboBoxID, Linter linter)
 {
     ComboBox_ResetContent(GetDlgItem(hDlg, versionsComboBoxID));
 
-    const std::map<std::wstring, JSLintVersion>& versions = DownloadJSLint::GetInstance().GetVersions(linter);
+    const std::map<std::wstring, JSLintVersion>& versions = plugin_->get_downloader()->GetVersions(linter);
     for (std::map<std::wstring, JSLintVersion>::const_iterator it = versions.begin(); it != versions.end(); ++it) {
         ComboBox_AddString(GetDlgItem(hDlg, versionsComboBoxID), it->first.c_str());
     }
@@ -310,15 +312,18 @@ void Settings::UpdateControls(HWND hDlg)
 
 INT_PTR CALLBACK Settings::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
-    static Settings settings;
-#if 0
+    //FIXME These 2 statics are a gruesome hack. We should be using the same technique as dockingdialogueinterface
+    //to call via a class interface. we should probably abstract that.
+    static Settings settings(nullptr);
+    static Settings const * self;
     if (uMessage == WM_INITDIALOG) {
-        settings = GetInstance();
+        settings = *m_m_instance;
         settings.LoadVersions(hDlg, IDC_JSLINT_SCRIPT_VERSION, LINTER_JSLINT);
         settings.LoadVersions(hDlg, IDC_JSHINT_SCRIPT_VERSION, LINTER_JSHINT);
         settings.UpdateOptions(hDlg, false);
         settings.UpdateControls(hDlg);
-        CenterWindow(hDlg, g_nppData._nppHandle);
+        self = reinterpret_cast<Settings const*>(lParam);
+        CenterWindow(hDlg, self->plugin_->get_notepad_window());
     } else if (uMessage == WM_COMMAND) {
 		if (HIWORD(wParam) == BN_CLICKED) {
             std::wstring latestVersion;
@@ -333,7 +338,7 @@ INT_PTR CALLBACK Settings::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPAR
                     settings.UpdateControls(hDlg);
                     break;
                 case IDC_JSLINT_DOWNLOAD_LATEST:
-                    switch (DownloadJSLint::GetInstance().DownloadLatest(LINTER_JSLINT, latestVersion)) {
+                    switch (self->plugin_->get_downloader()->DownloadLatest(LINTER_JSLINT, latestVersion)) {
                         case DownloadJSLint::DOWNLOAD_OK:
                             settings.LoadVersions(hDlg, IDC_JSLINT_SCRIPT_VERSION, LINTER_JSLINT);
                             ComboBox_SelectString(GetDlgItem(hDlg, IDC_JSLINT_SCRIPT_VERSION),
@@ -348,7 +353,7 @@ INT_PTR CALLBACK Settings::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPAR
                     }
                     break;
                 case IDC_JSHINT_DOWNLOAD_LATEST:
-                    switch (DownloadJSLint::GetInstance().DownloadLatest(LINTER_JSHINT, latestVersion)) {
+                    switch (self->plugin_->get_downloader()->DownloadLatest(LINTER_JSHINT, latestVersion)) {
                         case DownloadJSLint::DOWNLOAD_OK:
                             settings.LoadVersions(hDlg, IDC_JSHINT_SCRIPT_VERSION, LINTER_JSHINT);
                             ComboBox_SelectString(GetDlgItem(hDlg, IDC_JSHINT_SCRIPT_VERSION),
@@ -364,7 +369,7 @@ INT_PTR CALLBACK Settings::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPAR
                     break;
 			    case IDOK:
                     if (settings.UpdateOptions(hDlg, true)) {
-                        GetInstance() = settings;
+                        *m_m_instance = settings; //FIXME Urg
 				        EndDialog(hDlg, 1);
                     }
 				    return 1;
@@ -382,14 +387,12 @@ INT_PTR CALLBACK Settings::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPAR
             return 1;
         }
     }
-#endif
 	return 0;
 }
 
 void Settings::ShowDialog()
 {
-    //FIXME
-	//pluginDialogBox(IDD_SETTINGS, DlgProc);
+	plugin_->pluginDialogBox(IDD_SETTINGS, DlgProc, this);
 }
 
 ScriptSourceDef& Settings::GetScriptSource(Linter linter)

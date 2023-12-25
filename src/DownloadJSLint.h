@@ -45,10 +45,8 @@ private:
 
 class DownloadJSLint
 {
-    DownloadJSLint();
-
 public:
-    static DownloadJSLint& GetInstance();
+    DownloadJSLint(std::wstring const &);
 
     void LoadVersions();
     
@@ -64,6 +62,7 @@ public:
     JSLintVersion& GetVersion(Linter linter, const std::wstring& version);
 
 private:
+    std::wstring config_dir_;
     std::wstring m_versionsFolder;
     std::map<std::wstring, JSLintVersion> m_jsLintVersions;
     std::map<std::wstring, JSLintVersion> m_jsHintVersions;

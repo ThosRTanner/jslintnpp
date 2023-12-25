@@ -16,12 +16,15 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "StdHeaders.h"
+
 #include "DownloadJSLint.h"
 
 #include "PluginDefinition.h"
 #include "Util.h"
+
 #include "resource.h"
 
+#include <stdio.h>
 #include <cstring>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,14 +67,8 @@ std::string JSLintVersion::GetContent()
 
 Linter DownloadJSLint::m_linter;
 
-DownloadJSLint::DownloadJSLint()
+DownloadJSLint::DownloadJSLint(std::wstring const &config_dir) : config_dir_(config_dir)
 {
-}
-
-DownloadJSLint& DownloadJSLint::GetInstance()
-{
-    static DownloadJSLint singleton;
-    return singleton;
 }
 
 void DownloadJSLint::LoadVersions()
@@ -82,12 +79,7 @@ void DownloadJSLint::LoadVersions()
 
 void DownloadJSLint::LoadVersions(const std::wstring& fileSpec, std::map<std::wstring, JSLintVersion>& versions)
 {
-    TCHAR szConfigDir[MAX_PATH];
-    szConfigDir[0] = 0;
-    //FIXME
-    //::SendMessage(g_nppData._nppHandle, NPPM_GETPLUGINSCONFIGDIR, 
-//	    MAX_PATH, (LPARAM)szConfigDir);
-    m_versionsFolder = Path::GetFullPath(TEXT("JSLint"), szConfigDir);
+    m_versionsFolder = Path::GetFullPath(TEXT("JSLint"), config_dir_);
     if (!Path::IsFileExists(m_versionsFolder)) {
         CreateDirectory(m_versionsFolder.c_str(), NULL);
     } 
@@ -242,8 +234,10 @@ void CALLBACK DownloadJSLint::AsyncCallback(HINTERNET hInternet,
     LPVOID lpvStatusInformation,
     DWORD dwStatusInformationLength)
 {
+#if 0
     GetInstance().AsyncCallbackHandler(dwInternetStatus, 
         lpvStatusInformation, dwStatusInformationLength);
+#endif
 }
 
 void DownloadJSLint::AsyncCallbackHandler(DWORD dwInternetStatus,
@@ -401,10 +395,10 @@ INT_PTR CALLBACK DownloadJSLint::JSLintDownloadProgressDlgProc(
 
         SetWindowText(GetDlgItem(hDlg, IDC_URL), m_linter == LINTER_JSLINT ? JSLINT_GITHUB_URL_T : JSHINT_GITHUB_URL_T);
         SetWindowText(GetDlgItem(hDlg, IDC_PROGRESS), TEXT("Starting ..."));
+#if 0
         GetInstance().StartDownload(hDlg, IDC_PROGRESS);
-
-        //FIXME
-        //CenterWindow(hDlg, g_nppData._nppHandle);
+        CenterWindow(hDlg, g_nppData._nppHandle);
+#endif
     } else if (uMessage == WM_DOWNLOAD_FINISHED) {
         EndDialog(hDlg, wParam);
     }

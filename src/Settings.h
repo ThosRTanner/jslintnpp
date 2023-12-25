@@ -17,9 +17,12 @@
 
 #pragma once
 
-#include "DownloadJSLint.h"
+//#include "DownloadJSLint.h"
+#include "JSLintOptions.h"
 
 #include <string>
+
+class JSLintNpp;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,10 +55,8 @@ struct ScriptSourceDef {
 
 class Settings
 {
-	Settings();
-
 public:
-    static Settings& GetInstance();
+	Settings(JSLintNpp const*);
 
 	void ReadOptions();
 	void SaveOptions();
@@ -65,8 +66,13 @@ public:
     ScriptSourceDef& GetScriptSource(Linter linter);
 
 private:
+    JSLintNpp const * plugin_;
+    std::wstring config_file_;
+
     ScriptSourceDef m_jsLintScript;
     ScriptSourceDef m_jsHintScript;
+
+    static Settings* m_m_instance;
 
     void LoadVersions(HWND hDlg, int versionsComboBoxID, Linter linter);
     BOOL UpdateOptions(HWND hDlg, bool bSaveOrValidate);

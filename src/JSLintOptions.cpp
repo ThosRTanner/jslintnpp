@@ -729,5 +729,5 @@ INT_PTR CALLBACK JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam,
 
 void JSLintOptions::ShowDialog(JSLintNpp const *plugin)
 {
-    plugin->pluginDialogBox(IDD_OPTIONS, DlgProc);
+    plugin->pluginDialogBox(IDD_OPTIONS, DlgProc, plugin);
 }

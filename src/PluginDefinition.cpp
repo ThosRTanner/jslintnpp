@@ -61,20 +61,22 @@ Callbacks::Contexts Callbacks::contexts = {
 
 JSLintNpp::JSLintNpp(NppData const& data) :
     Plugin(data),
+    config_dir_(get_config_dir()),
     config_file_name_(get_config_file_name()),
-    options_(std::make_unique<JSLintOptions>(config_file_name_))
+    options_(std::make_unique<JSLintOptions>(config_file_name_)),
+    settings_(std::make_unique<Settings>(this)),
+    downloader_(std::make_unique<DownloadJSLint>(config_dir_))
 {
-
-    //FIXME. Seriously? Singletons?
-    Settings::GetInstance().ReadOptions();
+    //It's not clear to me why some of this isn't done in the constructors
+    //although worth noting that some dodgy stuff goes on with settings and options.
+    settings_->ReadOptions();
     options_->ReadOptions();
-    DownloadJSLint::GetInstance().LoadVersions();
+    downloader_->LoadVersions();
 }
 
 JSLintNpp::~JSLintNpp()
 {
-    //FIXME. Seriously? Singletons?
-    Settings::GetInstance().SaveOptions();
+    settings_->SaveOptions();
     options_->SaveOptions();
 }
 
@@ -237,29 +239,13 @@ void JSLintNpp::showJSLintOptionsDlg()
 
 void JSLintNpp::showSettingsDlg()
 {
-    Settings::GetInstance().ShowDialog();
+    settings_->ShowDialog();
 }
 
 void JSLintNpp::showAboutDlg()
 {
-    pluginDialogBox(IDD_ABOUT, AboutDlgProc);
+    pluginDialogBox(IDD_ABOUT, AboutDlgProc, this);
 }
-
-/*
-std::wstring JSLintNpp::GetConfigFileName() const 
-{
-    static std::wstring strConfigFileName;
-
-    if (strConfigFileName.empty()) {
-        TCHAR szConfigDir[MAX_PATH];
-        szConfigDir[0] = 0;
-        send_to_notepad(NPPM_GETPLUGINSCONFIGDIR, sizeof(szConfigDir), szConfigDir);
-        strConfigFileName = Path::GetFullPath(TEXT("JSLint.ini"), szConfigDir);
-    }
-
-    return strConfigFileName;
-}
-*/
 
 void JSLintNpp::createOutputWindow()
 {
@@ -334,19 +320,25 @@ void JSLintNpp::doJSLint()
     }
 }
 
-INT_PTR JSLintNpp::pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc) const
+template <>
+INT_PTR JSLintNpp::pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc, void const *self) const
 {
     HWND hWndFocus = ::GetFocus();
     INT_PTR nRet = ::DialogBoxParam(module(), MAKEINTRESOURCE(idDlg),
-        get_notepad_window(), lpDlgProc, reinterpret_cast<LPARAM>(this));
+        get_notepad_window(), lpDlgProc, reinterpret_cast<LPARAM>(self));
     ::SetFocus(hWndFocus);
     return nRet;
 }
 
-inline std::wstring JSLintNpp::get_config_file_name() const
+std::wstring JSLintNpp::get_config_dir() const
 {
     TCHAR szConfigDir[MAX_PATH];
     szConfigDir[0] = 0;
     send_to_notepad(NPPM_GETPLUGINSCONFIGDIR, sizeof(szConfigDir), szConfigDir);
-    return Path::GetFullPath(TEXT("JSLint.ini"), szConfigDir);
+    return szConfigDir;
+}
+
+std::wstring JSLintNpp::get_config_file_name() const
+{
+    return Path::GetFullPath(TEXT("JSLint.ini"), get_config_dir());
 }
