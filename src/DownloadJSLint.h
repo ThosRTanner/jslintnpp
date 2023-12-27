@@ -24,6 +24,8 @@
 #include <map>
 #include <string>
 
+class JSLintNpp;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 class JSLintVersion {
@@ -46,7 +48,7 @@ private:
 class DownloadJSLint
 {
 public:
-    DownloadJSLint(std::wstring const &);
+    DownloadJSLint(JSLintNpp const * plugin);
 
     void LoadVersions();
     
@@ -62,6 +64,7 @@ public:
     JSLintVersion& GetVersion(Linter linter, const std::wstring& version);
 
 private:
+    JSLintNpp const * plugin_;
     std::wstring config_dir_;
     std::wstring m_versionsFolder;
     std::map<std::wstring, JSLintVersion> m_jsLintVersions;
@@ -82,7 +85,7 @@ private:
 
     void LoadVersions(const std::wstring& fileSpec, std::map<std::wstring, JSLintVersion>& versions);
 
-    std::wstring GetVersionsFolder();
+    //std::wstring GetVersionsFolder();
 
     void CleanupContext();
     void DownloadOK();

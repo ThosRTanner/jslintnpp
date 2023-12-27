@@ -27,6 +27,7 @@
 
 class DownloadJSLint;
 class JSLintOptions;
+class OutputDlg;
 class Settings;
 
 class JSLintNpp : public Plugin
@@ -61,28 +62,33 @@ public:
 		FUNC_INDEX_ABOUT
 	};
 
-	std::wstring GetConfigFileName() const
+	auto GetConfigFileName() const
 	{
 		return config_file_name_;
 	}
 
-	DownloadJSLint* get_downloader() const
+	auto GetConfigDir() const
+	{
+		return config_dir_;
+	}
+
+	auto get_downloader() const
 	{
 		return downloader_.get();
 	}
 
+	auto get_options() const
+	{
+		return options_.get();
+	}
+
+	auto get_settings() const
+	{
+		return settings_.get();
+	}
+
 private:
 	std::vector<FuncItem>& on_get_menu_entries() override;
-
-#if 0
-	void on_notification(SCNotification const*) noexcept override;
-
-	LRESULT on_message(UINT, WPARAM, LPARAM) noexcept override;
-#endif
-
-	void doJSLint();
-
-	void createOutputWindow();
 
 	//
 	// Plugin command functions
@@ -96,6 +102,16 @@ private:
 	void showSettingsDlg();
 	void showAboutDlg();
 
+#if 0
+	void on_notification(SCNotification const*) noexcept override;
+
+	LRESULT on_message(UINT, WPARAM, LPARAM) noexcept override;
+#endif
+
+	void doJSLint();
+
+	void createOutputWindow();
+
 public:
 	template <class T> INT_PTR pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc, T* self) const
 	{
@@ -104,7 +120,7 @@ public:
 
 	template <> INT_PTR pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc, void const *) const;
 
-public:
+private:
 
 	std::wstring get_config_file_name() const;
 
@@ -116,5 +132,6 @@ private:
 	std::unique_ptr<JSLintOptions> options_;
 	std::unique_ptr<Settings> settings_;
 	std::unique_ptr<DownloadJSLint> downloader_;
+	std::unique_ptr<OutputDlg> output_dialogue_;
 
 };

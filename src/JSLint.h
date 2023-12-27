@@ -19,9 +19,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Util.h"
-
 #include <list>
+#include <string>
+
+class JSLintNpp;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,8 +54,8 @@ public:
 	std::wstring GetReason() const { return m_strReason; }
 	std::wstring GetEvidence() const { return m_strEvidence; }
 
-	bool IsReasonUndefVar() const;
-	std::wstring GetUndefVar() const;
+	bool IsReasonUndefVar(JSLintNpp const* plugin) const;
+	std::wstring GetUndefVar(JSLintNpp const* plugin) const;
 
 private:
     Type m_type;
@@ -69,10 +70,13 @@ private:
 class JSLint
 {
 public:
+	JSLint(JSLintNpp const*);
+
 	void CheckScript(const std::string& strOptions, const std::string& strScript, 
 		int nppTabWidth, int jsLintTabWidth, std::list<JSLintReportItem>& items);
 
 private:
+	JSLintNpp const* plugin_;
 	std::string LoadCustomDataResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType);
 	
 	int GetNumTabs(const std::string& strScript, int line, int character, int tabWidth);

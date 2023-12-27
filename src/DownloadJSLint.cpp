@@ -25,6 +25,7 @@
 #include "resource.h"
 
 #include <stdio.h>
+
 #include <cstring>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +68,7 @@ std::string JSLintVersion::GetContent()
 
 Linter DownloadJSLint::m_linter;
 
-DownloadJSLint::DownloadJSLint(std::wstring const &config_dir) : config_dir_(config_dir)
+DownloadJSLint::DownloadJSLint(JSLintNpp const * plugin) : plugin_(plugin), config_dir_(plugin_->GetConfigDir())
 {
 }
 
@@ -119,8 +120,7 @@ JSLintVersion& DownloadJSLint::GetVersion(Linter linter, const std::wstring& ver
 DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(Linter linter, std::wstring& latestVersion)
 {
     m_linter = linter;    
-#if 0
-    if (pluginDialogBox(IDD_DOWNLOAD_PROGRESS, JSLintDownloadProgressDlgProc) == IDOK) {
+    if (plugin_->pluginDialogBox(IDD_DOWNLOAD_PROGRESS, JSLintDownloadProgressDlgProc, this) == IDOK) {
         latestVersion = m_version;
         if (latestVersion.empty()) {
             SYSTEMTIME time;
@@ -157,7 +157,6 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(Linter linter, std
             m_result = DOWNLOAD_FAILED;
         }
     }
-#endif
     delete [] m_lpBuffer;
     m_lpBuffer = NULL;
 
@@ -234,10 +233,8 @@ void CALLBACK DownloadJSLint::AsyncCallback(HINTERNET hInternet,
     LPVOID lpvStatusInformation,
     DWORD dwStatusInformationLength)
 {
-#if 0
-    GetInstance().AsyncCallbackHandler(dwInternetStatus, 
+    reinterpret_cast<DownloadJSLint*>(dwContext)->AsyncCallbackHandler(dwInternetStatus,
         lpvStatusInformation, dwStatusInformationLength);
-#endif
 }
 
 void DownloadJSLint::AsyncCallbackHandler(DWORD dwInternetStatus,
@@ -376,7 +373,7 @@ void DownloadJSLint::StartDownload(HWND hDlg, int nStatusID)
     if (!WinHttpSendRequest(m_hRequest, 
                         WINHTTP_NO_ADDITIONAL_HEADERS, 0, 
                         WINHTTP_NO_REQUEST_DATA, 0, 0, 
-                        NULL)) {
+                        reinterpret_cast<DWORD_PTR>(this))) {
         DownloadFailed();
         return;
     }
@@ -395,10 +392,9 @@ INT_PTR CALLBACK DownloadJSLint::JSLintDownloadProgressDlgProc(
 
         SetWindowText(GetDlgItem(hDlg, IDC_URL), m_linter == LINTER_JSLINT ? JSLINT_GITHUB_URL_T : JSHINT_GITHUB_URL_T);
         SetWindowText(GetDlgItem(hDlg, IDC_PROGRESS), TEXT("Starting ..."));
-#if 0
-        GetInstance().StartDownload(hDlg, IDC_PROGRESS);
-        CenterWindow(hDlg, g_nppData._nppHandle);
-#endif
+        auto self = reinterpret_cast<DownloadJSLint*>(lParam);
+        self->StartDownload(hDlg, IDC_PROGRESS);
+        CenterWindow(hDlg, self->plugin_->get_notepad_window());
     } else if (uMessage == WM_DOWNLOAD_FINISHED) {
         EndDialog(hDlg, wParam);
     }

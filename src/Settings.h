@@ -46,9 +46,9 @@ struct ScriptSourceDef {
     bool m_bSpecUndefVarErrMsg;
     std::wstring m_undefVarErrMsg;
 
-    int GetScriptResourceID();
-    LPCTSTR GetDefaultUndefVarErrMsg();
-    LPCSTR GetNamespace();
+    int GetScriptResourceID() const;
+    LPCTSTR GetDefaultUndefVarErrMsg() const;
+    LPCSTR GetNamespace() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ public:
 
     void ShowDialog();
 
-    ScriptSourceDef& GetScriptSource(Linter linter);
+    ScriptSourceDef const & GetScriptSource(Linter linter) const;
 
 private:
     JSLintNpp const * plugin_;

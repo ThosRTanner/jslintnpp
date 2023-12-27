@@ -54,17 +54,17 @@ ScriptSourceDef::ScriptSourceDef(Linter linter)
 {
 }
 
-int ScriptSourceDef::GetScriptResourceID()
+int ScriptSourceDef::GetScriptResourceID() const
 {
     return m_linter == LINTER_JSLINT ? IDR_JSLINT : IDR_JSHINT;
 }
 
-LPCTSTR ScriptSourceDef::GetDefaultUndefVarErrMsg()
+LPCTSTR ScriptSourceDef::GetDefaultUndefVarErrMsg() const
 {
     return m_linter == LINTER_JSLINT ? JSLINT_DEFAULT_UNDEF_VAR_ERR_MSG : JSHINT_DEFAULT_UNDEF_VAR_ERR_MSG;
 }
 
-LPCSTR ScriptSourceDef::GetNamespace()
+LPCSTR ScriptSourceDef::GetNamespace() const
 {
     return m_linter == LINTER_JSLINT ? "JSLINT" : "JSHINT";
 }
@@ -312,7 +312,7 @@ void Settings::UpdateControls(HWND hDlg)
 
 INT_PTR CALLBACK Settings::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
-    //FIXME These 2 statics are a gruesome hack. We should be using the same technique as dockingdialogueinterface
+    //FIXME These 2 statics are a gruesome hack. We should be using the same technique as docking_dialogue_interface
     //to call via a class interface. we should probably abstract that.
     static Settings settings(nullptr);
     static Settings const * self;
@@ -395,7 +395,7 @@ void Settings::ShowDialog()
 	plugin_->pluginDialogBox(IDD_SETTINGS, DlgProc, this);
 }
 
-ScriptSourceDef& Settings::GetScriptSource(Linter linter)
+ScriptSourceDef const & Settings::GetScriptSource(Linter linter) const
 {
     return linter == LINTER_JSLINT ? m_jsLintScript : m_jsHintScript;
 }

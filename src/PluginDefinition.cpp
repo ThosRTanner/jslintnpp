@@ -20,11 +20,13 @@
 #include "PluginDefinition.h"
 
 #include "AboutDlg.h"
+#include "DownloadJSLint.h"
 #include "JSLint.h"
 #include "JSLintOptions.h"
-#include "Settings.h"
-#include "DownloadJSLint.h"
 #include "OutputDlg.h"
+#include "Settings.h"
+#include "Util.h"
+
 
 
 #include "Plugin/Callback_Context.h"
@@ -65,7 +67,7 @@ JSLintNpp::JSLintNpp(NppData const& data) :
     config_file_name_(get_config_file_name()),
     options_(std::make_unique<JSLintOptions>(config_file_name_)),
     settings_(std::make_unique<Settings>(this)),
-    downloader_(std::make_unique<DownloadJSLint>(config_dir_))
+    downloader_(std::make_unique<DownloadJSLint>(this))
 {
     //It's not clear to me why some of this isn't done in the constructors
     //although worth noting that some dodgy stuff goes on with settings and options.
@@ -147,7 +149,7 @@ void JSLintNpp::jsLintCurrentFile()
     // set hourglass cursor
     SetCursor(LoadCursor(NULL, IDC_WAIT));
 
-    //g_outputDlg.ClearAllLints();
+    output_dialogue_->ClearAllLints();
 
     doJSLint();
 
@@ -173,7 +175,7 @@ void JSLintNpp::jsLintAllFiles()
 
         DoEvents();
 
-        //g_outputDlg.ClearAllLints();
+        output_dialogue_->ClearAllLints();
 
         for (int i = 0; i < numOpenFiles; ++i) {
             send_to_notepad(NPPM_ACTIVATEDOC, 0, i);
@@ -216,20 +218,26 @@ void JSLintNpp::jsLintAllFiles()
     }
 }
 
-void JSLintNpp::gotoNextLint()
+inline void JSLintNpp::gotoNextLint()
 {
-    //g_outputDlg.SelectNextLint();
+    if (output_dialogue_)
+    {
+        output_dialogue_->SelectNextLint();
+    }
 }
 
 void JSLintNpp::gotoPrevLint()
 {
-    //g_outputDlg.SelectPrevLint();
+    if (output_dialogue_)
+    {
+        output_dialogue_->SelectPrevLint();
+    }
 }
 
 void JSLintNpp::showLints()
 {
     createOutputWindow();
-    //g_outputDlg.display();
+    output_dialogue_->display();
 }
 
 void JSLintNpp::showJSLintOptionsDlg()
@@ -249,23 +257,10 @@ void JSLintNpp::showAboutDlg()
 
 void JSLintNpp::createOutputWindow()
 {
-    /*
-    if (!g_outputDlg.isCreated())
+    if (!output_dialogue_)
     {
-        g_outputDlg.setParent(g_nppData._nppHandle);
-
-        tTbData	data = { 0 };
-
-        g_outputDlg.create(&data);
-
-        // define the default docking behaviour
-        data.uMask = DWS_DF_CONT_BOTTOM | DWS_ICONTAB;
-        data.pszModuleName = g_outputDlg.getPluginFileName();
-        data.hIconTab = g_outputDlg.GetTabIcon();
-        data.dlgID = FUNC_INDEX_SHOW_LINTS;
-        ::SendMessage(g_nppData._nppHandle, NPPM_DMMREGASDCKDLG, 0, (LPARAM)&data);
+        output_dialogue_ = std::make_unique<OutputDlg>(FUNC_INDEX_SHOW_LINTS, this);
     }
-    */
 }
 
 void JSLintNpp::doJSLint()
@@ -295,7 +290,7 @@ void JSLintNpp::doJSLint()
     }
 
     try {
-        JSLint jsLint;
+        JSLint jsLint(this);
 
         std::string strOptions = TextConversion::T_To_UTF8(
             options_->GetOptionsJSONString());
@@ -306,7 +301,7 @@ void JSLintNpp::doJSLint()
 
         jsLint.CheckScript(strOptions, strScript, nppTabWidth, jsLintTabWidth, lints);
 
-        //g_outputDlg.AddLints(filePath, lints);
+        output_dialogue_->AddLints(filePath, lints);
 
         DoEvents();
     }
@@ -340,5 +335,5 @@ std::wstring JSLintNpp::get_config_dir() const
 
 std::wstring JSLintNpp::get_config_file_name() const
 {
-    return Path::GetFullPath(TEXT("JSLint.ini"), get_config_dir());
+    return Path::GetFullPath(TEXT("JSLint.ini"), config_dir_);
 }

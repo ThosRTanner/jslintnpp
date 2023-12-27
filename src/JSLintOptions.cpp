@@ -22,7 +22,6 @@
 #include "PluginDefinition.h"
 #include "Settings.h"
 #include "Util.h"
-//#include "Version.h"
 
 #include "resource.h"
 

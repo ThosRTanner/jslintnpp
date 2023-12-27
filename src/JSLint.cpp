@@ -16,11 +16,13 @@
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "StdHeaders.h"
+
 #include "JSLint.h"
 
-#include "Settings.h"
 #include "DownloadJSLint.h"
-#include "resource.h"
+#include "PluginDefinition.h"
+#include "Settings.h"
+#include "Util.h"
 
 #include <v8.h>
 #include <libplatform/libplatform.h>
@@ -31,17 +33,16 @@ using namespace v8;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool JSLintReportItem::IsReasonUndefVar() const
+bool JSLintReportItem::IsReasonUndefVar(JSLintNpp const* plugin) const
 {
-    return !GetUndefVar().empty();
+    return !GetUndefVar(plugin).empty();
 }
 
-std::wstring JSLintReportItem::GetUndefVar() const
+std::wstring JSLintReportItem::GetUndefVar(JSLintNpp const* plugin) const
 {
     std::wstring var;
-#if 0
     if (m_type == LINT_TYPE_ERROR) {
-        ScriptSourceDef& scriptSource = Settings::GetInstance().GetScriptSource(JSLintOptions::GetInstance().GetSelectedLinter());
+        ScriptSourceDef const& scriptSource = plugin->get_settings()->GetScriptSource(plugin->get_options()->GetSelectedLinter());
 
         std::wstring errMsg = scriptSource.m_scriptSource == SCRIPT_SOURCE_DOWNLOADED && scriptSource.m_bSpecUndefVarErrMsg
             ? scriptSource.m_undefVarErrMsg : scriptSource.GetDefaultUndefVarErrMsg();
@@ -50,13 +51,12 @@ std::wstring JSLintReportItem::GetUndefVar() const
         if (i != std::wstring::npos) {
             int nAfter = errMsg.size() - (i + 2);
             if (m_strReason.substr(0, i) == errMsg.substr(0, i) &&
-                m_strReason.substr(m_strReason.size() - nAfter) == errMsg.substr(i + 2)) 
+                m_strReason.substr(m_strReason.size() - nAfter) == errMsg.substr(i + 2))
             {
                 var = m_strReason.substr(i, m_strReason.size() - nAfter - i);
             }
         }
     }
-#endif
     return var;
 }
 
@@ -79,10 +79,41 @@ void messageListener(Handle<Message> message, Handle<Value> data)
 }
 */
 
-void JSLint::CheckScript(const std::string& strOptions, const std::string& strScript, 
-	int nppTabWidth, int jsLintTabWidth, std::list<JSLintReportItem>& items)
+class V8_Instance
 {
-#if 0
+public:
+    V8_Instance()
+    {
+        //FIXME Remove hardcoded path
+        V8::InitializeICUDefaultLocation(
+            "C:\\Program Files\\Notepad++\\notepad++.exe",
+            "C:\\Program Files\\Notepad++\\plugins\\JSLintNpp\\icudtl.dat"
+        );
+        platform_ = ::v8::platform::NewDefaultPlatform();
+        V8::InitializePlatform(platform_.get());
+        V8::Initialize();
+    }
+
+    ~V8_Instance()
+    {
+        V8::Dispose();
+        V8::DisposePlatform();
+        //A note: When you are debugging, notepad++ will crash or hang at this point (when deleting platform_). It's OK when running normally.
+    }
+
+private:
+    std::unique_ptr<::v8::Platform> platform_;
+};
+
+std::unique_ptr<V8_Instance> v8_instance;
+
+JSLint::JSLint(JSLintNpp const* plugin) : plugin_(plugin)
+{
+}
+
+void JSLint::CheckScript(const std::string& strOptions, const std::string& strScript,
+    int nppTabWidth, int jsLintTabWidth, std::list<JSLintReportItem>& items)
+{
     //V8::SetFatalErrorHandler(fatalErrorHandler);
     //V8::AddMessageListener(messageListener);
 
@@ -93,42 +124,37 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
     unsigned int cw = _controlfp(0, 0); // Get the default fp control word
     unsigned int cwOriginal = _controlfp(cw, MCW_EM);
 
-    // Initialize V8.
-    //FIXME Remove hardcoded path
-    v8::V8::InitializeICUDefaultLocation(
-        "C:\\Program Files\\Notepad++\\notepad++.exe",
-        "C:\\Program Files\\Notepad++\\plugins\\JSLintNpp\\icudtl.dat"
-    );
-    std::unique_ptr<Platform> platform = ::v8::platform::NewDefaultPlatform();
-    v8::V8::InitializePlatform(platform.get());
-    v8::V8::Initialize();
+    if (!v8_instance)
+    {
+        v8_instance = std::make_unique<V8_Instance>();
+    }
 
     // Create a new Isolate and make it the current one.
-    v8::Isolate::CreateParams create_params;
+    Isolate::CreateParams create_params;
     create_params.array_buffer_allocator =
-        v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-    v8::Isolate* isolate = v8::Isolate::New(create_params);
+        ArrayBuffer::Allocator::NewDefaultAllocator();
+    Isolate* isolate = Isolate::New(create_params);
 
     {
-        v8::Isolate::Scope isolate_scope(isolate);
+        Isolate::Scope isolate_scope(isolate);
 
         // Create a stack-allocated handle scope.
-        v8::HandleScope handle_scope(isolate);
+        HandleScope handle_scope(isolate);
 
         // Create a new context.
-        v8::Local<v8::Context> context = v8::Context::New(isolate);
+        Local<Context> context = Context::New(isolate);
 
         // Enter the context for compiling and running the hello world script.
-        v8::Context::Scope context_scope(context);
+        Context::Scope context_scope(context);
 
-        ScriptSourceDef& scriptSource = Settings::GetInstance().GetScriptSource(JSLintOptions::GetInstance().GetSelectedLinter());
+        ScriptSourceDef const& scriptSource = plugin_->get_settings()->GetScriptSource(plugin_->get_options()->GetSelectedLinter());
 
         std::string strJSLintScript;
         if (scriptSource.m_scriptSource == SCRIPT_SOURCE_BUILTIN) {
-            strJSLintScript = LoadCustomDataResource((HMODULE)g_hDllModule, MAKEINTRESOURCE(scriptSource.GetScriptResourceID()), TEXT("JS"));
+            strJSLintScript = LoadCustomDataResource(plugin_->module(), MAKEINTRESOURCE(scriptSource.GetScriptResourceID()), TEXT("JS"));
         }
         else {
-            strJSLintScript = DownloadJSLint::GetInstance().GetVersion(scriptSource.m_linter, scriptSource.m_scriptVersion).GetContent();
+            strJSLintScript = plugin_->get_downloader()->GetVersion(scriptSource.m_linter, scriptSource.m_scriptVersion).GetContent();
         }
 
         if (strJSLintScript.empty()) {
@@ -245,61 +271,58 @@ void JSLint::CheckScript(const std::string& strOptions, const std::string& strSc
     }
 
     // FIXME If we throw an exception this doesn't get done and bad things happen
-    // Apparently bad things happen even if we do do the teardown >.<
     // Dispose the isolate and tear down V8.
     isolate->Dispose();
-    v8::V8::Dispose();
-    v8::V8::DisposePlatform();
     delete create_params.array_buffer_allocator;
 
     _controlfp(cwOriginal, MCW_EM);  // Restore the original gp control world
-#endif
 }
 
 std::string JSLint::LoadCustomDataResource(HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType)
 {
-	HRSRC hRes = FindResource(hModule, lpName, lpType);
-	if (hRes == NULL) {
-		throw JSLintResourceException();
-	}
+    HRSRC hRes = FindResource(hModule, lpName, lpType);
+    if (hRes == NULL) {
+        throw JSLintResourceException();
+    }
 
-	DWORD dwSize = SizeofResource(hModule, hRes);
-	if (dwSize == 0) {
-		throw JSLintResourceException();
-	}
+    DWORD dwSize = SizeofResource(hModule, hRes);
+    if (dwSize == 0) {
+        throw JSLintResourceException();
+    }
 
-	HGLOBAL hResLoad = LoadResource(hModule, hRes);
-	if (hResLoad == NULL) {
-		throw JSLintResourceException();
-	}
+    HGLOBAL hResLoad = LoadResource(hModule, hRes);
+    if (hResLoad == NULL) {
+        throw JSLintResourceException();
+    }
 
-	LPVOID pData = LockResource(hResLoad);
-	if (pData == NULL) {
-		throw JSLintResourceException();
-	}
+    LPVOID pData = LockResource(hResLoad);
+    if (pData == NULL) {
+        throw JSLintResourceException();
+    }
 
     return std::string((const char*)pData, dwSize);
 }
 
 int JSLint::GetNumTabs(const std::string& strScript, int line, int character, int tabWidth)
 {
-	int numTabs = 0;
+    int numTabs = 0;
 
-	size_t i = 0;
+    size_t i = 0;
 
-	while (line-- > 0) {
-		i = strScript.find('\n', i) + 1;
-	}
+    while (line-- > 0) {
+        i = strScript.find('\n', i) + 1;
+    }
 
-	while (character > 0) {
+    while (character > 0) {
         if (i < strScript.length() && strScript[i++] == '\t') {
-			++numTabs;
-			character -= tabWidth;
-		} else {
-			character--;
-		}
+            ++numTabs;
+            character -= tabWidth;
+        }
+        else {
+            character--;
+        }
 
-	}
+    }
 
-	return numTabs;
+    return numTabs;
 }

@@ -18,20 +18,27 @@
 #ifndef OUTPUT_DLG_H
 #define OUTPUT_DLG_H
 
-#include "DockingFeature/DockingDlgInterface.h"
-#include "resource.h"
+//#include "DockingFeature/DockingDlgInterface.h"
+#include "Plugin/Docking_Dialogue_Interface.h"
+
 #include "JSLint.h"
+
+#include "resource.h"
 
 #include <CommCtrl.h>
 
 #include <list>
+#include <vector>
 
-class OutputDlg : public DockingDlgInterface
+class JSLintNpp;
+
+class OutputDlg : public Docking_Dialogue_Interface
 {
 public :
-	OutputDlg();
+	OutputDlg(int menu, JSLintNpp const *);
 	~OutputDlg();
 
+	/*
     virtual void display(bool toShow = true) const {
         DockingDlgInterface::display(toShow);
         if (toShow)
@@ -41,6 +48,12 @@ public :
 	void setParent(HWND parent2set){
 		_hParent = parent2set;
 	};
+	*/
+
+	void on_display() noexcept
+	{
+		::SetFocus(GetDlgItem(IDC_OUTPUT));
+	}
 
 	HICON GetTabIcon();
 
@@ -50,12 +63,12 @@ public :
 	void SelectPrevLint();
 
 protected :
-	virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
 
 	void OnToolbarCmd(UINT message);
 	void OnToolbarDropDown(LPNMTOOLBAR lpnmtb);
 
 private:
+	JSLintNpp const * plugin_;
 	HICON m_hTabIcon;
     HWND m_hWndTab;
 
@@ -77,7 +90,9 @@ private:
 	};
 	std::vector<FileLint> m_fileLints[NUM_LIST_VIEWS];
 
-    void InitializeTab();
+	std::optional<LONG_PTR> on_dialogue_message(UINT message, WPARAM wParam, LPARAM lParam) override;
+
+	void InitializeTab();
     void InitializeListView(int i);
 	void Resize();
     void OnTabSelChanged();
