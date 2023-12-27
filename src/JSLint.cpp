@@ -52,7 +52,7 @@ std::wstring JSLintReportItem::GetUndefVar(JSLintNpp const *plugin) const
             ? scriptSource.m_undefVarErrMsg
             : scriptSource.GetDefaultUndefVarErrMsg();
 
-        std::wstring::size_type i = errMsg.find(TEXT("%s"));
+        std::wstring::size_type i = errMsg.find(L"%s");
         if (i != std::wstring::npos)
         {
             int nAfter = errMsg.size() - (i + 2);
@@ -171,7 +171,7 @@ void JSLint::CheckScript(
             strJSLintScript = LoadCustomDataResource(
                 plugin_->module(),
                 MAKEINTRESOURCE(scriptSource.GetScriptResourceID()),
-                TEXT("JS")
+                L"JS"
             );
         }
         else
@@ -393,9 +393,9 @@ void JSLint::CheckScript(
                             .ToLocalChecked()
                     );
 
-                    std::wstring reason = TEXT("'")
-                        + TextConversion::UTF8_To_T(*name) + TEXT("' in '")
-                        + TextConversion::UTF8_To_T(*function) + TEXT("'");
+                    std::wstring reason = L"'"
+                        + TextConversion::UTF8_To_T(*name) + L"' in '"
+                        + TextConversion::UTF8_To_T(*function) + L"'";
 
                     items.push_back(JSLintReportItem(
                         JSLintReportItem::LINT_TYPE_UNUSED,

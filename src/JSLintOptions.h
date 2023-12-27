@@ -43,8 +43,8 @@ struct Option
     Option(std::wstring const &name) :
         type(OPTION_TYPE_BOOL),
         name(name),
-        value(TEXT("")),
-        defaultValue(TEXT(""))
+        value(L""),
+        defaultValue(L"")
     {
     }
 

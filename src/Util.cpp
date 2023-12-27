@@ -26,8 +26,8 @@
 
 std::wstring TrimSpaces(std::wstring const &str)
 {
-    size_t first = str.find_first_not_of(TEXT(" \t\r\n"));
-    size_t last = str.find_last_not_of(TEXT(" \t\r\n"));
+    size_t first = str.find_first_not_of(L" \t\r\n");
+    size_t last = str.find_last_not_of(L" \t\r\n");
 
     if (first == std::string::npos || last == std::string::npos)
     {
@@ -183,7 +183,7 @@ std::wstring Path::GetFullPath(std::wstring const &strPath)
     TCHAR strCurrentDirectory[MAX_PATH];
     if (GetCurrentDirectory(MAX_PATH, strCurrentDirectory) == 0)
     {
-        return TEXT("");
+        return L"";
     }
     return GetFullPath(strPath, strCurrentDirectory);
 }
@@ -220,13 +220,13 @@ std::wstring Path::GetTempFileName()
     TCHAR szTempPath[MAX_PATH];
     if (::GetTempPath(MAX_PATH, szTempPath) == 0)
     {
-        return TEXT("");
+        return L"";
     }
 
     TCHAR szTempFileName[MAX_PATH];
     if (::GetTempFileName(szTempPath, nullptr, 0, szTempFileName) == 0)
     {
-        return TEXT("");
+        return L"";
     }
 
     return szTempFileName;

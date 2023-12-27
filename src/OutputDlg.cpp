@@ -45,8 +45,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 OutputDlg::TabDefinition OutputDlg::m_tabs[] = {
-    {TEXT("Errors"), IDC_ERROR_LIST,  true },
-    {TEXT("Unused"), IDC_UNUSED_LIST, false}
+    {L"Errors", IDC_ERROR_LIST,  true },
+    {L"Unused", IDC_UNUSED_LIST, false}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -215,7 +215,7 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
 
             if (iFocused != -1)
             {
-                AppendMenu(menu, MF_ENABLED, ID_SHOW_LINT, TEXT("Show"));
+                AppendMenu(menu, MF_ENABLED, ID_SHOW_LINT, L"Show");
             }
 
             if (reasonIsUndefVar)
@@ -224,7 +224,7 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
                     menu,
                     MF_ENABLED,
                     ID_ADD_PREDEFINED,
-                    TEXT("Add to the Predefined List")
+                    L"Add to the Predefined List"
                 );
             }
 
@@ -235,10 +235,10 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
 
             if (numSelected > 0)
             {
-                AppendMenu(menu, MF_ENABLED, ID_COPY_LINTS, TEXT("Copy"));
+                AppendMenu(menu, MF_ENABLED, ID_COPY_LINTS, L"Copy");
             }
 
-            AppendMenu(menu, MF_ENABLED, ID_SELECT_ALL, TEXT("Select All"));
+            AppendMenu(menu, MF_ENABLED, ID_SELECT_ALL, L"Select All");
 
             // determine context menu position
             POINT point;
@@ -304,7 +304,7 @@ void OutputDlg::InitializeListView(int i)
     int iCol = 0;
 
     lvc.iSubItem = iCol;
-    lvc.pszText = const_cast<wchar_t *>(TEXT(""));
+    lvc.pszText = const_cast<wchar_t *>(L"");
     lvc.cx = 28;
     lvc.fmt = LVCFMT_RIGHT;
     ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
@@ -312,7 +312,7 @@ void OutputDlg::InitializeListView(int i)
     if (m_tabs[i].m_errorList)
     {
         lvc.iSubItem = iCol;
-        lvc.pszText = const_cast<wchar_t *>(TEXT("Reason"));
+        lvc.pszText = const_cast<wchar_t *>(L"Reason");
         lvc.cx = 500;
         lvc.fmt = LVCFMT_LEFT;
         ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
@@ -320,32 +320,32 @@ void OutputDlg::InitializeListView(int i)
     else
     {
         lvc.iSubItem = iCol;
-        lvc.pszText = const_cast<wchar_t *>(TEXT("Variable"));
+        lvc.pszText = const_cast<wchar_t *>(L"Variable");
         lvc.cx = 250;
         lvc.fmt = LVCFMT_LEFT;
         ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
 
         lvc.iSubItem = iCol;
-        lvc.pszText = const_cast<wchar_t *>(TEXT("Function"));
+        lvc.pszText = const_cast<wchar_t *>(L"Function");
         lvc.cx = 250;
         lvc.fmt = LVCFMT_LEFT;
         ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
     }
 
     lvc.iSubItem = iCol;
-    lvc.pszText = const_cast<wchar_t *>(TEXT("File"));
+    lvc.pszText = const_cast<wchar_t *>(L"File");
     lvc.cx = 200;
     lvc.fmt = LVCFMT_LEFT;
     ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
 
     lvc.iSubItem = iCol;
-    lvc.pszText = const_cast<wchar_t *>(TEXT("Line"));
+    lvc.pszText = const_cast<wchar_t *>(L"Line");
     lvc.cx = 50;
     lvc.fmt = LVCFMT_RIGHT;
     ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
 
     lvc.iSubItem = iCol;
-    lvc.pszText = const_cast<wchar_t *>(TEXT("Column"));
+    lvc.pszText = const_cast<wchar_t *>(L"Column");
     lvc.cx = 50;
     lvc.fmt = LVCFMT_RIGHT;
     ListView_InsertColumn(m_hWndListViews[i], iCol++, &lvc);
@@ -403,11 +403,11 @@ void OutputDlg::GetNameStrFromCmd(UINT resID, LPTSTR tip, UINT count)
     // NOTE: On change, keep sure to change order of IDM_EX_... in toolBarIcons
     // also
     static wchar_t const *szToolTip[] = {
-        TEXT("JSLint Current File"),
-        TEXT("JSLint All Files"),
-        TEXT("Go To Previous Lint"),
-        TEXT("Go To Next Lint"),
-        TEXT("JSLint Options"),
+        L"JSLint Current File",
+        L"JSLint All Files",
+        L"Go To Previous Lint",
+        L"Go To Next Lint",
+        L"JSLint Options",
     };
 
     _tcscpy(tip, szToolTip[resID - IDM_TB_JSLINT_CURRENT_FILE]);
@@ -444,7 +444,7 @@ void OutputDlg::AddLints(
         lvI.state = 0;
         lvI.stateMask = 0;
 
-        stream.str(TEXT(""));
+        stream.str(L"");
         stream << lvI.iItem + 1;
         std::wstring strNum = stream.str();
 
@@ -478,14 +478,14 @@ void OutputDlg::AddLints(
             hWndListView, lvI.iItem, iCol++, (LPTSTR)strFile.c_str()
         );
 
-        stream.str(TEXT(""));
+        stream.str(L"");
         stream << lint.GetLine() + 1;
         std::wstring strLine = stream.str();
         ListView_SetItemText(
             hWndListView, lvI.iItem, iCol++, (LPTSTR)strLine.c_str()
         );
 
-        stream.str(TEXT(""));
+        stream.str(L"");
         stream << lint.GetCharacter() + 1;
         std::wstring strColumn = stream.str();
         ListView_SetItemText(
@@ -501,9 +501,8 @@ void OutputDlg::AddLints(
         int count = ListView_GetItemCount(m_hWndListViews[i]);
         if (count > 0)
         {
-            stream.str(TEXT(""));
-            stream << m_tabs[i].m_strTabName << TEXT(" (") << count
-                   << TEXT(")");
+            stream.str(L"");
+            stream << m_tabs[i].m_strTabName << L" (" << count << L")";
             strTabName = stream.str();
         }
         else
@@ -664,14 +663,13 @@ void OutputDlg::CopyToClipboard()
         }
         else
         {
-            stream << TEXT("\r\n");
+            stream << L"\r\n";
         }
 
-        stream << TEXT("Line ") << fileLint.lint.GetLine() + 1
-               << TEXT(", column ") << fileLint.lint.GetCharacter() + 1
-               << TEXT(": ") << fileLint.lint.GetReason().c_str()
-               << TEXT("\r\n\t") << fileLint.lint.GetEvidence().c_str()
-               << TEXT("\r\n");
+        stream << L"Line " << fileLint.lint.GetLine() + 1 << L", column "
+               << fileLint.lint.GetCharacter() + 1 << L": "
+               << fileLint.lint.GetReason().c_str() << L"\r\n\t"
+               << fileLint.lint.GetEvidence().c_str() << L"\r\n";
 
         i = ListView_GetNextItem(
             m_hWndListViews[TabCtrl_GetCurSel(m_hWndTab)], i, LVNI_SELECTED
@@ -704,8 +702,8 @@ void OutputDlg::CopyToClipboard()
                 GlobalFree(hResult);
                 MessageBox(
                     window(),
-                    TEXT("Unable to set Clipboard data"),
-                    TEXT("JSLint"),
+                    L"Unable to set Clipboard data",
+                    L"JSLint",
                     MB_OK | MB_ICONERROR
                 );
             }
@@ -714,8 +712,8 @@ void OutputDlg::CopyToClipboard()
         {
             MessageBox(
                 window(),
-                TEXT("Cannot empty the Clipboard"),
-                TEXT("JSLint"),
+                L"Cannot empty the Clipboard",
+                L"JSLint",
                 MB_OK | MB_ICONERROR
             );
         }
@@ -725,8 +723,8 @@ void OutputDlg::CopyToClipboard()
     {
         MessageBox(
             window(),
-            TEXT("Cannot open the Clipboard"),
-            TEXT("JSLint"),
+            L"Cannot open the Clipboard",
+            L"JSLint",
             MB_OK | MB_ICONERROR
         );
     }

@@ -44,9 +44,9 @@ AboutDlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
             );
 
 #if defined(UNICODE) || defined(_UNICODE)
-            LPCTSTR szCharSet = TEXT("Unicode");
+            LPCTSTR szCharSet = L"Unicode";
 #else
-            LPCTSTR szCharSet = TEXT("ANSI");
+            LPCTSTR szCharSet = L"ANSI";
 #endif
 
             TCHAR szVersion[100];

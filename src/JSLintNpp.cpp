@@ -58,7 +58,7 @@ Callbacks::Contexts Callbacks::contexts = {
 };
 
 JSLintNpp::JSLintNpp(NppData const &data) :
-    Plugin(data),
+    Plugin(data, get_plugin_name()),
     config_dir_(get_config_dir()),
     config_file_name_(get_config_file_name()),
     options_(std::make_unique<JSLintOptions>(config_file_name_)),
@@ -79,6 +79,11 @@ JSLintNpp::~JSLintNpp()
     options_->SaveOptions();
 }
 
+wchar_t const *JSLintNpp::get_plugin_name() noexcept
+{
+    return L"JSLint";
+}
+
 #define MAKE_CALLBACK(entry, text, method, shortcut) \
     make_callback(                                   \
         entry,                                       \
@@ -91,7 +96,7 @@ JSLintNpp::~JSLintNpp()
     )
 
 #define MAKE_SEPARATOR(entry) \
-    make_callback(entry, TEXT("---"), Callbacks::contexts, this, nullptr)
+    make_callback(entry, L"---", Callbacks::contexts, this, nullptr)
 
 std::vector<FuncItem> &JSLintNpp::on_get_menu_entries()
 {
@@ -103,44 +108,36 @@ std::vector<FuncItem> &JSLintNpp::on_get_menu_entries()
     static std::vector<FuncItem> res = {
         MAKE_CALLBACK(
             FUNC_INDEX_JSLINT_CURRENT_FILE,
-            TEXT("JSLint Current File"),
+            L"JSLint Current File",
             jsLintCurrentFile,
             &f5
         ),
         MAKE_CALLBACK(
             FUNC_INDEX_JSLINT_ALL_FILES,
-            TEXT("JSLint All Files"),
+            L"JSLint All Files",
             jsLintAllFiles,
             &f6
         ),
         MAKE_SEPARATOR(FUNC_INDEX_SEP_2),
         MAKE_CALLBACK(
-            FUNC_INDEX_GOTO_PREV_LINT,
-            TEXT("Go To Previous Lint"),
-            gotoPrevLint,
-            &f7
+            FUNC_INDEX_GOTO_PREV_LINT, L"Go To Previous Lint", gotoPrevLint, &f7
         ),
         MAKE_CALLBACK(
-            FUNC_INDEX_GOTO_NEXT_LINT,
-            TEXT("Go To Next Lint"),
-            gotoNextLint,
-            &f8
+            FUNC_INDEX_GOTO_NEXT_LINT, L"Go To Next Lint", gotoNextLint, &f8
         ),
-        MAKE_CALLBACK(
-            FUNC_INDEX_SHOW_LINTS, TEXT("Show Lints"), showLints, nullptr
-        ),
+        MAKE_CALLBACK(FUNC_INDEX_SHOW_LINTS, L"Show Lints", showLints, nullptr),
         MAKE_SEPARATOR(FUNC_INDEX_SEP_6),
         MAKE_CALLBACK(
             FUNC_INDEX_JSLINT_OPTIONS,
-            TEXT("JSLint Options"),
+            L"JSLint Options",
             showJSLintOptionsDlg,
             nullptr
         ),
         MAKE_CALLBACK(
-            FUNC_INDEX_SETTINGS, TEXT("Settings"), showSettingsDlg, nullptr
+            FUNC_INDEX_SETTINGS, L"Settings", showSettingsDlg, nullptr
         ),
         MAKE_SEPARATOR(FUNC_INDEX_SEP_9),
-        MAKE_CALLBACK(FUNC_INDEX_ABOUT, TEXT("About"), showAboutDlg, nullptr)
+        MAKE_CALLBACK(FUNC_INDEX_ABOUT, L"About", showAboutDlg, nullptr)
     };
     return res;
 }
@@ -162,11 +159,8 @@ void JSLintNpp::jsLintCurrentFile()
         if (type != L_JS && type != L_JAVASCRIPT && type != L_HTML
             && type != L_CSS)
         {
-            ::MessageBox(
-                get_notepad_window(),
-                TEXT("JSLint can operate only on JavaScript, HTML or CSS files."
-                ),
-                TEXT("JSLint"),
+            message_box(
+                L"JSLint can operate only on JavaScript, HTML or CSS files.",
                 MB_OK | MB_ICONINFORMATION
             );
             return;
@@ -176,10 +170,8 @@ void JSLintNpp::jsLintCurrentFile()
     {
         if (type != L_JS && type != L_JAVASCRIPT)
         {
-            ::MessageBox(
-                get_notepad_window(),
-                TEXT("JSHint can operate only on JavaScript files."),
-                TEXT("JSLint"),
+            message_box(
+                L"JSHint can operate only on JavaScript files.",
                 MB_OK | MB_ICONINFORMATION
             );
             return;
@@ -187,7 +179,7 @@ void JSLintNpp::jsLintCurrentFile()
     }
 
     // set hourglass cursor
-    SetCursor(LoadCursor(NULL, IDC_WAIT));
+    SetCursor(LoadCursor(nullptr, IDC_WAIT));
 
     output_dialogue_->ClearAllLints();
 
@@ -205,7 +197,7 @@ void JSLintNpp::jsLintCurrentFile()
 void JSLintNpp::jsLintAllFiles()
 {
     // set hourglass cursor
-    SetCursor(LoadCursor(NULL, IDC_WAIT));
+    SetCursor(LoadCursor(nullptr, IDC_WAIT));
 
     int numJSFiles = 0;
 
@@ -224,7 +216,7 @@ void JSLintNpp::jsLintAllFiles()
 
             int type;
             send_to_notepad(NPPM_GETCURRENTLANGTYPE, 0, &type);
-            if (type == L_JS
+            if (type == L_JS || type == L_JAVASCRIPT
                 || (options_->GetSelectedLinter() == LINTER_JSLINT
                     && (type == L_HTML || type == L_CSS)))
             {
@@ -246,20 +238,16 @@ void JSLintNpp::jsLintAllFiles()
     {
         if (options_->GetSelectedLinter() == LINTER_JSLINT)
         {
-            ::MessageBox(
-                get_notepad_window(),
-                TEXT("There is no JavaScript, HTML or CSS file opened in "
-                     "Notepad++!"),
-                TEXT("JSLint"),
+            message_box(
+                (L"There is no JavaScript, HTML or CSS file opened in "
+                 L"Notepad++!"),
                 MB_OK | MB_ICONINFORMATION
             );
         }
         else
         {
-            ::MessageBox(
-                get_notepad_window(),
-                TEXT("There is no JavaScript file opened in Notepad++!"),
-                TEXT("JSLint"),
+            message_box(
+                L"There is no JavaScript file opened in Notepad++!",
                 MB_OK | MB_ICONINFORMATION
             );
         }
@@ -267,7 +255,7 @@ void JSLintNpp::jsLintAllFiles()
     }
 }
 
-inline void JSLintNpp::gotoNextLint()
+void JSLintNpp::gotoNextLint()
 {
     if (output_dialogue_)
     {
@@ -361,11 +349,8 @@ void JSLintNpp::doJSLint()
     }
     catch (std::exception &e)
     {
-        ::MessageBox(
-            get_notepad_window(),
-            TextConversion::A_To_T(e.what()).c_str(),
-            TEXT("JSLint"),
-            MB_OK | MB_ICONERROR
+        message_box(
+            TextConversion::A_To_T(e.what()).c_str(), MB_OK | MB_ICONERROR
         );
     }
 }
@@ -397,5 +382,5 @@ std::wstring JSLintNpp::get_config_dir() const
 
 std::wstring JSLintNpp::get_config_file_name() const
 {
-    return Path::GetFullPath(TEXT("JSLint.ini"), config_dir_);
+    return Path::GetFullPath(L"JSLint.ini", config_dir_);
 }

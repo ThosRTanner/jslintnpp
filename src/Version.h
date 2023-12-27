@@ -27,7 +27,7 @@
 
 #define MY_PRODUCT_VERSION                                                 \
     STR(VERSION_MAJOR)                                                     \
-    TEXT(".") STR(VERSION_MINOR) TEXT(".") STR(VERSION_REVISION) TEXT(".") \
+    L"." STR(VERSION_MINOR) L"." STR(VERSION_REVISION) L"." \
         STR(VERSION_BUILD)
 #define MY_PRODUCT_VERSION_NUM \
     VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD

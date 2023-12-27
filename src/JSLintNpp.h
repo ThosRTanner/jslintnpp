@@ -39,10 +39,7 @@ class JSLintNpp : public Plugin
     JSLintNpp &operator=(JSLintNpp const &) = delete;
     JSLintNpp &operator=(JSLintNpp &&) = delete;
 
-    static TCHAR const *get_plugin_name() noexcept
-    {
-        return TEXT("JSLint");
-    }
+    static wchar_t const *get_plugin_name() noexcept;
 
     enum Menu_Entries
     {

@@ -33,12 +33,12 @@
 #define JSLINT_GITHUB_URL_W \
     L"https://raw.github.com/jslint-org/jslint/master/jslint.mjs"
 #define JSLINT_GITHUB_URL_T \
-    TEXT("https://raw.github.com/jslint-org/jslint/master/jslint.mjs")
+    L"https://raw.github.com/jslint-org/jslint/master/jslint.mjs"
 
 #define JSHINT_GITHUB_URL_W \
     L"https://raw.github.com/jshint/jshint/master/dist/jshint.js"
 #define JSHINT_GITHUB_URL_T \
-    TEXT("https://raw.github.com/jshint/jshint/master/dist/jshint.js")
+    L"https://raw.github.com/jshint/jshint/master/dist/jshint.js"
 
 #define WM_DOWNLOAD_FINISHED WM_USER + 1
 
@@ -48,7 +48,7 @@ std::string JSLintVersion::GetContent()
 {
     if (m_content.empty())
     {
-        FILE *fp = _tfopen(m_fileName.c_str(), TEXT("rb"));
+        FILE *fp = _tfopen(m_fileName.c_str(), L"rb");
         if (fp != NULL)
         {
             fseek(fp, 0, SEEK_END);
@@ -82,8 +82,8 @@ DownloadJSLint::DownloadJSLint(JSLintNpp const *plugin) :
 
 void DownloadJSLint::LoadVersions()
 {
-    LoadVersions(TEXT("jslint.*.js"), m_jsLintVersions);
-    LoadVersions(TEXT("jshint.*.js"), m_jsHintVersions);
+    LoadVersions(L"jslint.*.js", m_jsLintVersions);
+    LoadVersions(L"jshint.*.js", m_jsHintVersions);
 }
 
 void DownloadJSLint::LoadVersions(
@@ -91,7 +91,7 @@ void DownloadJSLint::LoadVersions(
     std::map<std::wstring, JSLintVersion> &versions
 )
 {
-    m_versionsFolder = Path::GetFullPath(TEXT("JSLint"), config_dir_);
+    m_versionsFolder = Path::GetFullPath(L"JSLint", config_dir_);
     if (! Path::IsFileExists(m_versionsFolder))
     {
         CreateDirectory(m_versionsFolder.c_str(), NULL);
@@ -164,7 +164,7 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
             TCHAR szTime[1024];
             _stprintf(
                 szTime,
-                TEXT("%.4d-%.2d-%.2d %.2d-%.2d-%.2d"),
+                L"%.4d-%.2d-%.2d %.2d-%.2d-%.2d",
                 time.wYear,
                 time.wMonth,
                 time.wDay,
@@ -177,14 +177,14 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
         }
 
         std::wstring fileName = Path::GetFullPath(
-            (linter == LINTER_JSLINT ? TEXT("jslint.") : TEXT("jshint."))
-                + latestVersion + TEXT(".js"),
+            (linter == LINTER_JSLINT ? L"jslint." : L"jshint.")
+                + latestVersion + L".js",
             m_versionsFolder
         );
 
         size_t nWritten = 0;
 
-        FILE *fp = _tfopen(fileName.c_str(), TEXT("wb+"));
+        FILE *fp = _tfopen(fileName.c_str(), L"wb+");
         if (fp != NULL)
         {
             nWritten = fwrite(m_lpBuffer, 1, m_dwTotalSize, fp);
@@ -376,7 +376,7 @@ void DownloadJSLint::AsyncCallbackHandler(
                 m_dwTotalSize += m_dwSize;
 
                 TCHAR szStatus[1024];
-                _stprintf(szStatus, TEXT("Received %d bytes"), m_dwTotalSize);
+                _stprintf(szStatus, L"Received %d bytes", m_dwTotalSize);
                 SetWindowText(GetDlgItem(m_hDlg, m_nStatusID), szStatus);
 
                 if (! CheckVersion())
@@ -409,7 +409,7 @@ void DownloadJSLint::StartDownload(HWND hDlg, int nStatusID)
     m_lpBuffer = NULL;
     m_dwSize = 0;
     m_dwTotalSize = 0;
-    m_version = TEXT("");
+    m_version = L"";
 
     m_hSession = WinHttpOpen(
         L"JSLint Plugin for Notepad++",
@@ -501,7 +501,7 @@ INT_PTR CALLBACK DownloadJSLint::JSLintDownloadProgressDlgProc(
         _stprintf(
             szTitle,
             szTitleFormat,
-            m_linter == LINTER_JSLINT ? TEXT("JSLint") : TEXT("JSHint")
+            m_linter == LINTER_JSLINT ? L"JSLint" : L"JSHint"
         );
         SetWindowText(hDlg, szTitle);
 
@@ -510,7 +510,7 @@ INT_PTR CALLBACK DownloadJSLint::JSLintDownloadProgressDlgProc(
             m_linter == LINTER_JSLINT ? JSLINT_GITHUB_URL_T
                                       : JSHINT_GITHUB_URL_T
         );
-        SetWindowText(GetDlgItem(hDlg, IDC_PROGRESS), TEXT("Starting ..."));
+        SetWindowText(GetDlgItem(hDlg, IDC_PROGRESS), L"Starting ...");
         auto self = reinterpret_cast<DownloadJSLint *>(lParam);
         self->StartDownload(hDlg, IDC_PROGRESS);
         CenterWindow(hDlg, self->plugin_->get_notepad_window());

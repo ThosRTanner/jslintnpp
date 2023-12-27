@@ -27,7 +27,7 @@ typedef JSLintNpp Npp_Plugin;
 
 std::unique_ptr<Npp_Plugin> plugin;
 
-extern "C" __declspec(dllexport) const TCHAR *getName()
+extern "C" __declspec(dllexport) wchar_t const *getName()
 {
     return Npp_Plugin::get_plugin_name();
 }

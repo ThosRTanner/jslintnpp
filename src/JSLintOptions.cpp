@@ -32,10 +32,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define PROFILE_SELECTED_LINTER_KEY_NAME TEXT("selected_linter")
-#define PROFILE_JSLINT_OPTIONS_GROUP_NAME TEXT("JSLint Options")
-#define PROFILE_JSHINT_OPTIONS_GROUP_NAME TEXT("JSHint Options")
-#define PROFILE_ADDITIONAL_OPTIONS_KEY_NAME TEXT("jslintnpp_additional_options")
+#define PROFILE_SELECTED_LINTER_KEY_NAME L"selected_linter"
+#define PROFILE_JSLINT_OPTIONS_GROUP_NAME L"JSLint Options"
+#define PROFILE_JSHINT_OPTIONS_GROUP_NAME L"JSHint Options"
+#define PROFILE_ADDITIONAL_OPTIONS_KEY_NAME L"jslintnpp_additional_options"
 
 #define MIN_VERSION_BUILD 110
 
@@ -47,8 +47,7 @@ LinterOptions::LinterOptions(
     m_optionsGroupName(optionsGroupName),
     options_file_(options_file)
 {
-    m_options[IDC_PREDEFINED] =
-        Option(OPTION_TYPE_ARR_STRING, TEXT("predef"), TEXT(""));
+    m_options[IDC_PREDEFINED] = Option(OPTION_TYPE_ARR_STRING, L"predef", L"");
 }
 
 void LinterOptions::ReadOptions()
@@ -78,13 +77,13 @@ void LinterOptions::ReadOptions()
                     _countof(szValue),
                     strConfigFileName.c_str()
                 );
-                if (_tcscmp(szValue, TEXT("")) != 0)
+                if (_tcscmp(szValue, L"") != 0)
                 {
                     std::wstring strValue = TrimSpaces(szValue);
                     if (it->second.type == OPTION_TYPE_BOOL)
                     {
-                        if (strValue == TEXT("true")
-                            || strValue == TEXT("false") || strValue.empty())
+                        if (strValue == L"true" || strValue == L"false"
+                            || strValue.empty())
                         {
                             it->second.value = strValue;
                         }
@@ -92,8 +91,7 @@ void LinterOptions::ReadOptions()
                     else if (it->second.type == OPTION_TYPE_INT)
                     {
                         int value;
-                        if (_stscanf(strValue.c_str(), TEXT("%d"), &value)
-                                != EOF
+                        if (_stscanf(strValue.c_str(), L"%d", &value) != EOF
                             && value > 0)
                         {
                             it->second.value = strValue;
@@ -173,9 +171,9 @@ std::wstring LinterOptions::GetOptionsCommentString() const
             {
                 if (! strOptions.empty())
                 {
-                    strOptions += TEXT(", ");
+                    strOptions += L", ";
                 }
-                strOptions += it->second.name + TEXT(": ") + it->second.value;
+                strOptions += it->second.name + L": " + it->second.value;
             }
         }
     }
@@ -197,28 +195,28 @@ std::wstring LinterOptions::GetOptionsJSONString() const
             if (it->second.type == OPTION_TYPE_ARR_STRING)
             {
                 std::vector<std::wstring> arr;
-                StringSplit(it->second.value, TEXT(","), arr);
+                StringSplit(it->second.value, L",", arr);
                 std::vector<std::wstring>::const_iterator itArr;
                 for (itArr = arr.begin(); itArr != arr.end(); ++itArr)
                 {
                     if (value.empty())
                     {
-                        value += TEXT("[");
+                        value += L"[";
                     }
                     else
                     {
-                        value += TEXT(", ");
+                        value += L", ";
                     }
 
                     std::wstring element = TrimSpaces(*itArr);
-                    FindReplace(element, TEXT("\\"), TEXT("\\\\"));
-                    FindReplace(element, TEXT("\""), TEXT("\\\""));
+                    FindReplace(element, L"\\", L"\\\\");
+                    FindReplace(element, L"\"", L"\\\"");
 
-                    value += TEXT("\"") + element + TEXT("\"");
+                    value += L"\"" + element + L"\"";
                 }
                 if (! value.empty())
                 {
-                    value += TEXT("]");
+                    value += L"]";
                 }
             }
             else
@@ -230,9 +228,9 @@ std::wstring LinterOptions::GetOptionsJSONString() const
             {
                 if (! strOptions.empty())
                 {
-                    strOptions += TEXT(", ");
+                    strOptions += L", ";
                 }
-                strOptions += it->second.name + TEXT(": ") + value;
+                strOptions += it->second.name + L": " + value;
             }
         }
     }
@@ -241,27 +239,27 @@ std::wstring LinterOptions::GetOptionsJSONString() const
     {
         if (! strOptions.empty())
         {
-            strOptions += TEXT(", ");
+            strOptions += L", ";
         }
         strOptions += m_additionalOptions;
     }
 
-    return TEXT("{ ") + strOptions + TEXT(" }");
+    return L"{ " + strOptions + L" }";
 }
 
 void LinterOptions::CheckOption(UINT id)
 {
-    m_options[id].value = TEXT("true");
+    m_options[id].value = L"true";
 }
 
 void LinterOptions::UncheckOption(UINT id)
 {
-    m_options[id].value = TEXT("false");
+    m_options[id].value = L"false";
 }
 
 void LinterOptions::ClearOption(UINT id)
 {
-    m_options[id].value = TEXT("");
+    m_options[id].value = L"";
 }
 
 void LinterOptions::SetOption(UINT id, std::wstring const &value)
@@ -278,7 +276,7 @@ void LinterOptions::AppendOption(UINT id, std::wstring const &value)
     }
     else
     {
-        option.value += TEXT(", ") + value;
+        option.value += L", " + value;
     }
 }
 
@@ -357,11 +355,11 @@ BOOL LinterOptions::UpdateOptions(
             if (it->second.type == OPTION_TYPE_BOOL)
             {
                 int checkState;
-                if (it->second.value == TEXT("false"))
+                if (it->second.value == L"false")
                 {
                     checkState = BST_UNCHECKED;
                 }
-                else if (it->second.value == TEXT("true"))
+                else if (it->second.value == L"true")
                 {
                     checkState = BST_CHECKED;
                 }
@@ -402,46 +400,46 @@ BOOL LinterOptions::UpdateOptions(
 JSLintLinterOptions::JSLintLinterOptions(std::wstring const &options_file) :
     LinterOptions(PROFILE_JSLINT_OPTIONS_GROUP_NAME, options_file)
 {
-    m_options[IDC_CHECK_PASSFAIL] = Option(TEXT("passfail"));
-    m_options[IDC_CHECK_WHITE] = Option(TEXT("white"));
-    m_options[IDC_CHECK_BROWSER] = Option(TEXT("browser"));
-    m_options[IDC_CHECK_DEVEL] = Option(TEXT("devel"));
-    m_options[IDC_CHECK_WINDOWS] = Option(TEXT("windows"));
-    m_options[IDC_CHECK_RHINO] = Option(TEXT("rhino"));
-    m_options[IDC_CHECK_SAFE] = Option(TEXT("safe"));
-    m_options[IDC_CHECK_ADSAFE] = Option(TEXT("adsafe"));
-    m_options[IDC_CHECK_DEBUG] = Option(TEXT("debug"));
-    m_options[IDC_CHECK_EVIL] = Option(TEXT("evil"));
-    m_options[IDC_CHECK_CONTINUE] = Option(TEXT("continue"));
-    m_options[IDC_CHECK_FORIN] = Option(TEXT("forin"));
-    m_options[IDC_CHECK_SUB] = Option(TEXT("sub"));
-    m_options[IDC_CHECK_CSS] = Option(TEXT("css"));
-    m_options[IDC_CHECK_TODO] = Option(TEXT("todo"));
-    m_options[IDC_CHECK_ON] = Option(TEXT("on"));
-    m_options[IDC_CHECK_FRAGMENT] = Option(TEXT("fragment"));
-    m_options[IDC_CHECK_ES5] = Option(TEXT("es5"));
-    m_options[IDC_CHECK_VARS] = Option(TEXT("vars"));
-    m_options[IDC_CHECK_UNDEF] = Option(TEXT("undef"));
-    m_options[IDC_CHECK_NOMEN] = Option(TEXT("nomen"));
-    m_options[IDC_CHECK_NODE] = Option(TEXT("node"));
-    m_options[IDC_CHECK_PLUSPLUS] = Option(TEXT("plusplus"));
-    m_options[IDC_CHECK_BITWISE] = Option(TEXT("bitwise"));
-    m_options[IDC_CHECK_REGEXP] = Option(TEXT("regexp"));
-    m_options[IDC_CHECK_NEWCAP] = Option(TEXT("newcap"));
-    m_options[IDC_CHECK_UNPARAM] = Option(TEXT("unparam"));
-    m_options[IDC_CHECK_SLOPPY] = Option(TEXT("sloppy"));
-    m_options[IDC_CHECK_EQEQ] = Option(TEXT("eqeq"));
-    m_options[IDC_CHECK_STUPID] = Option(TEXT("stupid"));
+    m_options[IDC_CHECK_PASSFAIL] = Option(L"passfail");
+    m_options[IDC_CHECK_WHITE] = Option(L"white");
+    m_options[IDC_CHECK_BROWSER] = Option(L"browser");
+    m_options[IDC_CHECK_DEVEL] = Option(L"devel");
+    m_options[IDC_CHECK_WINDOWS] = Option(L"windows");
+    m_options[IDC_CHECK_RHINO] = Option(L"rhino");
+    m_options[IDC_CHECK_SAFE] = Option(L"safe");
+    m_options[IDC_CHECK_ADSAFE] = Option(L"adsafe");
+    m_options[IDC_CHECK_DEBUG] = Option(L"debug");
+    m_options[IDC_CHECK_EVIL] = Option(L"evil");
+    m_options[IDC_CHECK_CONTINUE] = Option(L"continue");
+    m_options[IDC_CHECK_FORIN] = Option(L"forin");
+    m_options[IDC_CHECK_SUB] = Option(L"sub");
+    m_options[IDC_CHECK_CSS] = Option(L"css");
+    m_options[IDC_CHECK_TODO] = Option(L"todo");
+    m_options[IDC_CHECK_ON] = Option(L"on");
+    m_options[IDC_CHECK_FRAGMENT] = Option(L"fragment");
+    m_options[IDC_CHECK_ES5] = Option(L"es5");
+    m_options[IDC_CHECK_VARS] = Option(L"vars");
+    m_options[IDC_CHECK_UNDEF] = Option(L"undef");
+    m_options[IDC_CHECK_NOMEN] = Option(L"nomen");
+    m_options[IDC_CHECK_NODE] = Option(L"node");
+    m_options[IDC_CHECK_PLUSPLUS] = Option(L"plusplus");
+    m_options[IDC_CHECK_BITWISE] = Option(L"bitwise");
+    m_options[IDC_CHECK_REGEXP] = Option(L"regexp");
+    m_options[IDC_CHECK_NEWCAP] = Option(L"newcap");
+    m_options[IDC_CHECK_UNPARAM] = Option(L"unparam");
+    m_options[IDC_CHECK_SLOPPY] = Option(L"sloppy");
+    m_options[IDC_CHECK_EQEQ] = Option(L"eqeq");
+    m_options[IDC_CHECK_STUPID] = Option(L"stupid");
 
-    m_options[IDC_IDENT] = Option(OPTION_TYPE_INT, TEXT("indent"), TEXT("4"));
-    m_options[IDC_MAXLEN] = Option(OPTION_TYPE_INT, TEXT("maxlen"), TEXT(""));
-    m_options[IDC_MAXERR] = Option(OPTION_TYPE_INT, TEXT("maxerr"), TEXT("50"));
+    m_options[IDC_IDENT] = Option(OPTION_TYPE_INT, L"indent", L"4");
+    m_options[IDC_MAXLEN] = Option(OPTION_TYPE_INT, L"maxlen", L"");
+    m_options[IDC_MAXERR] = Option(OPTION_TYPE_INT, L"maxerr", L"50");
 }
 
 int JSLintLinterOptions::GetTabWidth()
 {
     int indent;
-    if (_stscanf(m_options[IDC_IDENT].value.c_str(), TEXT("%d"), &indent) == EOF
+    if (_stscanf(m_options[IDC_IDENT].value.c_str(), L"%d", &indent) == EOF
         || indent < 1)
     {
         return 4;
@@ -468,16 +466,16 @@ BOOL JSLintLinterOptions::UpdateOptions(
         if (! strIndent.empty())
         {
             int indent;
-            if (_stscanf(strIndent.c_str(), TEXT("%d"), &indent) == EOF
+            if (_stscanf(strIndent.c_str(), L"%d", &indent) == EOF
                 || indent < 0)
             {
                 if (bShowErrorMessage)
                 {
                     MessageBox(
                         hSubDlg,
-                        TEXT("Indentation must be an integer greater than or "
-                             "equal to zero"),
-                        TEXT("JSLint"),
+                        (L"Indentation must be an integer greater than or "
+                         L"equal to zero"),
+                        L"JSLint",
                         MB_OK | MB_ICONERROR
                     );
                     SetFocus(GetDlgItem(hDlg, IDC_IDENT));
@@ -493,16 +491,16 @@ BOOL JSLintLinterOptions::UpdateOptions(
         if (! strMaxlen.empty())
         {
             int maxlen;
-            if (_stscanf(strMaxlen.c_str(), TEXT("%d"), &maxlen) == EOF
+            if (_stscanf(strMaxlen.c_str(), L"%d", &maxlen) == EOF
                 || maxlen < 1)
             {
                 if (bShowErrorMessage)
                 {
                     MessageBox(
                         hSubDlg,
-                        TEXT("Maximum line length must be an integer greater "
-                             "than zero"),
-                        TEXT("JSLint"),
+                        (L"Maximum line length must be an integer greater than "
+                         L"zero"),
+                        L"JSLint",
                         MB_OK | MB_ICONERROR
                     );
                     SetFocus(GetDlgItem(hDlg, IDC_MAXLEN));
@@ -518,16 +516,16 @@ BOOL JSLintLinterOptions::UpdateOptions(
         if (! strMaxerr.empty())
         {
             int maxerr;
-            if (_stscanf(strMaxerr.c_str(), TEXT("%d"), &maxerr) == EOF
+            if (_stscanf(strMaxerr.c_str(), L"%d", &maxerr) == EOF
                 || maxerr < 1)
             {
                 if (bShowErrorMessage)
                 {
                     MessageBox(
                         hSubDlg,
-                        TEXT("Maximum numer of errors must be an integer "
-                             "greater than zero"),
-                        TEXT("JSLint"),
+                        (L"Maximum numer of errors must be an integer greater "
+                         L"than zero"),
+                        L"JSLint",
                         MB_OK | MB_ICONERROR
                     );
                     SetFocus(GetDlgItem(hDlg, IDC_MAXERR));
@@ -543,8 +541,7 @@ BOOL JSLintLinterOptions::UpdateOptions(
 
 std::wstring JSLintLinterOptions::GetOptionsCommentString() const
 {
-    return TEXT("/*jslint ") + LinterOptions::GetOptionsCommentString()
-        + TEXT(" */");
+    return L"/*jslint " + LinterOptions::GetOptionsCommentString() + L" */";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -552,26 +549,26 @@ std::wstring JSLintLinterOptions::GetOptionsCommentString() const
 JSHintLinterOptions::JSHintLinterOptions(std::wstring const &config_file) :
     LinterOptions(PROFILE_JSHINT_OPTIONS_GROUP_NAME, config_file)
 {
-    m_options[IDC_CHECK_DEBUG] = Option(TEXT("debug"));
-    m_options[IDC_CHECK_FORIN] = Option(TEXT("forin"));
-    m_options[IDC_CHECK_EQNULL] = Option(TEXT("eqnull"));
-    m_options[IDC_CHECK_NOARG] = Option(TEXT("noarg"));
-    m_options[IDC_CHECK_NOEMPTY] = Option(TEXT("noempty"));
-    m_options[IDC_CHECK_EQEQEQ] = Option(TEXT("eqeqeq"));
-    m_options[IDC_CHECK_BOSS] = Option(TEXT("boss"));
-    m_options[IDC_CHECK_LOOPFUNC] = Option(TEXT("loopfunc"));
-    m_options[IDC_CHECK_EVIL] = Option(TEXT("evil"));
-    m_options[IDC_CHECK_LAXBREAK] = Option(TEXT("laxbreak"));
-    m_options[IDC_CHECK_BITWISE] = Option(TEXT("bitwise"));
-    m_options[IDC_CHECK_STRICT] = Option(TEXT("strict"));
-    m_options[IDC_CHECK_UNDEF] = Option(TEXT("undef"));
-    m_options[IDC_CHECK_CURLY] = Option(TEXT("curly"));
-    m_options[IDC_CHECK_NONEW] = Option(TEXT("nonew"));
-    m_options[IDC_CHECK_BROWSER] = Option(TEXT("browser"));
-    m_options[IDC_CHECK_DEVEL] = Option(TEXT("devel"));
-    m_options[IDC_CHECK_JQUERY] = Option(TEXT("jquery"));
-    m_options[IDC_CHECK_ES5] = Option(TEXT("es5"));
-    m_options[IDC_CHECK_NODE] = Option(TEXT("node"));
+    m_options[IDC_CHECK_DEBUG] = Option(L"debug");
+    m_options[IDC_CHECK_FORIN] = Option(L"forin");
+    m_options[IDC_CHECK_EQNULL] = Option(L"eqnull");
+    m_options[IDC_CHECK_NOARG] = Option(L"noarg");
+    m_options[IDC_CHECK_NOEMPTY] = Option(L"noempty");
+    m_options[IDC_CHECK_EQEQEQ] = Option(L"eqeqeq");
+    m_options[IDC_CHECK_BOSS] = Option(L"boss");
+    m_options[IDC_CHECK_LOOPFUNC] = Option(L"loopfunc");
+    m_options[IDC_CHECK_EVIL] = Option(L"evil");
+    m_options[IDC_CHECK_LAXBREAK] = Option(L"laxbreak");
+    m_options[IDC_CHECK_BITWISE] = Option(L"bitwise");
+    m_options[IDC_CHECK_STRICT] = Option(L"strict");
+    m_options[IDC_CHECK_UNDEF] = Option(L"undef");
+    m_options[IDC_CHECK_CURLY] = Option(L"curly");
+    m_options[IDC_CHECK_NONEW] = Option(L"nonew");
+    m_options[IDC_CHECK_BROWSER] = Option(L"browser");
+    m_options[IDC_CHECK_DEVEL] = Option(L"devel");
+    m_options[IDC_CHECK_JQUERY] = Option(L"jquery");
+    m_options[IDC_CHECK_ES5] = Option(L"es5");
+    m_options[IDC_CHECK_NODE] = Option(L"node");
 }
 
 int JSHintLinterOptions::GetTabWidth()
@@ -581,8 +578,7 @@ int JSHintLinterOptions::GetTabWidth()
 
 std::wstring JSHintLinterOptions::GetOptionsCommentString() const
 {
-    return TEXT("/*jshint ") + LinterOptions::GetOptionsCommentString()
-        + TEXT(" */");
+    return L"/*jshint " + LinterOptions::GetOptionsCommentString() + L" */";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -625,7 +621,7 @@ void JSLintOptions::ReadOptions()
             _countof(szValue),
             strConfigFileName.c_str()
         );
-        if (_tcscmp(szValue, TEXT("JSHint")) == 0)
+        if (_tcscmp(szValue, L"JSHint") == 0)
         {
             m_selectedLinter = LINTER_JSHINT;
         }
@@ -641,7 +637,7 @@ void JSLintOptions::SaveOptions()
     WritePrivateProfileString(
         PROFILE_JSLINT_GROUP_NAME,
         PROFILE_SELECTED_LINTER_KEY_NAME,
-        m_selectedLinter == LINTER_JSLINT ? TEXT("JSLint") : TEXT("JSHint"),
+        m_selectedLinter == LINTER_JSLINT ? L"JSLint" : L"JSHint",
         strConfigFileName.c_str()
     );
 
@@ -735,8 +731,8 @@ INT_PTR CALLBACK JSLintOptions::PredefinedControlWndProc(
                         std::wstring str(TextConversion::A_To_T(lpData));
 
                         std::vector<std::wstring> results;
-                        StringSplit(str, TEXT(" \t\r\n"), results);
-                        str = StringJoin(results, TEXT(", "));
+                        StringSplit(str, L" \t\r\n", results);
+                        str = StringJoin(results, L", ");
 
                         SendMessage(
                             hWnd, EM_REPLACESEL, TRUE, (LPARAM)str.c_str()
@@ -750,7 +746,7 @@ INT_PTR CALLBACK JSLintOptions::PredefinedControlWndProc(
         return 0;
     }
 
-    WNDPROC oldWndProc = (WNDPROC)GetProp(hWnd, TEXT("OldWndProc"));
+    WNDPROC oldWndProc = (WNDPROC)GetProp(hWnd, L"OldWndProc");
     return (*oldWndProc)(hWnd, uMessage, wParam, lParam);
 }
 
@@ -806,8 +802,8 @@ JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
         // initialize selected linter combo box
         HWND hWndSelectedLinter = GetDlgItem(hDlg, IDC_SELECTED_LINTER);
-        ComboBox_AddString(hWndSelectedLinter, TEXT("JSLint"));
-        ComboBox_AddString(hWndSelectedLinter, TEXT("JSHint"));
+        ComboBox_AddString(hWndSelectedLinter, L"JSLint");
+        ComboBox_AddString(hWndSelectedLinter, L"JSHint");
 
         // create JSLint and JSHint options subdialog
         HWND hWndOptionsPlaceholder = GetDlgItem(hDlg, IDC_OPTIONS_PLACEHOLDER);
@@ -853,12 +849,12 @@ JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
         if (m_options.GetSelectedLinter() == LINTER_JSLINT)
         {
             m_hSubDlg = m_hWndJSLintOptionsSubdlg;
-            ComboBox_SelectString(hWndSelectedLinter, 0, TEXT("JSLint"));
+            ComboBox_SelectString(hWndSelectedLinter, 0, L"JSLint");
         }
         else
         {
             m_hSubDlg = m_hWndJSHintOptionsSubdlg;
-            ComboBox_SelectString(hWndSelectedLinter, 0, TEXT("JSHint"));
+            ComboBox_SelectString(hWndSelectedLinter, 0, L"JSHint");
         }
         m_options.UpdateOptions(m_hDlg, m_hSubDlg, false, false);
         ShowWindow(m_hSubDlg, SW_SHOW);
@@ -868,7 +864,7 @@ JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
         WNDPROC oldWndProc = (WNDPROC)SetWindowLongPtr(
             hWndPredefined, GWLP_WNDPROC, (LONG_PTR)PredefinedControlWndProc
         );
-        SetProp(hWndPredefined, TEXT("OldWndProc"), (HANDLE)oldWndProc);
+        SetProp(hWndPredefined, L"OldWndProc", (HANDLE)oldWndProc);
     }
     else if (uMessage == WM_COMMAND)
     {
@@ -908,7 +904,7 @@ JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
                     ShowWindow(m_hSubDlg, SW_HIDE);
 
-                    if (_tcsicmp(buffer, TEXT("JSLint")) == 0)
+                    if (_tcsicmp(buffer, L"JSLint") == 0)
                     {
                         m_options.SetSelectedLinter(LINTER_JSLINT);
                         m_hSubDlg = m_hWndJSLintOptionsSubdlg;
@@ -926,15 +922,11 @@ JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
                 {
                     if (m_options.GetSelectedLinter() == LINTER_JSLINT)
                     {
-                        ComboBox_SelectString(
-                            hWndSelectedLinter, 0, TEXT("JSLint")
-                        );
+                        ComboBox_SelectString(hWndSelectedLinter, 0, L"JSLint");
                     }
                     else
                     {
-                        ComboBox_SelectString(
-                            hWndSelectedLinter, 0, TEXT("JSHint")
-                        );
+                        ComboBox_SelectString(hWndSelectedLinter, 0, L"JSHint");
                     }
                 }
             }

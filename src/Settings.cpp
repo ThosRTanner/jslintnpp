@@ -32,15 +32,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define PROFILE_SETTINGS_GROUP_NAME TEXT("Settings")
+#define PROFILE_SETTINGS_GROUP_NAME L"Settings"
 
-#define PROFILE_SCRIPT_SOURCE_KEY_NAME TEXT("_script_source")
-#define PROFILE_SCRIPT_VERSION_KEY_NAME TEXT("_script_version")
-#define PROFILE_SPEC_UNDEF_VAR_ERR_MSG_KEY_NAME TEXT("_spec_undef_var_err_msg")
-#define PROFILE_UNDEF_VAR_ERR_MSG_KEY_NAME TEXT("_undef_var_err_msg")
+#define PROFILE_SCRIPT_SOURCE_KEY_NAME L"_script_source"
+#define PROFILE_SCRIPT_VERSION_KEY_NAME L"_script_version"
+#define PROFILE_SPEC_UNDEF_VAR_ERR_MSG_KEY_NAME L"_spec_undef_var_err_msg"
+#define PROFILE_UNDEF_VAR_ERR_MSG_KEY_NAME L"_undef_var_err_msg"
 
-#define PROFILE_SCRIPT_SOURCE_BUILTIN TEXT("builtin")
-#define PROFILE_SCRIPT_SOURCE_DOWNLOADED TEXT("downloaded")
+#define PROFILE_SCRIPT_SOURCE_BUILTIN L"builtin"
+#define PROFILE_SCRIPT_SOURCE_DOWNLOADED L"downloaded"
 
 #define MIN_VERSION_BUILD 110
 
@@ -88,14 +88,14 @@ Settings::Settings(JSLintNpp const *plugin) :
 
 void Settings::ReadOptions()
 {
-    ReadOptions(TEXT("jslint"), m_jsLintScript);
-    ReadOptions(TEXT("jshint"), m_jsHintScript);
+    ReadOptions(L"jslint", m_jsLintScript);
+    ReadOptions(L"jshint", m_jsHintScript);
 }
 
 void Settings::SaveOptions()
 {
-    SaveOptions(TEXT("jslint"), m_jsLintScript);
-    SaveOptions(TEXT("jshint"), m_jsHintScript);
+    SaveOptions(L"jslint", m_jsLintScript);
+    SaveOptions(L"jshint", m_jsHintScript);
 }
 
 void Settings::ReadOptions(
@@ -160,7 +160,7 @@ void Settings::ReadOptions(
                 strConfigFileName.c_str()
             );
             scriptSourceDef.m_bSpecUndefVarErrMsg =
-                _tcscmp(szValue, TEXT("true")) == 0;
+                _tcscmp(szValue, L"true") == 0;
 
             GetPrivateProfileString(
                 PROFILE_SETTINGS_GROUP_NAME,
@@ -225,7 +225,7 @@ void Settings::SaveOptions(
     WritePrivateProfileString(
         PROFILE_SETTINGS_GROUP_NAME,
         (prefix + PROFILE_SPEC_UNDEF_VAR_ERR_MSG_KEY_NAME).c_str(),
-        scriptSourceDef.m_bSpecUndefVarErrMsg ? TEXT("true") : TEXT("false"),
+        scriptSourceDef.m_bSpecUndefVarErrMsg ? L"true" : L"false",
         strConfigFileName.c_str()
     );
 
@@ -272,8 +272,8 @@ BOOL Settings::UpdateOptions(HWND hDlg, bool bSaveOrValidate)
             {
                 MessageBox(
                     hDlg,
-                    TEXT("Please select JSLint script version!"),
-                    TEXT("JSLint"),
+                    L"Please select JSLint script version!",
+                    L"JSLint",
                     MB_OK | MB_ICONERROR
                 );
                 SetFocus(GetDlgItem(hDlg, IDC_JSLINT_SCRIPT_VERSION));
@@ -293,9 +293,9 @@ BOOL Settings::UpdateOptions(HWND hDlg, bool bSaveOrValidate)
                 {
                     MessageBox(
                         hDlg,
-                        TEXT("Please enter 'undefined variable' error message "
-                             "text!"),
-                        TEXT("JSLint"),
+                        L"Please enter 'undefined variable' error message "
+                        L"text!",
+                        L"JSLint",
                         MB_OK | MB_ICONERROR
                     );
                     SetFocus(GetDlgItem(hDlg, IDC_JSLINT_UNDEF_VAR_ERR_MSG));
@@ -361,8 +361,8 @@ BOOL Settings::UpdateOptions(HWND hDlg, bool bSaveOrValidate)
             {
                 MessageBox(
                     hDlg,
-                    TEXT("Please select JSHint script version!"),
-                    TEXT("JSLint"),
+                    L"Please select JSHint script version!",
+                    L"JSLint",
                     MB_OK | MB_ICONERROR
                 );
                 SetFocus(GetDlgItem(hDlg, IDC_JSHINT_SCRIPT_VERSION));
@@ -382,9 +382,9 @@ BOOL Settings::UpdateOptions(HWND hDlg, bool bSaveOrValidate)
                 {
                     MessageBox(
                         hDlg,
-                        TEXT("Please enter 'undefined variable' error message "
-                             "text!"),
-                        TEXT("JSLint"),
+                        L"Please enter 'undefined variable' error message "
+                        L"text!",
+                        L"JSLint",
                         MB_OK | MB_ICONERROR
                     );
                     SetFocus(GetDlgItem(hDlg, IDC_JSHINT_UNDEF_VAR_ERR_MSG));
@@ -518,16 +518,16 @@ Settings::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
                         case DownloadJSLint::DOWNLOAD_NO_NEW_VERSION:
                             MessageBox(
                                 hDlg,
-                                TEXT("You already have the latest version!"),
-                                TEXT("JSLint"),
+                                L"You already have the latest version!",
+                                L"JSLint",
                                 MB_OK | MB_ICONEXCLAMATION
                             );
                             break;
                         case DownloadJSLint::DOWNLOAD_FAILED:
                             MessageBox(
                                 hDlg,
-                                TEXT("Download error!"),
-                                TEXT("JSLint"),
+                                L"Download error!",
+                                L"JSLint",
                                 MB_OK | MB_ICONERROR
                             );
                             break;
@@ -551,16 +551,16 @@ Settings::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
                         case DownloadJSLint::DOWNLOAD_NO_NEW_VERSION:
                             MessageBox(
                                 hDlg,
-                                TEXT("You already have the latest version!"),
-                                TEXT("JSLint"),
+                                L"You already have the latest version!",
+                                L"JSLint",
                                 MB_OK | MB_ICONEXCLAMATION
                             );
                             break;
                         case DownloadJSLint::DOWNLOAD_FAILED:
                             MessageBox(
                                 hDlg,
-                                TEXT("Download error!"),
-                                TEXT("JSLint"),
+                                L"Download error!",
+                                L"JSLint",
                                 MB_OK | MB_ICONERROR
                             );
                             break;
