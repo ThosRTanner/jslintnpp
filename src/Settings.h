@@ -1,19 +1,19 @@
-//This file is part of JSLint Plugin for Notepad++
-//Copyright (C) 2010 Martin Vladic <martin.vladic@gmail.com>
+// This file is part of JSLint Plugin for Notepad++
+// Copyright (C) 2010 Martin Vladic <martin.vladic@gmail.com>
 //
-//This program is free software; you can redistribute it and/or
-//modify it under the terms of the GNU General Public License
-//as published by the Free Software Foundation; either
-//version 2 of the License, or (at your option) any later version.
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
 //
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
-//You should have received a copy of the GNU General Public License
-//along with this program; if not, write to the Free Software
-//Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #pragma once
 
@@ -30,12 +30,14 @@ class JSLintNpp;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-enum ScriptSource {
-	SCRIPT_SOURCE_BUILTIN,
-	SCRIPT_SOURCE_DOWNLOADED
+enum ScriptSource
+{
+    SCRIPT_SOURCE_BUILTIN,
+    SCRIPT_SOURCE_DOWNLOADED
 };
 
-struct ScriptSourceDef {
+struct ScriptSourceDef
+{
     ScriptSourceDef(Linter linter);
 
     Linter m_linter;
@@ -54,31 +56,36 @@ struct ScriptSourceDef {
 
 class Settings
 {
-public:
-	Settings(JSLintNpp const*);
+  public:
+    Settings(JSLintNpp const *);
 
-	void ReadOptions();
-	void SaveOptions();
+    void ReadOptions();
+    void SaveOptions();
 
     void ShowDialog();
 
-    ScriptSourceDef const & GetScriptSource(Linter linter) const;
+    ScriptSourceDef const &GetScriptSource(Linter linter) const;
 
-private:
-    JSLintNpp const * plugin_;
+  private:
+    JSLintNpp const *plugin_;
     std::wstring config_file_;
 
     ScriptSourceDef m_jsLintScript;
     ScriptSourceDef m_jsHintScript;
 
-    static Settings* m_m_instance;
+    static Settings *m_m_instance;
 
     void LoadVersions(HWND hDlg, int versionsComboBoxID, Linter linter);
     BOOL UpdateOptions(HWND hDlg, bool bSaveOrValidate);
     void UpdateControls(HWND hDlg);
 
-	void ReadOptions(const std::wstring& prefix, ScriptSourceDef& scriptSourceDef);
-	void SaveOptions(const std::wstring& prefix, const ScriptSourceDef& scriptSourceDef);
+    void ReadOptions(
+        std::wstring const &prefix, ScriptSourceDef &scriptSourceDef
+    );
+    void SaveOptions(
+        std::wstring const &prefix, ScriptSourceDef const &scriptSourceDef
+    );
 
-    static INT_PTR CALLBACK DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
+    static INT_PTR CALLBACK
+    DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
 };

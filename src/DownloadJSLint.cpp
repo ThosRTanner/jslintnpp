@@ -1,23 +1,24 @@
-//This file is part of JSLint Plugin for Notepad++
-//Copyright (C) 2010 Martin Vladic <martin.vladic@gmail.com>
+// This file is part of JSLint Plugin for Notepad++
+// Copyright (C) 2010 Martin Vladic <martin.vladic@gmail.com>
 //
-//This program is free software; you can redistribute it and/or
-//modify it under the terms of the GNU General Public License
-//as published by the Free Software Foundation; either
-//version 2 of the License, or (at your option) any later version.
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
 //
-//This program is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//GNU General Public License for more details.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
-//You should have received a copy of the GNU General Public License
-//along with this program; if not, write to the Free Software
-//Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "StdHeaders.h"
 
 #include "DownloadJSLint.h"
+
 #include "JSLintNpp.h"
 #include "Util.h"
 
@@ -25,17 +26,19 @@
 
 #include <stdio.h>
 
-#include <cstring>
-
 ////////////////////////////////////////////////////////////////////////////////
 #pragma comment(lib, "winhttp.lib")
 
-//This thinks it runs in node so it might not run any more. not sure.
-#define JSLINT_GITHUB_URL_W L"https://raw.github.com/jslint-org/jslint/master/jslint.mjs"
-#define JSLINT_GITHUB_URL_T TEXT("https://raw.github.com/jslint-org/jslint/master/jslint.mjs")
+// This thinks it runs in node so it might not run any more. not sure.
+#define JSLINT_GITHUB_URL_W \
+    L"https://raw.github.com/jslint-org/jslint/master/jslint.mjs"
+#define JSLINT_GITHUB_URL_T \
+    TEXT("https://raw.github.com/jslint-org/jslint/master/jslint.mjs")
 
-#define JSHINT_GITHUB_URL_W L"https://raw.github.com/jshint/jshint/master/dist/jshint.js"
-#define JSHINT_GITHUB_URL_T TEXT("https://raw.github.com/jshint/jshint/master/dist/jshint.js")
+#define JSHINT_GITHUB_URL_W \
+    L"https://raw.github.com/jshint/jshint/master/dist/jshint.js"
+#define JSHINT_GITHUB_URL_T \
+    TEXT("https://raw.github.com/jshint/jshint/master/dist/jshint.js")
 
 #define WM_DOWNLOAD_FINISHED WM_USER + 1
 
@@ -43,19 +46,23 @@
 
 std::string JSLintVersion::GetContent()
 {
-    if (m_content.empty()) {
-        FILE* fp = _tfopen(m_fileName.c_str(), TEXT("rb"));
-        if (fp != NULL) {
+    if (m_content.empty())
+    {
+        FILE *fp = _tfopen(m_fileName.c_str(), TEXT("rb"));
+        if (fp != NULL)
+        {
             fseek(fp, 0, SEEK_END);
             long size = ftell(fp);
-            if (size > 0) {
+            if (size > 0)
+            {
                 fseek(fp, 0, SEEK_SET);
-                char* buffer = new char[size + 1];
+                char *buffer = new char[size + 1];
                 size_t nRead = fread(buffer, 1, size, fp);
-                if (nRead == size) {
+                if (nRead == size)
+                {
                     m_content = std::string(buffer, size);
                 }
-                delete [] buffer;
+                delete[] buffer;
             }
         }
     }
@@ -67,7 +74,9 @@ std::string JSLintVersion::GetContent()
 
 Linter DownloadJSLint::m_linter;
 
-DownloadJSLint::DownloadJSLint(JSLintNpp const * plugin) : plugin_(plugin), config_dir_(plugin_->GetConfigDir())
+DownloadJSLint::DownloadJSLint(JSLintNpp const *plugin) :
+    plugin_(plugin),
+    config_dir_(plugin_->GetConfigDir())
 {
 }
 
@@ -77,86 +86,135 @@ void DownloadJSLint::LoadVersions()
     LoadVersions(TEXT("jshint.*.js"), m_jsHintVersions);
 }
 
-void DownloadJSLint::LoadVersions(const std::wstring& fileSpec, std::map<std::wstring, JSLintVersion>& versions)
+void DownloadJSLint::LoadVersions(
+    std::wstring const &fileSpec,
+    std::map<std::wstring, JSLintVersion> &versions
+)
 {
     m_versionsFolder = Path::GetFullPath(TEXT("JSLint"), config_dir_);
-    if (!Path::IsFileExists(m_versionsFolder)) {
+    if (! Path::IsFileExists(m_versionsFolder))
+    {
         CreateDirectory(m_versionsFolder.c_str(), NULL);
-    } 
+    }
 
     WIN32_FIND_DATA findFileData;
-    HANDLE findFileHandle = FindFirstFile(Path::GetFullPath(fileSpec.c_str(), m_versionsFolder).c_str(), &findFileData);
-    if (findFileHandle != INVALID_HANDLE_VALUE) {
-        do {
+    HANDLE findFileHandle = FindFirstFile(
+        Path::GetFullPath(fileSpec.c_str(), m_versionsFolder).c_str(),
+        &findFileData
+    );
+    if (findFileHandle != INVALID_HANDLE_VALUE)
+    {
+        do
+        {
             versions.insert(std::make_pair<std::wstring, JSLintVersion>(
-                    std::wstring(findFileData.cFileName).substr(7, _tcslen(findFileData.cFileName) - 10),
-                    JSLintVersion(Path::GetFullPath(findFileData.cFileName, m_versionsFolder))
-                ));
+                std::wstring(findFileData.cFileName)
+                    .substr(7, _tcslen(findFileData.cFileName) - 10),
+                JSLintVersion(
+                    Path::GetFullPath(findFileData.cFileName, m_versionsFolder)
+                )
+            ));
         } while (FindNextFile(findFileHandle, &findFileData));
         FindClose(findFileHandle);
     }
 }
 
-const std::map<std::wstring, JSLintVersion>& DownloadJSLint::GetVersions(Linter linter) const
-{ 
+std::map<std::wstring, JSLintVersion> const &DownloadJSLint::GetVersions(
+    Linter linter
+) const
+{
     return linter == LINTER_JSLINT ? m_jsLintVersions : m_jsHintVersions;
 }
 
-bool DownloadJSLint::HasVersion(Linter linter, const std::wstring& version)
+bool DownloadJSLint::HasVersion(Linter linter, std::wstring const &version)
 {
-    if (linter == LINTER_JSLINT) {
+    if (linter == LINTER_JSLINT)
+    {
         return m_jsLintVersions.find(version) != m_jsLintVersions.end();
-    } else {
+    }
+    else
+    {
         return m_jsHintVersions.find(version) != m_jsHintVersions.end();
     }
 }
 
-JSLintVersion& DownloadJSLint::GetVersion(Linter linter, const std::wstring& version)
+JSLintVersion &DownloadJSLint::GetVersion(
+    Linter linter, std::wstring const &version
+)
 {
-    return linter == LINTER_JSLINT ? m_jsLintVersions[version] : m_jsHintVersions[version];
+    return linter == LINTER_JSLINT ? m_jsLintVersions[version]
+                                   : m_jsHintVersions[version];
 }
 
-DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(Linter linter, std::wstring& latestVersion)
+DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
+    Linter linter, std::wstring &latestVersion
+)
 {
-    m_linter = linter;    
-    if (plugin_->pluginDialogBox(IDD_DOWNLOAD_PROGRESS, JSLintDownloadProgressDlgProc, this) == IDOK) {
+    m_linter = linter;
+    if (plugin_->pluginDialogBox(
+            IDD_DOWNLOAD_PROGRESS, JSLintDownloadProgressDlgProc, this
+        )
+        == IDOK)
+    {
         latestVersion = m_version;
-        if (latestVersion.empty()) {
+        if (latestVersion.empty())
+        {
             SYSTEMTIME time;
             GetLocalTime(&time);
 
             TCHAR szTime[1024];
-            _stprintf(szTime, TEXT("%.4d-%.2d-%.2d %.2d-%.2d-%.2d"),
-                time.wYear, time.wMonth, time.wDay,
-                time.wHour, time.wMinute, time.wSecond);
-        
+            _stprintf(
+                szTime,
+                TEXT("%.4d-%.2d-%.2d %.2d-%.2d-%.2d"),
+                time.wYear,
+                time.wMonth,
+                time.wDay,
+                time.wHour,
+                time.wMinute,
+                time.wSecond
+            );
+
             latestVersion = szTime;
         }
 
-        std::wstring fileName = Path::GetFullPath((linter == LINTER_JSLINT ? TEXT("jslint.") : TEXT("jshint.")) + latestVersion + TEXT(".js"), m_versionsFolder);
+        std::wstring fileName = Path::GetFullPath(
+            (linter == LINTER_JSLINT ? TEXT("jslint.") : TEXT("jshint."))
+                + latestVersion + TEXT(".js"),
+            m_versionsFolder
+        );
 
         size_t nWritten = 0;
 
-        FILE* fp = _tfopen(fileName.c_str(), TEXT("wb+"));
-        if (fp != NULL) {
+        FILE *fp = _tfopen(fileName.c_str(), TEXT("wb+"));
+        if (fp != NULL)
+        {
             nWritten = fwrite(m_lpBuffer, 1, m_dwTotalSize, fp);
             fclose(fp);
         }
 
         std::string content(m_lpBuffer, m_dwTotalSize);
 
-        if (nWritten == m_dwTotalSize) {
-            if (linter == LINTER_JSLINT) {
-                m_jsLintVersions.insert(std::make_pair(latestVersion, JSLintVersion(fileName, content)));
-            } else {
-                m_jsHintVersions.insert(std::make_pair(latestVersion, JSLintVersion(fileName, content)));
+        if (nWritten == m_dwTotalSize)
+        {
+            if (linter == LINTER_JSLINT)
+            {
+                m_jsLintVersions.insert(std::make_pair(
+                    latestVersion, JSLintVersion(fileName, content)
+                ));
+            }
+            else
+            {
+                m_jsHintVersions.insert(std::make_pair(
+                    latestVersion, JSLintVersion(fileName, content)
+                ));
             }
             m_result = DOWNLOAD_OK;
-        } else {
+        }
+        else
+        {
             m_result = DOWNLOAD_FAILED;
         }
     }
-    delete [] m_lpBuffer;
+    delete[] m_lpBuffer;
     m_lpBuffer = NULL;
 
     return m_result;
@@ -164,18 +222,21 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(Linter linter, std
 
 void DownloadJSLint::CleanupContext()
 {
-    if (m_hRequest) {
+    if (m_hRequest)
+    {
         WinHttpSetStatusCallback(m_hRequest, NULL, NULL, NULL);
         WinHttpCloseHandle(m_hRequest);
-		m_hRequest = NULL;
+        m_hRequest = NULL;
     }
 
-    if (m_hConnect) {
+    if (m_hConnect)
+    {
         WinHttpCloseHandle(m_hConnect);
-		m_hConnect = NULL;
+        m_hConnect = NULL;
     }
 
-    if (m_hSession != NULL) {
+    if (m_hSession != NULL)
+    {
         WinHttpCloseHandle(m_hSession);
         m_hSession = NULL;
     }
@@ -204,11 +265,13 @@ void DownloadJSLint::DownloadFailed()
 
 bool DownloadJSLint::CheckVersion()
 {
-    if (!m_version.empty())
+    if (! m_version.empty())
     {
         return true;
     }
-    std::string const match_start{m_linter == LINTER_JSLINT ? "\nlet jslint_edition = \"v" : "/*! "};
+    std::string const match_start{
+        m_linter == LINTER_JSLINT ? "\nlet jslint_edition = \"v" : "/*! "
+    };
     std::string const match_end{m_linter == LINTER_JSLINT ? "\";\n" : " */\n"};
     std::string const code{m_lpBuffer, m_dwTotalSize};
     auto pos = code.find(match_start);
@@ -223,32 +286,37 @@ bool DownloadJSLint::CheckVersion()
         return true;
     }
     m_version = TextConversion::A_To_T(code.substr(pos, pos2 - pos));
-    return !HasVersion(m_linter, m_version);
+    return ! HasVersion(m_linter, m_version);
 }
 
-void CALLBACK DownloadJSLint::AsyncCallback(HINTERNET hInternet,
-    DWORD_PTR dwContext,
-    DWORD dwInternetStatus,
-    LPVOID lpvStatusInformation,
-    DWORD dwStatusInformationLength)
+void CALLBACK DownloadJSLint::AsyncCallback(
+    HINTERNET hInternet, DWORD_PTR dwContext, DWORD dwInternetStatus,
+    LPVOID lpvStatusInformation, DWORD dwStatusInformationLength
+)
 {
-    reinterpret_cast<DownloadJSLint*>(dwContext)->AsyncCallbackHandler(dwInternetStatus,
-        lpvStatusInformation, dwStatusInformationLength);
+    reinterpret_cast<DownloadJSLint *>(dwContext)->AsyncCallbackHandler(
+        dwInternetStatus, lpvStatusInformation, dwStatusInformationLength
+    );
 }
 
-void DownloadJSLint::AsyncCallbackHandler(DWORD dwInternetStatus,
-    LPVOID lpvStatusInformation, DWORD dwStatusInformationLength)
+void DownloadJSLint::AsyncCallbackHandler(
+    DWORD dwInternetStatus, LPVOID lpvStatusInformation,
+    DWORD dwStatusInformationLength
+)
 {
     // Create a std::string that reflects the status flag.
-    switch (dwInternetStatus) {
+    switch (dwInternetStatus)
+    {
         case WINHTTP_CALLBACK_STATUS_SENDREQUEST_COMPLETE:
-            if (!WinHttpReceiveResponse(m_hRequest, NULL)) {
+            if (! WinHttpReceiveResponse(m_hRequest, NULL))
+            {
                 DownloadFailed();
             }
             break;
 
         case WINHTTP_CALLBACK_STATUS_HEADERS_AVAILABLE:
-            if (!WinHttpQueryDataAvailable(m_hRequest, NULL)) {
+            if (! WinHttpQueryDataAvailable(m_hRequest, NULL))
+            {
                 DownloadFailed();
             }
             break;
@@ -256,52 +324,69 @@ void DownloadJSLint::AsyncCallbackHandler(DWORD dwInternetStatus,
         case WINHTTP_CALLBACK_STATUS_DATA_AVAILABLE:
             m_dwSize = *((LPDWORD)lpvStatusInformation);
 
-            if (m_dwSize == 0) {
-                if (m_dwTotalSize) {
+            if (m_dwSize == 0)
+            {
+                if (m_dwTotalSize)
+                {
                     DownloadOK();
-                } else {
+                }
+                else
+                {
                     DownloadFailed();
                 }
-            } else {
+            }
+            else
+            {
                 LPSTR lpOutBuffer = new char[m_dwSize + 1];
                 ZeroMemory(lpOutBuffer, m_dwSize + 1);
-                if (!WinHttpReadData(m_hRequest, (LPVOID)lpOutBuffer, m_dwSize, NULL)) {
-                    delete [] lpOutBuffer;
+                if (! WinHttpReadData(
+                        m_hRequest, (LPVOID)lpOutBuffer, m_dwSize, NULL
+                    ))
+                {
+                    delete[] lpOutBuffer;
                     DownloadFailed();
                 }
             }
             break;
 
         case WINHTTP_CALLBACK_STATUS_READ_COMPLETE:
-            if (dwStatusInformationLength != 0) {
+            if (dwStatusInformationLength != 0)
+            {
                 LPSTR lpReadBuffer = (LPSTR)lpvStatusInformation;
                 DWORD dwBytesRead = dwStatusInformationLength;
 
                 m_dwSize = dwBytesRead;
 
-                if (!m_lpBuffer) {
+                if (! m_lpBuffer)
+                {
                     m_lpBuffer = lpReadBuffer;
-                } else {
+                }
+                else
+                {
                     LPSTR lpOldBuffer = m_lpBuffer;
                     m_lpBuffer = new char[m_dwTotalSize + m_dwSize];
 
                     memcpy(m_lpBuffer, lpOldBuffer, m_dwTotalSize);
                     memcpy(m_lpBuffer + m_dwTotalSize, lpReadBuffer, m_dwSize);
 
-                    delete [] lpOldBuffer;
-                    delete [] lpReadBuffer;
+                    delete[] lpOldBuffer;
+                    delete[] lpReadBuffer;
                 }
-                
+
                 m_dwTotalSize += m_dwSize;
 
                 TCHAR szStatus[1024];
                 _stprintf(szStatus, TEXT("Received %d bytes"), m_dwTotalSize);
                 SetWindowText(GetDlgItem(m_hDlg, m_nStatusID), szStatus);
 
-                if (!CheckVersion()) {
+                if (! CheckVersion())
+                {
                     DownloadNoNewVersion();
-                } else {
-                    if (!WinHttpQueryDataAvailable(m_hRequest, NULL)) {
+                }
+                else
+                {
+                    if (! WinHttpQueryDataAvailable(m_hRequest, NULL))
+                    {
                         DownloadFailed();
                     }
                 }
@@ -326,13 +411,16 @@ void DownloadJSLint::StartDownload(HWND hDlg, int nStatusID)
     m_dwTotalSize = 0;
     m_version = TEXT("");
 
-    m_hSession = WinHttpOpen(L"JSLint Plugin for Notepad++",
+    m_hSession = WinHttpOpen(
+        L"JSLint Plugin for Notepad++",
         WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
         WINHTTP_NO_PROXY_NAME,
         WINHTTP_NO_PROXY_BYPASS,
-        WINHTTP_FLAG_ASYNC);
+        WINHTTP_FLAG_ASYNC
+    );
 
-    if (m_hSession == NULL) {
+    if (m_hSession == NULL)
+    {
         DownloadFailed();
         return;
     }
@@ -346,57 +434,91 @@ void DownloadJSLint::StartDownload(HWND hDlg, int nStatusID)
     urlComp.dwHostNameLength = sizeof(szHost) / sizeof(szHost[0]);
     urlComp.dwUrlPathLength = (DWORD)-1;
     urlComp.dwSchemeLength = (DWORD)-1;
-    WinHttpCrackUrl(m_linter == LINTER_JSLINT ? JSLINT_GITHUB_URL_W : JSHINT_GITHUB_URL_W, 0, 0, &urlComp);
+    WinHttpCrackUrl(
+        m_linter == LINTER_JSLINT ? JSLINT_GITHUB_URL_W : JSHINT_GITHUB_URL_W,
+        0,
+        0,
+        &urlComp
+    );
 
     m_hConnect = WinHttpConnect(m_hSession, szHost, urlComp.nPort, 0);
 
-    DWORD dwOpenRequestFlag = (urlComp.nScheme == INTERNET_SCHEME_HTTPS) ?
-        WINHTTP_FLAG_SECURE : 0;
+    DWORD dwOpenRequestFlag =
+        (urlComp.nScheme == INTERNET_SCHEME_HTTPS) ? WINHTTP_FLAG_SECURE : 0;
 
-    m_hRequest = WinHttpOpenRequest(m_hConnect, 
-        L"GET", urlComp.lpszUrlPath, NULL, WINHTTP_NO_REFERER, 
-        WINHTTP_DEFAULT_ACCEPT_TYPES, dwOpenRequestFlag);
-    if (m_hRequest == NULL) {
+    m_hRequest = WinHttpOpenRequest(
+        m_hConnect,
+        L"GET",
+        urlComp.lpszUrlPath,
+        NULL,
+        WINHTTP_NO_REFERER,
+        WINHTTP_DEFAULT_ACCEPT_TYPES,
+        dwOpenRequestFlag
+    );
+    if (m_hRequest == NULL)
+    {
         DownloadFailed();
         return;
     }
 
-    WINHTTP_STATUS_CALLBACK pCallback = WinHttpSetStatusCallback(m_hRequest,
+    WINHTTP_STATUS_CALLBACK pCallback = WinHttpSetStatusCallback(
+        m_hRequest,
         (WINHTTP_STATUS_CALLBACK)AsyncCallback,
-        WINHTTP_CALLBACK_FLAG_ALL_COMPLETIONS | WINHTTP_CALLBACK_FLAG_REDIRECT, 0);
-    if (pCallback != NULL) {
+        WINHTTP_CALLBACK_FLAG_ALL_COMPLETIONS | WINHTTP_CALLBACK_FLAG_REDIRECT,
+        0
+    );
+    if (pCallback != NULL)
+    {
         DownloadFailed();
         return;
     }
 
-    if (!WinHttpSendRequest(m_hRequest, 
-                        WINHTTP_NO_ADDITIONAL_HEADERS, 0, 
-                        WINHTTP_NO_REQUEST_DATA, 0, 0, 
-                        reinterpret_cast<DWORD_PTR>(this))) {
+    if (! WinHttpSendRequest(
+            m_hRequest,
+            WINHTTP_NO_ADDITIONAL_HEADERS,
+            0,
+            WINHTTP_NO_REQUEST_DATA,
+            0,
+            0,
+            reinterpret_cast<DWORD_PTR>(this)
+        ))
+    {
         DownloadFailed();
         return;
     }
 }
 
 INT_PTR CALLBACK DownloadJSLint::JSLintDownloadProgressDlgProc(
-    HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
+    HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam
+)
 {
-	if (uMessage == WM_INITDIALOG) {
-		TCHAR szTitleFormat[100];
-		GetWindowText(hDlg, szTitleFormat, _countof(szTitleFormat));
-        
-		TCHAR szTitle[100];
-		_stprintf(szTitle, szTitleFormat, m_linter == LINTER_JSLINT ? TEXT("JSLint") : TEXT("JSHint"));
+    if (uMessage == WM_INITDIALOG)
+    {
+        TCHAR szTitleFormat[100];
+        GetWindowText(hDlg, szTitleFormat, _countof(szTitleFormat));
+
+        TCHAR szTitle[100];
+        _stprintf(
+            szTitle,
+            szTitleFormat,
+            m_linter == LINTER_JSLINT ? TEXT("JSLint") : TEXT("JSHint")
+        );
         SetWindowText(hDlg, szTitle);
 
-        SetWindowText(GetDlgItem(hDlg, IDC_URL), m_linter == LINTER_JSLINT ? JSLINT_GITHUB_URL_T : JSHINT_GITHUB_URL_T);
+        SetWindowText(
+            GetDlgItem(hDlg, IDC_URL),
+            m_linter == LINTER_JSLINT ? JSLINT_GITHUB_URL_T
+                                      : JSHINT_GITHUB_URL_T
+        );
         SetWindowText(GetDlgItem(hDlg, IDC_PROGRESS), TEXT("Starting ..."));
-        auto self = reinterpret_cast<DownloadJSLint*>(lParam);
+        auto self = reinterpret_cast<DownloadJSLint *>(lParam);
         self->StartDownload(hDlg, IDC_PROGRESS);
         CenterWindow(hDlg, self->plugin_->get_notepad_window());
-    } else if (uMessage == WM_DOWNLOAD_FINISHED) {
+    }
+    else if (uMessage == WM_DOWNLOAD_FINISHED)
+    {
         EndDialog(hDlg, wParam);
     }
 
-	return 0;
+    return 0;
 }

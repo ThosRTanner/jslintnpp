@@ -20,23 +20,3 @@
 #include "TargetVer.h"
 
 #include <Windows.h>
-
-//#include <Windowsx.h>
-//#include <Commctrl.h>
-//#include <Shellapi.h>
-//#include <Shlwapi.h>
-//#include <zmouse.h>
-//#include <Winhttp.h>
-
-#pragma warning(disable:4996)
-
-//#include <string>
-//#include <tchar.h>
-//#include <time.h>
-//#include <list>
-//#include <map>
-//#include <sstream>
-//#include <vector>
-//#include <memory>
-//#include <algorithm>
-//#include <float.h>

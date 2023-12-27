@@ -16,9 +16,6 @@
     <Filter Include="Notepad++">
       <UniqueIdentifier>{afb51bde-2ed3-445d-b889-078cd83d43f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Notepad++\DockingFeature">
-      <UniqueIdentifier>{9cbb6497-b7a3-42dc-8cf7-7ce3ea692a54}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DockingDialog">
       <UniqueIdentifier>{b22a21d1-a696-4df0-8859-517095043ef0}</UniqueIdentifier>
     </Filter>
@@ -51,9 +48,6 @@
     <ClCompile Include="Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Notepad++\DockingFeature\StaticDialog.cpp">
-      <Filter>Notepad++\DockingFeature</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.cpp">
       <Filter>DockingDialog</Filter>
     </ClCompile>
@@ -78,9 +72,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OutputDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Settings.h">
@@ -110,21 +101,6 @@
     <ClInclude Include="Notepad++\Scintilla.h">
       <Filter>Notepad++</Filter>
     </ClInclude>
-    <ClInclude Include="Notepad++\DockingFeature\Window.h">
-      <Filter>Notepad++\DockingFeature</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad++\DockingFeature\Docking.h">
-      <Filter>Notepad++\DockingFeature</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad++\DockingFeature\DockingDlgInterface.h">
-      <Filter>Notepad++\DockingFeature</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad++\DockingFeature\dockingResource.h">
-      <Filter>Notepad++\DockingFeature</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad++\DockingFeature\StaticDialog.h">
-      <Filter>Notepad++\DockingFeature</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Callback_Context.h">
       <Filter>DockingDialog</Filter>
     </ClInclude>
@@ -136,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="JSLintNpp.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

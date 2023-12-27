@@ -220,7 +220,6 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">StdHeaders.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="JSLintOptions.cpp" />
-    <ClCompile Include="Notepad++\DockingFeature\StaticDialog.cpp" />
     <ClCompile Include="OutputDlg.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -253,11 +252,6 @@
     <ClInclude Include="JSLint.h" />
     <ClInclude Include="JSLintNpp.h" />
     <ClInclude Include="JSLintOptions.h" />
-    <ClInclude Include="Notepad++\DockingFeature\Docking.h" />
-    <ClInclude Include="Notepad++\DockingFeature\DockingDlgInterface.h" />
-    <ClInclude Include="Notepad++\DockingFeature\dockingResource.h" />
-    <ClInclude Include="Notepad++\DockingFeature\StaticDialog.h" />
-    <ClInclude Include="Notepad++\DockingFeature\Window.h" />
     <ClInclude Include="Notepad++\menuCmdID.h" />
     <ClInclude Include="Notepad++\Notepad_plus_msgs.h" />
     <ClInclude Include="Notepad++\PluginInterface.h" />
