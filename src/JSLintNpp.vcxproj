@@ -201,6 +201,7 @@
     <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.cpp" />
     <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.cpp" />
     <ClCompile Include="AboutDlg.cpp" />
+    <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="DownloadJSLint.cpp" />
     <ClCompile Include="JSLint.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
@@ -230,16 +231,6 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StdHeaders.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">StdHeaders.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="PluginDefinition.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">StdHeaders.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">StdHeaders.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StdHeaders.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">StdHeaders.h</PrecompiledHeaderFile>
-    </ClCompile>
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="StdHeaders.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -260,6 +251,7 @@
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="DownloadJSLint.h" />
     <ClInclude Include="JSLint.h" />
+    <ClInclude Include="JSLintNpp.h" />
     <ClInclude Include="JSLintOptions.h" />
     <ClInclude Include="Notepad++\DockingFeature\Docking.h" />
     <ClInclude Include="Notepad++\DockingFeature\DockingDlgInterface.h" />
@@ -271,7 +263,6 @@
     <ClInclude Include="Notepad++\PluginInterface.h" />
     <ClInclude Include="Notepad++\Scintilla.h" />
     <ClInclude Include="OutputDlg.h" />
-    <ClInclude Include="PluginDefinition.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="StdHeaders.h" />

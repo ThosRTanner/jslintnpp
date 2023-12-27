@@ -17,7 +17,6 @@
 
 #pragma once
 
-//#include "DownloadJSLint.h"
 #include "JSLintOptions.h"
 
 #include <string>

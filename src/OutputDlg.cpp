@@ -21,7 +21,7 @@
 #include "JSLintOptions.h"
 #include "Util.h"
 
-#include "PluginDefinition.h"
+#include "JSLintNpp.h"
 
 #include <sstream>
 

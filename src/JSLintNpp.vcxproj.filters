@@ -42,9 +42,6 @@
     <ClCompile Include="OutputDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PluginDefinition.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -63,6 +60,9 @@
     <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.cpp">
       <Filter>DockingDialog</Filter>
     </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h">
@@ -78,9 +78,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OutputDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PluginDefinition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -136,6 +133,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.h">
       <Filter>DockingDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="JSLintNpp.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -19,7 +19,7 @@
 
 #include "JSLintOptions.h"
 
-#include "PluginDefinition.h"
+#include "JSLintNpp.h"
 #include "Settings.h"
 #include "Util.h"
 

@@ -21,7 +21,7 @@
 
 #include "DownloadJSLint.h"
 #include "JSLint.h"
-#include "PluginDefinition.h"
+#include "JSLintNpp.h"
 #include "Util.h"
 #include "Version.h"
 

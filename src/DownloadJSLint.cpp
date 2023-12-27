@@ -18,8 +18,7 @@
 #include "StdHeaders.h"
 
 #include "DownloadJSLint.h"
-
-#include "PluginDefinition.h"
+#include "JSLintNpp.h"
 #include "Util.h"
 
 #include "resource.h"
