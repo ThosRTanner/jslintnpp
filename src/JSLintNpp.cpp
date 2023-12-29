@@ -289,7 +289,10 @@ void JSLintNpp::showSettingsDlg()
 
 void JSLintNpp::showAboutDlg()
 {
-    pluginDialogBox(IDD_ABOUT, AboutDlgProc, this);
+    AboutDlg dlg(this);
+    int res = dlg.get_result();
+    (void)res;
+    //pluginDialogBox(IDD_ABOUT, AboutDlgProc, this);
 }
 
 void JSLintNpp::createOutputWindow()

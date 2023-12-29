@@ -532,9 +532,9 @@ void OutputDlg::SelectNextLint()
         return;
     }
 
-    int i =
-        ListView_GetNextItem(hWndListView, -1, LVNI_FOCUSED | LVNI_SELECTED);
-    if (++i == count)
+    int i = ListView_GetNextItem(hWndListView, -1, LVNI_FOCUSED | LVNI_SELECTED)
+        + 1;
+    if (i == count)
     {
         i = 0;
     }
@@ -565,9 +565,9 @@ void OutputDlg::SelectPrevLint()
         return;
     }
 
-    int i =
-        ListView_GetNextItem(hWndListView, -1, LVNI_FOCUSED | LVNI_SELECTED);
-    if (--i == -1)
+    int i = ListView_GetNextItem(hWndListView, -1, LVNI_FOCUSED | LVNI_SELECTED)
+        - 1;
+    if (i == -1)
     {
         i = count - 1;
     }
@@ -602,33 +602,32 @@ void OutputDlg::ShowLint(int i)
             HWND hWndScintilla = plugin_->get_scintilla_window();
             if (hWndScintilla != NULL)
             {
-                ::SendMessage(hWndScintilla, SCI_GOTOLINE, line, 0);
+                plugin_->send_to_editor(SCI_GOTOLINE, line);
                 // since there is no SCI_GOTOCOLUMN, we move to the right until
                 // ...
                 while (true)
                 {
-                    ::SendMessage(hWndScintilla, SCI_CHARRIGHT, 0, 0);
+                    plugin_->send_to_editor(SCI_CHARRIGHT);
 
-                    int curPos = (int
-                    )::SendMessage(hWndScintilla, SCI_GETCURRENTPOS, 0, 0);
+                    LRESULT curPos = plugin_->send_to_editor(SCI_GETCURRENTPOS);
 
-                    int curLine = (int)::SendMessage(
-                        hWndScintilla, SCI_LINEFROMPOSITION, curPos, 0
-                    );
+                    LRESULT curLine =
+                        plugin_->send_to_editor(SCI_LINEFROMPOSITION, curPos);
+
                     if (curLine > line)
                     {
                         // ... current line is greater than desired line or ...
-                        ::SendMessage(hWndScintilla, SCI_CHARLEFT, 0, 0);
+                        plugin_->send_to_editor(SCI_CHARLEFT);
                         break;
                     }
 
-                    int curCol = (int
-                    )::SendMessage(hWndScintilla, SCI_GETCOLUMN, curPos, 0);
+                    LRESULT curCol =
+                        plugin_->send_to_editor(SCI_GETCOLUMN, curPos);
                     if (curCol > column)
                     {
                         // ... current column is greater than desired column or
                         // ...
-                        ::SendMessage(hWndScintilla, SCI_CHARLEFT, 0, 0);
+                        plugin_->send_to_editor(SCI_CHARLEFT);
                         break;
                     }
 
@@ -700,20 +699,16 @@ void OutputDlg::CopyToClipboard()
             {
 #endif
                 GlobalFree(hResult);
-                MessageBox(
-                    window(),
+                message_box(
                     L"Unable to set Clipboard data",
-                    L"JSLint",
                     MB_OK | MB_ICONERROR
                 );
             }
         }
         else
         {
-            MessageBox(
-                window(),
+            message_box(
                 L"Cannot empty the Clipboard",
-                L"JSLint",
                 MB_OK | MB_ICONERROR
             );
         }
@@ -721,10 +716,8 @@ void OutputDlg::CopyToClipboard()
     }
     else
     {
-        MessageBox(
-            window(),
+        message_box(
             L"Cannot open the Clipboard",
-            L"JSLint",
             MB_OK | MB_ICONERROR
         );
     }

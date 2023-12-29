@@ -17,5 +17,17 @@
 
 #pragma once
 
-INT_PTR CALLBACK
-AboutDlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
+#include "Modal_Dialogue_Interface.h"
+
+class AboutDlg : public Modal_Dialogue_Interface
+{
+  public:
+    AboutDlg(Plugin const *);
+
+    ~AboutDlg();
+
+  private:
+    std::optional<LONG_PTR> on_dialogue_message(
+        UINT message, UINT_PTR wParam, LONG_PTR lParam
+    ) noexcept(false) override;
+};

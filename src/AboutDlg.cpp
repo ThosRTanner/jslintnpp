@@ -29,37 +29,36 @@
 #include <CommCtrl.h>
 #include <shellapi.h>
 
-INT_PTR CALLBACK
-AboutDlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
+AboutDlg::AboutDlg(Plugin const *plugin) : Modal_Dialogue_Interface(plugin)
 {
-    switch (uMessage)
+    create_dialogue_window(IDD_ABOUT);
+}
+
+AboutDlg::~AboutDlg() = default;
+
+std::optional<LONG_PTR> AboutDlg::on_dialogue_message(
+    UINT message, UINT_PTR wParam, LONG_PTR lParam
+)
+{
+    switch (message)
     {
         case WM_INITDIALOG:
         {
-            HWND hWndVersionStatic = ::GetDlgItem(hDlg, IDC_VERSION_STATIC);
+            HWND hWndVersionStatic = GetDlgItem(IDC_VERSION_STATIC);
 
             TCHAR szVersionFormat[50];
             GetWindowText(
                 hWndVersionStatic, szVersionFormat, _countof(szVersionFormat)
             );
 
-#if defined(UNICODE) || defined(_UNICODE)
-            LPCTSTR szCharSet = L"Unicode";
-#else
-            LPCTSTR szCharSet = L"ANSI";
-#endif
-
             TCHAR szVersion[100];
             _stprintf(
-                szVersion, szVersionFormat, szCharSet, MY_PRODUCT_VERSION
+                szVersion, szVersionFormat, L"Unicode", MY_PRODUCT_VERSION
             );
 
             SetWindowText(hWndVersionStatic, szVersion);
 
-            CenterWindow(
-                hDlg,
-                reinterpret_cast<Plugin const *>(lParam)->get_notepad_window()
-            );
+            centre_dialogue();
         }
         break;
 
@@ -70,13 +69,13 @@ AboutDlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
                 {
                     case IDOK:
                     {
-                        EndDialog(hDlg, 1);
-                        return 1;
+                        EndDialog(1);
+                        return TRUE;
                     }
                     case IDCANCEL:
                     {
-                        EndDialog(hDlg, 0);
-                        return 1;
+                        EndDialog(0);
+                        return TRUE;
                     }
                 }
             }
@@ -102,8 +101,8 @@ AboutDlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
             if (wParam == SC_CLOSE)
             {
                 // cancel
-                EndDialog(hDlg, 0);
-                return 1;
+                EndDialog(0);
+                return TRUE;
             }
             break;
 
@@ -111,5 +110,5 @@ AboutDlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
             break;
     }
 
-    return 0;
+    return std::nullopt;
 }
