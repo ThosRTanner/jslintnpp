@@ -29,5 +29,5 @@ class AboutDlg : public Modal_Dialogue_Interface
   private:
     std::optional<LONG_PTR> on_dialogue_message(
         UINT message, UINT_PTR wParam, LONG_PTR lParam
-    ) noexcept(false) override;
+    ) override;
 };

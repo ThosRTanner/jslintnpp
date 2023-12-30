@@ -37,6 +37,8 @@
 #define PROFILE_JSHINT_OPTIONS_GROUP_NAME L"JSHint Options"
 #define PROFILE_ADDITIONAL_OPTIONS_KEY_NAME L"jslintnpp_additional_options"
 
+//This is defined in 2 places. Why?
+//In fact a whole bunch of this looks common to this and ScriptSourceDef class.
 #define MIN_VERSION_BUILD 110
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -231,7 +231,9 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StdHeaders.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">StdHeaders.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="ScriptSourceDef.cpp" />
     <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="Settings_Dialogue.cpp" />
     <ClCompile Include="StdHeaders.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -260,7 +262,9 @@
     <ClInclude Include="Notepad++\Scintilla.h" />
     <ClInclude Include="OutputDlg.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ScriptSourceDef.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="Settings_Dialogue.h" />
     <ClInclude Include="StdHeaders.h" />
     <ClInclude Include="TargetVer.h" />
     <ClInclude Include="Util.h" />

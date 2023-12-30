@@ -81,14 +81,26 @@ class Modal_Dialogue_Interface
     /** Utility to get a dialogue item */
     HWND GetDlgItem(int) const noexcept;
 
+    /** Wrapper round ::EndDialog */
     BOOL EndDialog(INT_PTR retval) const noexcept;
 
-    /** Centre the dialogue on the Notepad++ window */ 
+    /** Wrapper round ::EndDialog that takes a pointer
+     *
+     * Note: Due to the vagaries of the language, C++ compilers can't
+     * differentiate between 0 and nullptr. Pass 0LL if you really need to
+     * pass 0, or pass nullptr.
+     */
+    BOOL EndDialog(void *retval) const noexcept
+    {
+        return EndDialog(reinterpret_cast<INT_PTR>(retval));
+    }
+
+    /** Centre the dialogue on the Notepad++ window */
     BOOL centre_dialogue() const noexcept;
 
     /** Throw up a message box
      *
-     * The title will be the same as the docking dialogue title.
+     * The title will be the same as the dialogue title.
      *
      * This would take a string_view, but there's no guarantee that that is null
      * terminated.

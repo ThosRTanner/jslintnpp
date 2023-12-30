@@ -19,40 +19,23 @@
 
 #include "JSLintOptions.h"
 
+#include "ScriptSourceDef.h"
+
 #include <string>
 
 class JSLintNpp;
 
 ////////////////////////////////////////////////////////////////////////////////
-
+//REMOVE!
+//Used in JSLintOptions and ScriptSourceDef (as as MAX_BUILD I think)
+//Abstraction needed
+#ifndef PROFILE_JSLINT_GROUP_NAME
 #define PROFILE_JSLINT_GROUP_NAME L"JSLint"
 #define PROFILE_BUILD_KEY_NAME L"build"
+#endif    // !PROFILE_JSLINT_GROUP_NAME
 
-////////////////////////////////////////////////////////////////////////////////
 
-enum ScriptSource
-{
-    SCRIPT_SOURCE_BUILTIN,
-    SCRIPT_SOURCE_DOWNLOADED
-};
-
-struct ScriptSourceDef
-{
-    ScriptSourceDef(Linter linter);
-
-    Linter m_linter;
-
-    ScriptSource m_scriptSource;
-    std::wstring m_scriptVersion;
-    bool m_bSpecUndefVarErrMsg;
-    std::wstring m_undefVarErrMsg;
-
-    int GetScriptResourceID() const;
-    LPCTSTR GetDefaultUndefVarErrMsg() const;
-    LPCSTR GetNamespace() const;
-};
-
-////////////////////////////////////////////////////////////////////////////////
+class Settings_Dialogue;
 
 class Settings
 {
@@ -73,12 +56,6 @@ class Settings
     ScriptSourceDef m_jsLintScript;
     ScriptSourceDef m_jsHintScript;
 
-    static Settings *m_m_instance;
-
-    void LoadVersions(HWND hDlg, int versionsComboBoxID, Linter linter);
-    BOOL UpdateOptions(HWND hDlg, bool bSaveOrValidate);
-    void UpdateControls(HWND hDlg);
-
     void ReadOptions(
         std::wstring const &prefix, ScriptSourceDef &scriptSourceDef
     );
@@ -86,6 +63,5 @@ class Settings
         std::wstring const &prefix, ScriptSourceDef const &scriptSourceDef
     );
 
-    static INT_PTR CALLBACK
-    DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
+    friend class Settings_Dialogue;
 };

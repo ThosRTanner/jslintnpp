@@ -187,20 +187,9 @@ INT_PTR __stdcall Modal_Dialogue_Interface::process_dialogue_message(
     }
 }
 
-// Looks like you must call this from your class
 void Modal_Dialogue_Interface::create_dialogue_window(int dialogID)
 {
-    /*
-    INT_PTR nRet = ::DialogBoxParam(
-        module(),
-        MAKEINTRESOURCE(idDlg),
-        get_notepad_window(),
-        lpDlgProc,
-        reinterpret_cast<LPARAM>(self)
-    );
-    return nRet;
-*/
-    HWND hWndFocus = ::GetFocus();
+    HWND focus = ::GetFocus();
     result_ = ::DialogBoxParam(
         plugin_->module(),
         MAKEINTRESOURCE(dialogID),
@@ -208,5 +197,5 @@ void Modal_Dialogue_Interface::create_dialogue_window(int dialogID)
         process_dialogue_message,
         reinterpret_cast<LPARAM>(this)
     );
-    ::SetFocus(hWndFocus);
+    ::SetFocus(focus);
 }

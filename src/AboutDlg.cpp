@@ -19,7 +19,6 @@
 
 #include "AboutDlg.h"
 
-#include "Util.h"
 #include "Version.h"
 
 #include "Plugin/Plugin.h"
@@ -74,7 +73,7 @@ std::optional<LONG_PTR> AboutDlg::on_dialogue_message(
                     }
                     case IDCANCEL:
                     {
-                        EndDialog(0);
+                        EndDialog(0LL);
                         return TRUE;
                     }
                 }
@@ -101,7 +100,7 @@ std::optional<LONG_PTR> AboutDlg::on_dialogue_message(
             if (wParam == SC_CLOSE)
             {
                 // cancel
-                EndDialog(0);
+                EndDialog(0LL);
                 return TRUE;
             }
             break;
