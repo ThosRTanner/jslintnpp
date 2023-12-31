@@ -41,7 +41,7 @@ std::wstring JSLintReportItem::GetUndefVar(JSLintNpp const *plugin) const
     std::wstring var;
     if (m_type == LINT_TYPE_ERROR)
     {
-        ScriptSourceDef const &scriptSource =
+         const ScriptSourceDef &scriptSource =
             plugin->get_settings()->GetScriptSource(
                 plugin->get_options()->GetSelectedLinter()
             );
@@ -160,7 +160,7 @@ void JSLint::CheckScript(
         // Enter the context for compiling and running the hello world script.
         Context::Scope context_scope(context);
 
-        ScriptSourceDef const &scriptSource =
+         auto const &scriptSource =
             plugin_->get_settings()->GetScriptSource(
                 plugin_->get_options()->GetSelectedLinter()
             );

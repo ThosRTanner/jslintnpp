@@ -4,33 +4,46 @@
 
 #include <string>
 
+class Profile_Handler;
+
 enum ScriptSource
 {
     SCRIPT_SOURCE_BUILTIN,
     SCRIPT_SOURCE_DOWNLOADED
 };
 
-struct ScriptSourceDef
+class ScriptSourceDef
 {
   public:
-    explicit ScriptSourceDef(Linter linter);
+    ScriptSourceDef(Linter linter, Profile_Handler *profile_handler);
 
-    void ReadOptions(std::wstring const &config_file);
+    ~ScriptSourceDef();
 
-    void SaveOptions(std::wstring const &config_file) const;
+    LPCSTR GetNamespace() const noexcept;
+    int GetScriptResourceID() const noexcept;
 
-  public:    // FIXME Should be private
+  //FIXME everything from here should be private.
+  public:    
     Linter m_linter;
 
+  private:
+    Profile_Handler *profile_handler_;
+
+  public:
     ScriptSource m_scriptSource;
     std::wstring m_scriptVersion;
     bool m_bSpecUndefVarErrMsg;
     std::wstring m_undefVarErrMsg;
 
-    int GetScriptResourceID() const noexcept;
+  public:
     LPCTSTR GetDefaultUndefVarErrMsg() const noexcept;
-    LPCSTR GetNamespace() const noexcept;
 
   private:
     std::wstring prefix() const;
+    std::wstring get_settings_value(
+        std::wstring const &key, std::wstring const &def_value = L""
+    ) const;
+    void set_settings_value(
+        std::wstring const &key, std::wstring const &value
+    ) const;
 };

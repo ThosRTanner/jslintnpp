@@ -29,21 +29,18 @@ class JSLintNpp;
 //REMOVE!
 //Used in JSLintOptions and ScriptSourceDef (as as MAX_BUILD I think)
 //Abstraction needed
-#ifndef PROFILE_JSLINT_GROUP_NAME
-#define PROFILE_JSLINT_GROUP_NAME L"JSLint"
-#define PROFILE_BUILD_KEY_NAME L"build"
-#endif    // !PROFILE_JSLINT_GROUP_NAME
-
+//#ifndef PROFILE_JSLINT_GROUP_NAME
+//#define PROFILE_JSLINT_GROUP_NAME L"JSLint"
+//#define PROFILE_BUILD_KEY_NAME L"build"
+//#endif    // !PROFILE_JSLINT_GROUP_NAME
 
 class Settings_Dialogue;
+class Profile_Handler;
 
 class Settings
 {
   public:
-    Settings(JSLintNpp const *);
-
-    void ReadOptions();
-    void SaveOptions();
+    Settings(JSLintNpp const *, Profile_Handler *);
 
     void ShowDialog();
 
@@ -56,9 +53,6 @@ class Settings
     ScriptSourceDef m_jsLintScript;
     ScriptSourceDef m_jsHintScript;
 
-    void ReadOptions(
-        std::wstring const &prefix, ScriptSourceDef &scriptSourceDef
-    );
     void SaveOptions(
         std::wstring const &prefix, ScriptSourceDef const &scriptSourceDef
     );

@@ -7,15 +7,16 @@
 
 #include "resource.h"
 
+#include <Profile_Handler.h>
 #include <tchar.h>
 
-#define MIN_VERSION_BUILD 110
+// #define MIN_VERSION_BUILD 110
 
 // These are used in JSLintOptions.cpp for no obvious reason
 // Should probably do something about both these and Linter enum
 
-#define PROFILE_JSLINT_GROUP_NAME L"JSLint"
-#define PROFILE_BUILD_KEY_NAME L"build"
+//#define PROFILE_JSLINT_GROUP_NAME L"JSLint"
+//#define PROFILE_BUILD_KEY_NAME L"build"
 
 /////////^^^^
 
@@ -31,46 +32,25 @@
 #define JSLINT_DEFAULT_UNDEF_VAR_ERR_MSG L"'%s' was used before it was defined."
 #define JSHINT_DEFAULT_UNDEF_VAR_ERR_MSG L"'%s' is not defined."
 
-ScriptSourceDef::ScriptSourceDef(Linter linter) :
+ScriptSourceDef::ScriptSourceDef(
+    Linter linter, Profile_Handler *profile_handler
+) :
     m_linter(linter),
+    profile_handler_(profile_handler),
     m_scriptSource(SCRIPT_SOURCE_BUILTIN),
     m_bSpecUndefVarErrMsg(false),
     m_undefVarErrMsg(GetDefaultUndefVarErrMsg())
 {
-}
-
-void ScriptSourceDef::ReadOptions(std::wstring const &strConfigFileName)
-{
-    if (! Path::IsFileExists(strConfigFileName))
+    if (profile_handler_->get_build_version()
+        < Profile_Handler::Min_Version_Build)
     {
         return;
     }
 
-    TCHAR szValue[65536];    // memory is cheap
-    GetPrivateProfileString(
-        PROFILE_JSLINT_GROUP_NAME,
-        PROFILE_BUILD_KEY_NAME,
-        nullptr,
-        szValue,
-        _countof(szValue),
-        strConfigFileName.c_str()
-    );
-    if (_ttoi(szValue) < MIN_VERSION_BUILD)
+    if (profile_handler_->get_build_version() >= VERSION_BUILD)
     {
-        return;
-    }
-
-    if (_ttoi(szValue) >= VERSION_BUILD)
-    {
-        GetPrivateProfileString(
-            PROFILE_SETTINGS_GROUP_NAME,
-            (prefix() + PROFILE_SCRIPT_SOURCE_KEY_NAME).c_str(),
-            nullptr,
-            szValue,
-            _countof(szValue),
-            strConfigFileName.c_str()
-        );
-        if (_tcscmp(szValue, PROFILE_SCRIPT_SOURCE_DOWNLOADED) == 0)
+        if (get_settings_value(PROFILE_SCRIPT_SOURCE_KEY_NAME)
+            == PROFILE_SCRIPT_SOURCE_DOWNLOADED)
         {
             m_scriptSource = SCRIPT_SOURCE_DOWNLOADED;
         }
@@ -85,81 +65,36 @@ void ScriptSourceDef::ReadOptions(std::wstring const &strConfigFileName)
         m_scriptSource = SCRIPT_SOURCE_BUILTIN;
     }
 
-    GetPrivateProfileString(
-        PROFILE_SETTINGS_GROUP_NAME,
-        (prefix() + PROFILE_SCRIPT_VERSION_KEY_NAME).c_str(),
-        nullptr,
-        szValue,
-        _countof(szValue),
-        strConfigFileName.c_str()
-    );
-    m_scriptVersion = szValue;
+    m_scriptVersion = get_settings_value(PROFILE_SCRIPT_VERSION_KEY_NAME);
 
-    GetPrivateProfileString(
-        PROFILE_SETTINGS_GROUP_NAME,
-        (prefix() + PROFILE_SPEC_UNDEF_VAR_ERR_MSG_KEY_NAME).c_str(),
-        nullptr,
-        szValue,
-        _countof(szValue),
-        strConfigFileName.c_str()
-    );
-    m_bSpecUndefVarErrMsg = _tcscmp(szValue, L"true") == 0;
+    m_bSpecUndefVarErrMsg =
+        get_settings_value(PROFILE_SPEC_UNDEF_VAR_ERR_MSG_KEY_NAME) == L"true";
 
-    GetPrivateProfileString(
-        PROFILE_SETTINGS_GROUP_NAME,
-        (prefix() + PROFILE_UNDEF_VAR_ERR_MSG_KEY_NAME).c_str(),
-        nullptr,
-        szValue,
-        _countof(szValue),
-        strConfigFileName.c_str()
+    m_undefVarErrMsg = get_settings_value(
+        PROFILE_UNDEF_VAR_ERR_MSG_KEY_NAME, GetDefaultUndefVarErrMsg()
     );
-    if (_tcslen(szValue) > 0)
-    {
-        m_undefVarErrMsg = szValue;
-    }
-    else
-    {
-        m_undefVarErrMsg = GetDefaultUndefVarErrMsg();
-    }
 }
 
-void ScriptSourceDef::SaveOptions(std::wstring const &strConfigFileName) const
+ScriptSourceDef::~ScriptSourceDef()
 {
-    WritePrivateProfileString(
-        PROFILE_JSLINT_GROUP_NAME,
-        PROFILE_BUILD_KEY_NAME,
-        STR(VERSION_BUILD),
-        strConfigFileName.c_str()
-    );
-
-    WritePrivateProfileString(
-        PROFILE_SETTINGS_GROUP_NAME,
-        (prefix() + PROFILE_SCRIPT_SOURCE_KEY_NAME).c_str(),
+    set_settings_value(
+        PROFILE_SCRIPT_SOURCE_KEY_NAME,
         m_scriptSource == SCRIPT_SOURCE_BUILTIN
             ? PROFILE_SCRIPT_SOURCE_BUILTIN
-            : PROFILE_SCRIPT_SOURCE_DOWNLOADED,
-        strConfigFileName.c_str()
+            : PROFILE_SCRIPT_SOURCE_DOWNLOADED
     );
 
-    WritePrivateProfileString(
-        PROFILE_SETTINGS_GROUP_NAME,
-        (prefix() + PROFILE_SCRIPT_VERSION_KEY_NAME).c_str(),
-        m_scriptVersion.c_str(),
-        strConfigFileName.c_str()
+    set_settings_value(
+        PROFILE_SCRIPT_VERSION_KEY_NAME, m_scriptVersion.c_str()
     );
 
-    WritePrivateProfileString(
-        PROFILE_SETTINGS_GROUP_NAME,
-        (prefix() + PROFILE_SPEC_UNDEF_VAR_ERR_MSG_KEY_NAME).c_str(),
-        m_bSpecUndefVarErrMsg ? L"true" : L"false",
-        strConfigFileName.c_str()
+    set_settings_value(
+        PROFILE_SPEC_UNDEF_VAR_ERR_MSG_KEY_NAME,
+        m_bSpecUndefVarErrMsg ? L"true" : L"false"
     );
 
-    WritePrivateProfileString(
-        PROFILE_SETTINGS_GROUP_NAME,
-        (prefix() + PROFILE_UNDEF_VAR_ERR_MSG_KEY_NAME).c_str(),
-        m_undefVarErrMsg.c_str(),
-        strConfigFileName.c_str()
+    set_settings_value(
+        PROFILE_UNDEF_VAR_ERR_MSG_KEY_NAME, m_undefVarErrMsg.c_str()
     );
 }
 
@@ -182,4 +117,22 @@ LPCSTR ScriptSourceDef::GetNamespace() const noexcept
 std::wstring ScriptSourceDef::prefix() const
 {
     return m_linter == LINTER_JSLINT ? L"jslint" : L"jshint";
+}
+
+std::wstring ScriptSourceDef::get_settings_value(
+    std::wstring const &key, std::wstring const &def_value
+) const
+{
+    return profile_handler_->get_str_value(
+        PROFILE_SETTINGS_GROUP_NAME, prefix() + key, def_value
+    );
+}
+
+void ScriptSourceDef::set_settings_value(
+    std::wstring const &key, std::wstring const &value
+) const
+{
+    profile_handler_->set_str_value(
+        PROFILE_SETTINGS_GROUP_NAME, prefix() + key, value
+    );
 }

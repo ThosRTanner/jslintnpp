@@ -24,6 +24,7 @@
 #include "JSLint.h"
 #include "JSLintOptions.h"
 #include "OutputDlg.h"
+#include "Profile_Handler.h"
 #include "Settings.h"
 #include "Util.h"
 
@@ -61,21 +62,20 @@ JSLintNpp::JSLintNpp(NppData const &data) :
     Plugin(data, get_plugin_name()),
     config_dir_(get_config_dir()),
     config_file_name_(get_config_file_name()),
+    profile_handler_(std::make_unique<Profile_Handler>(config_file_name_)),
     options_(std::make_unique<JSLintOptions>(config_file_name_)),
-    settings_(std::make_unique<Settings>(this)),
+    settings_(std::make_unique<Settings>(this, profile_handler_.get())),
     downloader_(std::make_unique<DownloadJSLint>(this))
 {
     // It's not clear to me why some of this isn't done in the constructors
     // although worth noting that some dodgy stuff goes on with settings and
     // options.
-    settings_->ReadOptions();
     options_->ReadOptions();
     downloader_->LoadVersions();
 }
 
 JSLintNpp::~JSLintNpp()
 {
-    settings_->SaveOptions();
     options_->SaveOptions();
 }
 

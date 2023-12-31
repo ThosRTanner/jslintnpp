@@ -22,24 +22,11 @@
 #include "JSLintNpp.h"
 #include "Settings_Dialogue.h"
 
-Settings::Settings(JSLintNpp const *plugin) :
+Settings::Settings(JSLintNpp const *plugin, Profile_Handler *profile_handler) :
     plugin_(plugin),
-    config_file_(plugin->GetConfigFileName()),
-    m_jsLintScript(LINTER_JSLINT),
-    m_jsHintScript(LINTER_JSHINT)
+    m_jsLintScript(LINTER_JSLINT, profile_handler),
+    m_jsHintScript(LINTER_JSHINT, profile_handler)
 {
-}
-
-void Settings::ReadOptions()
-{
-    m_jsLintScript.ReadOptions(config_file_);
-    m_jsHintScript.ReadOptions(config_file_);
-}
-
-void Settings::SaveOptions()
-{
-    m_jsLintScript.SaveOptions(config_file_);
-    m_jsHintScript.SaveOptions(config_file_);
 }
 
 void Settings::ShowDialog()

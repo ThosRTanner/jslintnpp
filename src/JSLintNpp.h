@@ -25,6 +25,7 @@
 class DownloadJSLint;
 class JSLintOptions;
 class OutputDlg;
+class Profile_Handler;
 class Settings;
 
 class JSLintNpp : public Plugin
@@ -126,6 +127,7 @@ class JSLintNpp : public Plugin
   private:
     std::wstring config_dir_;
     std::wstring config_file_name_;
+    std::unique_ptr<Profile_Handler> profile_handler_;
     std::unique_ptr<JSLintOptions> options_;
     std::unique_ptr<Settings> settings_;
     std::unique_ptr<DownloadJSLint> downloader_;
