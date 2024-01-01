@@ -12,6 +12,8 @@ enum ScriptSource
     SCRIPT_SOURCE_DOWNLOADED
 };
 
+class Settings_Dialogue;
+
 class ScriptSourceDef
 {
   public:
@@ -21,9 +23,9 @@ class ScriptSourceDef
 
     LPCSTR GetNamespace() const noexcept;
     int GetScriptResourceID() const noexcept;
+    std::wstring get_undef_errmsg() const;
 
-  //FIXME everything from here should be private.
-  public:    
+  public:
     Linter m_linter;
 
   private:
@@ -32,18 +34,21 @@ class ScriptSourceDef
   public:
     ScriptSource m_scriptSource;
     std::wstring m_scriptVersion;
+
+  private:
     bool m_bSpecUndefVarErrMsg;
     std::wstring m_undefVarErrMsg;
 
-  public:
     LPCTSTR GetDefaultUndefVarErrMsg() const noexcept;
 
-  private:
     std::wstring prefix() const;
+
     std::wstring get_settings_value(
         std::wstring const &key, std::wstring const &def_value = L""
     ) const;
-    void set_settings_value(
-        std::wstring const &key, std::wstring const &value
-    ) const;
+
+    void set_settings_value(std::wstring const &key, std::wstring const &value)
+        const;
+
+    friend class Settings_Dialogue;
 };

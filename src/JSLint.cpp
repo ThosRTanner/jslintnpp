@@ -21,6 +21,7 @@
 
 #include "DownloadJSLint.h"
 #include "JSLintNpp.h"
+#include "ScriptSourceDef.h"
 #include "Settings.h"
 #include "Util.h"
 
@@ -41,16 +42,12 @@ std::wstring JSLintReportItem::GetUndefVar(JSLintNpp const *plugin) const
     std::wstring var;
     if (m_type == LINT_TYPE_ERROR)
     {
-         const ScriptSourceDef &scriptSource =
+        ScriptSourceDef const &scriptSource =
             plugin->get_settings()->GetScriptSource(
                 plugin->get_options()->GetSelectedLinter()
             );
 
-        std::wstring errMsg =
-            scriptSource.m_scriptSource == SCRIPT_SOURCE_DOWNLOADED
-                && scriptSource.m_bSpecUndefVarErrMsg
-            ? scriptSource.m_undefVarErrMsg
-            : scriptSource.GetDefaultUndefVarErrMsg();
+        std::wstring errMsg = scriptSource.get_undef_errmsg();
 
         std::wstring::size_type i = errMsg.find(L"%s");
         if (i != std::wstring::npos)
@@ -160,10 +157,9 @@ void JSLint::CheckScript(
         // Enter the context for compiling and running the hello world script.
         Context::Scope context_scope(context);
 
-         auto const &scriptSource =
-            plugin_->get_settings()->GetScriptSource(
-                plugin_->get_options()->GetSelectedLinter()
-            );
+        auto const &scriptSource = plugin_->get_settings()->GetScriptSource(
+            plugin_->get_options()->GetSelectedLinter()
+        );
 
         std::string strJSLintScript;
         if (scriptSource.m_scriptSource == SCRIPT_SOURCE_BUILTIN)

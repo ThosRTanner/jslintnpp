@@ -14,11 +14,7 @@
 
 #include "Modal_Dialogue_Interface.h"
 
-#include "Plugin/Plugin.h"    //Fudgstickling
-
-#include "DockingFeature/Docking.h"
-#include "DockingFeature/dockingResource.h"
-#include "Notepad_plus_msgs.h"
+#include "Plugin/Plugin.h"
 
 #include <comutil.h>
 #include <ShlwApi.h>

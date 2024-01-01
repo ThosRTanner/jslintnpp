@@ -25,15 +25,6 @@
 
 class JSLintNpp;
 
-////////////////////////////////////////////////////////////////////////////////
-//REMOVE!
-//Used in JSLintOptions and ScriptSourceDef (as as MAX_BUILD I think)
-//Abstraction needed
-//#ifndef PROFILE_JSLINT_GROUP_NAME
-//#define PROFILE_JSLINT_GROUP_NAME L"JSLint"
-//#define PROFILE_BUILD_KEY_NAME L"build"
-//#endif    // !PROFILE_JSLINT_GROUP_NAME
-
 class Settings_Dialogue;
 class Profile_Handler;
 

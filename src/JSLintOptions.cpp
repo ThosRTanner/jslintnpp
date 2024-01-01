@@ -19,8 +19,8 @@
 
 #include "JSLintOptions.h"
 
+#include "DownloadJSLint.h"
 #include "JSLintNpp.h"
-#include "Settings.h"
 #include "Util.h"
 
 #include "resource.h"

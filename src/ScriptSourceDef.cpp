@@ -2,23 +2,11 @@
 
 #include "ScriptSourceDef.h"
 
-#include "Util.h"
 #include "Version.h"
 
 #include "resource.h"
 
 #include <Profile_Handler.h>
-#include <tchar.h>
-
-// #define MIN_VERSION_BUILD 110
-
-// These are used in JSLintOptions.cpp for no obvious reason
-// Should probably do something about both these and Linter enum
-
-//#define PROFILE_JSLINT_GROUP_NAME L"JSLint"
-//#define PROFILE_BUILD_KEY_NAME L"build"
-
-/////////^^^^
 
 #define PROFILE_SETTINGS_GROUP_NAME L"Settings"
 #define PROFILE_SCRIPT_SOURCE_KEY_NAME L"_script_source"
@@ -84,23 +72,26 @@ ScriptSourceDef::~ScriptSourceDef()
             : PROFILE_SCRIPT_SOURCE_DOWNLOADED
     );
 
-    set_settings_value(
-        PROFILE_SCRIPT_VERSION_KEY_NAME, m_scriptVersion.c_str()
-    );
+    set_settings_value(PROFILE_SCRIPT_VERSION_KEY_NAME, m_scriptVersion);
 
     set_settings_value(
         PROFILE_SPEC_UNDEF_VAR_ERR_MSG_KEY_NAME,
         m_bSpecUndefVarErrMsg ? L"true" : L"false"
     );
 
-    set_settings_value(
-        PROFILE_UNDEF_VAR_ERR_MSG_KEY_NAME, m_undefVarErrMsg.c_str()
-    );
+    set_settings_value(PROFILE_UNDEF_VAR_ERR_MSG_KEY_NAME, m_undefVarErrMsg);
 }
 
 int ScriptSourceDef::GetScriptResourceID() const noexcept
 {
     return m_linter == LINTER_JSLINT ? IDR_JSLINT : IDR_JSHINT;
+}
+
+std::wstring ScriptSourceDef::get_undef_errmsg() const
+{
+    return m_scriptSource == SCRIPT_SOURCE_DOWNLOADED && m_bSpecUndefVarErrMsg
+        ? m_undefVarErrMsg
+        : GetDefaultUndefVarErrMsg();
 }
 
 LPCTSTR ScriptSourceDef::GetDefaultUndefVarErrMsg() const noexcept

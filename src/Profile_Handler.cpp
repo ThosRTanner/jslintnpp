@@ -21,7 +21,7 @@ Profile_Handler::Profile_Handler(std::wstring const &file) : profile_file_(file)
         return;
     }
 
-    // Only or c++20
+    // Only for c++20
     // auto buff{std::make_unique_for_overwrite<wchar_t[]>(Buff_Size)};
     std::unique_ptr<wchar_t[]> buff{new wchar_t[Buff_Size]};
 
