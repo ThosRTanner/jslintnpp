@@ -198,7 +198,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.cpp" />
     <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.cpp" />
+    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.cpp" />
     <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.cpp" />
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -220,7 +222,6 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">StdHeaders.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="JSLintOptions.cpp" />
-    <ClCompile Include="Modal_Dialogue_Interface.cpp" />
     <ClCompile Include="OutputDlg.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -249,14 +250,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Callback_Context.h" />
+    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.h" />
     <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.h" />
+    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.h" />
     <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.h" />
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="DownloadJSLint.h" />
     <ClInclude Include="JSLint.h" />
     <ClInclude Include="JSLintNpp.h" />
     <ClInclude Include="JSLintOptions.h" />
-    <ClInclude Include="Modal_Dialogue_Interface.h" />
     <ClInclude Include="Notepad++\menuCmdID.h" />
     <ClInclude Include="Notepad++\Notepad_plus_msgs.h" />
     <ClInclude Include="Notepad++\PluginInterface.h" />

@@ -27,7 +27,7 @@ Settings_Dialogue::Settings_Dialogue(
 Settings_Dialogue::~Settings_Dialogue() = default;
 
 std::optional<LONG_PTR> Settings_Dialogue::on_dialogue_message(
-    UINT message, UINT_PTR wParam, LONG_PTR lParam
+    UINT message, WPARAM wParam, LPARAM lParam
 )
 {
     switch (message)

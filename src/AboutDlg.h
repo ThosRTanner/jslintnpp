@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "Modal_Dialogue_Interface.h"
+#include "Plugin/Modal_Dialogue_Interface.h"
 
 class AboutDlg : public Modal_Dialogue_Interface
 {
@@ -28,6 +28,6 @@ class AboutDlg : public Modal_Dialogue_Interface
 
   private:
     std::optional<LONG_PTR> on_dialogue_message(
-        UINT message, UINT_PTR wParam, LONG_PTR lParam
+        UINT message, WPARAM wParam, LPARAM lParam
     ) override;
 };

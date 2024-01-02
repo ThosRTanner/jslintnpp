@@ -36,7 +36,7 @@ AboutDlg::AboutDlg(Plugin const *plugin) : Modal_Dialogue_Interface(plugin)
 AboutDlg::~AboutDlg() = default;
 
 std::optional<LONG_PTR> AboutDlg::on_dialogue_message(
-    UINT message, UINT_PTR wParam, LONG_PTR lParam
+    UINT message, WPARAM wParam, LPARAM lParam
 )
 {
     switch (message)

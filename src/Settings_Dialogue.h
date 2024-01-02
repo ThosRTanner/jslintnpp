@@ -1,7 +1,8 @@
 #pragma once
 
 #include "JSLintOptions.h"
-#include "Modal_Dialogue_Interface.h"
+
+#include "Plugin/Modal_Dialogue_Interface.h"
 
 #include <memory>
 
@@ -20,7 +21,7 @@ class Settings_Dialogue : public Modal_Dialogue_Interface
     std::unique_ptr<Settings> settings_;
 
     std::optional<LONG_PTR> on_dialogue_message(
-        UINT message, UINT_PTR wParam, LONG_PTR lParam
+        UINT message, WPARAM wParam, LPARAM lParam
     ) override;
 
     void LoadVersions(int versionsComboBoxID, Linter linter);

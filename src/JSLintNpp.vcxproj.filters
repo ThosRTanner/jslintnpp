@@ -57,14 +57,20 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Modal_Dialogue_Interface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ScriptSourceDef.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Settings_Dialogue.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Profile_Handler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.cpp">
+      <Filter>DockingDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.cpp">
+      <Filter>DockingDialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,14 +131,20 @@
     <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="Modal_Dialogue_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptSourceDef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Settings_Dialogue.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Profile_Handler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.h">
+      <Filter>DockingDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.h">
+      <Filter>DockingDialog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
