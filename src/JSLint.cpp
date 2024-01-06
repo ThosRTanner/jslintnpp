@@ -24,6 +24,7 @@
 #include "ScriptSourceDef.h"
 #include "Settings.h"
 #include "Util.h"
+#include "Version_Info.h"
 
 #include <libplatform/libplatform.h>
 #include <v8.h>

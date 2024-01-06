@@ -21,47 +21,16 @@
 
 #include <winhttp.h>
 
-#include <map>
+#include <unordered_map>
 #include <string>
 
 class JSLintNpp;
-
-////////////////////////////////////////////////////////////////////////////////
-
-class JSLintVersion
-{
-  public:
-    JSLintVersion()
-    {
-    }
-    JSLintVersion(std::wstring const &fileName) : m_fileName(fileName)
-    {
-    }
-    JSLintVersion(std::wstring const &fileName, std::string const &content) :
-        m_fileName(fileName),
-        m_content(content)
-    {
-    }
-
-    std::wstring GetFileName() const
-    {
-        return m_fileName;
-    }
-    std::string GetContent();
-
-  private:
-    std::wstring m_fileName;
-    std::string m_content;
-};
-
-////////////////////////////////////////////////////////////////////////////////
+class Version_Info;
 
 class DownloadJSLint
 {
   public:
     DownloadJSLint(JSLintNpp const *plugin);
-
-    void LoadVersions();
 
     enum DownloadResult
     {
@@ -71,17 +40,17 @@ class DownloadJSLint
     };
     DownloadResult DownloadLatest(Linter linter, std::wstring &latestVersion);
 
-    std::map<std::wstring, JSLintVersion> const &GetVersions(Linter linter
-    ) const;
+    typedef std::unordered_map<std::wstring, Version_Info> Linter_Versions;
+    Linter_Versions const &GetVersions(Linter linter) const;
     bool HasVersion(Linter linter, std::wstring const &version);
-    JSLintVersion &GetVersion(Linter linter, std::wstring const &version);
+    Version_Info &GetVersion(Linter linter, std::wstring const &version);
 
   private:
     JSLintNpp const *plugin_;
     std::wstring config_dir_;
     std::wstring m_versionsFolder;
-    std::map<std::wstring, JSLintVersion> m_jsLintVersions;
-    std::map<std::wstring, JSLintVersion> m_jsHintVersions;
+    Linter_Versions m_jsLintVersions;
+    Linter_Versions m_jsHintVersions;
 
     HWND m_hDlg;
     int m_nStatusID;
@@ -96,12 +65,7 @@ class DownloadJSLint
 
     static Linter m_linter;
 
-    void LoadVersions(
-        std::wstring const &fileSpec,
-        std::map<std::wstring, JSLintVersion> &versions
-    );
-
-    // std::wstring GetVersionsFolder();
+    void LoadVersions(std::wstring const &fileSpec, Linter_Versions &versions);
 
     void CleanupContext();
     void DownloadOK();

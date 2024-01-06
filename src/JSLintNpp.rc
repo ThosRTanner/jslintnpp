@@ -7,21 +7,53 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-//#include <afxres.h>
-#include <windows.h>
-#define IDC_STATIC (-1)
+#include "afxres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
+// Croatian (Croatia) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_HRV)
+LANGUAGE LANG_CROATIAN, SUBLANG_DEFAULT
+#pragma code_page(1250)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Croatian (Croatia) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
 // Neutral resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
-#ifdef _WIN32
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-#pragma code_page(1250)
-#endif //_WIN32
+#pragma code_page(1252)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -66,7 +98,7 @@ BEGIN
     CTEXT           "Version: %s %s",IDC_VERSION_STATIC,7,17,187,8
     CTEXT           "Copyright 2010 Martin Vladic",IDC_STATIC,7,27,187,8
     CONTROL         "<a href=""http://jslintnpp.sourceforge.net"">http://jslintnpp.sourceforge.net</a>",IDC_SYSLINK1,
-                    "SysLink",WS_TABSTOP,49,37,104,14
+                    "SysLink",WS_TABSTOP,49,37,114,14
     CTEXT           "JSLint",IDC_STATIC,7,57,187,8
     CTEXT           "Copyright 2002 Douglas Crockford",IDC_STATIC,7,67,187,8
     CONTROL         "<a href=""http://www.jslint.com"">http://www.jslint.com</a>",IDC_SYSLINK2,
@@ -207,7 +239,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_OUTPUT, DIALOG
     BEGIN
@@ -296,7 +328,9 @@ END
 //
 
 IDR_JSLINT              JS                      "res\\jslint.js"
+
 IDR_JSHINT              JS                      "res\\jshint.js"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -304,10 +338,15 @@ IDR_JSHINT              JS                      "res\\jshint.js"
 //
 
 IDB_TB_JSLINT_CURRENT_FILE BITMAP                  "res\\TB_JSLintCurrentFile.bmp"
+
 IDB_TB_JSLINT_ALL_FILES BITMAP                  "res\\TB_JSLintAllFiles.bmp"
+
 IDB_TB_NEXT_LINT        BITMAP                  "res\\TB_NextLint.bmp"
+
 IDB_TB_PREV_LINT        BITMAP                  "res\\TB_PrevLint.bmp"
+
 IDB_TB_LINT_OPTIONS     BITMAP                  "res\\TB_LintOptions.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -317,45 +356,19 @@ IDB_TB_LINT_OPTIONS     BITMAP                  "res\\TB_LintOptions.bmp"
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_JSLINT_TAB          ICON                    "res\\JSLintTab.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_ABOUT AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 #endif    // Neutral resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Croatian resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_HRV)
-#ifdef _WIN32
-LANGUAGE LANG_CROATIAN, SUBLANG_DEFAULT
-#pragma code_page(1250)
-#endif //_WIN32
-
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE 
-BEGIN
-    "#include ""afxres.h""\r\n"
-    "\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "\r\n"
-    "\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-#endif    // Croatian resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -6,6 +6,7 @@
 #include "JSLintNpp.h"
 #include "Settings.h"
 #include "Util.h"
+#include "Version_Info.h"
 
 #include "resource.h"
 
@@ -21,7 +22,7 @@ Settings_Dialogue::Settings_Dialogue(
     plugin_(plugin),
     settings_(std::make_unique<Settings>(*settings))
 {
-    create_dialogue_window(IDD_SETTINGS);
+    create_modal_dialogue(IDD_SETTINGS);
 }
 
 Settings_Dialogue::~Settings_Dialogue() = default;
@@ -126,29 +127,12 @@ std::optional<LONG_PTR> Settings_Dialogue::on_dialogue_message(
                         }
                         return 1;
 
-                    case IDCANCEL:
-                        EndDialog(nullptr);
-                        return 1;
-
                     default:
                         break;
                 }
             }
         }
         break;
-
-        //****** Should this be in the modal dialogue class?
-        case WM_SYSCOMMAND:
-        {
-            if (wParam == SC_CLOSE)
-            {
-                // cancel
-                EndDialog(nullptr);
-                // per the documentation, you should always return 0 when
-                // processing this message?!
-                return 1;
-            }
-        }
     }
     return std::nullopt;
 }
@@ -157,15 +141,9 @@ void Settings_Dialogue::LoadVersions(int versionsComboBoxID, Linter linter)
 {
     ComboBox_ResetContent(GetDlgItem(versionsComboBoxID));
 
-    auto const &versions = plugin_->get_downloader()->GetVersions(linter);
-
-    // FIXME for auto
-    for (std::map<std::wstring, JSLintVersion>::const_iterator it =
-             versions.begin();
-         it != versions.end();
-         ++it)
+    for (auto const &version : plugin_->get_downloader()->GetVersions(linter))
     {
-        ComboBox_AddString(GetDlgItem(versionsComboBoxID), it->first.c_str());
+        ComboBox_AddString(GetDlgItem(versionsComboBoxID), version.first.c_str());
     }
 }
 

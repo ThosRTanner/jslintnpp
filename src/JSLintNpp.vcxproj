@@ -247,6 +247,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">StdHeaders.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="Util.cpp" />
+    <ClCompile Include="Version_Info.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Callback_Context.h" />
@@ -255,6 +256,7 @@
     <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.h" />
     <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.h" />
     <ClInclude Include="AboutDlg.h" />
+    <ClInclude Include="afxres.h" />
     <ClInclude Include="DownloadJSLint.h" />
     <ClInclude Include="JSLint.h" />
     <ClInclude Include="JSLintNpp.h" />
@@ -273,6 +275,7 @@
     <ClInclude Include="TargetVer.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Version.h" />
+    <ClInclude Include="Version_Info.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

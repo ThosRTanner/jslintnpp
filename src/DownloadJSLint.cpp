@@ -21,6 +21,7 @@
 
 #include "JSLintNpp.h"
 #include "Util.h"
+#include "Version_Info.h"
 
 #include "resource.h"
 
@@ -44,59 +45,27 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string JSLintVersion::GetContent()
-{
-    if (m_content.empty())
-    {
-        FILE *fp = _tfopen(m_fileName.c_str(), L"rb");
-        if (fp != NULL)
-        {
-            fseek(fp, 0, SEEK_END);
-            long size = ftell(fp);
-            if (size > 0)
-            {
-                fseek(fp, 0, SEEK_SET);
-                char *buffer = new char[size + 1];
-                size_t nRead = fread(buffer, 1, size, fp);
-                if (nRead == size)
-                {
-                    m_content = std::string(buffer, size);
-                }
-                delete[] buffer;
-            }
-        }
-    }
-
-    return m_content;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Linter DownloadJSLint::m_linter;
 
 DownloadJSLint::DownloadJSLint(JSLintNpp const *plugin) :
     plugin_(plugin),
-    config_dir_(plugin_->GetConfigDir())
+    config_dir_(plugin_->GetConfigDir()),
+    m_versionsFolder(Path::GetFullPath(L"JSLint", config_dir_))
 {
-}
+    if (! Path::IsFileExists(m_versionsFolder))
+    {
+        CreateDirectory(m_versionsFolder.c_str(), NULL);
+    }
 
-void DownloadJSLint::LoadVersions()
-{
     LoadVersions(L"jslint.*.js", m_jsLintVersions);
     LoadVersions(L"jshint.*.js", m_jsHintVersions);
 }
 
 void DownloadJSLint::LoadVersions(
     std::wstring const &fileSpec,
-    std::map<std::wstring, JSLintVersion> &versions
+    Linter_Versions &versions
 )
 {
-    m_versionsFolder = Path::GetFullPath(L"JSLint", config_dir_);
-    if (! Path::IsFileExists(m_versionsFolder))
-    {
-        CreateDirectory(m_versionsFolder.c_str(), NULL);
-    }
-
     WIN32_FIND_DATA findFileData;
     HANDLE findFileHandle = FindFirstFile(
         Path::GetFullPath(fileSpec.c_str(), m_versionsFolder).c_str(),
@@ -106,10 +75,10 @@ void DownloadJSLint::LoadVersions(
     {
         do
         {
-            versions.insert(std::make_pair<std::wstring, JSLintVersion>(
+            versions.insert(std::make_pair<std::wstring, Version_Info>(
                 std::wstring(findFileData.cFileName)
                     .substr(7, _tcslen(findFileData.cFileName) - 10),
-                JSLintVersion(
+                Version_Info(
                     Path::GetFullPath(findFileData.cFileName, m_versionsFolder)
                 )
             ));
@@ -118,7 +87,7 @@ void DownloadJSLint::LoadVersions(
     }
 }
 
-std::map<std::wstring, JSLintVersion> const &DownloadJSLint::GetVersions(
+DownloadJSLint::Linter_Versions const &DownloadJSLint::GetVersions(
     Linter linter
 ) const
 {
@@ -137,7 +106,7 @@ bool DownloadJSLint::HasVersion(Linter linter, std::wstring const &version)
     }
 }
 
-JSLintVersion &DownloadJSLint::GetVersion(
+Version_Info &DownloadJSLint::GetVersion(
     Linter linter, std::wstring const &version
 )
 {
@@ -198,13 +167,13 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
             if (linter == LINTER_JSLINT)
             {
                 m_jsLintVersions.insert(std::make_pair(
-                    latestVersion, JSLintVersion(fileName, content)
+                    latestVersion, Version_Info(fileName, content)
                 ));
             }
             else
             {
                 m_jsHintVersions.insert(std::make_pair(
-                    latestVersion, JSLintVersion(fileName, content)
+                    latestVersion, Version_Info(fileName, content)
                 ));
             }
             m_result = DOWNLOAD_OK;

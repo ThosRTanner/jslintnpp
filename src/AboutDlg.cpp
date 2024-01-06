@@ -30,7 +30,7 @@
 
 AboutDlg::AboutDlg(Plugin const *plugin) : Modal_Dialogue_Interface(plugin)
 {
-    create_dialogue_window(IDD_ABOUT);
+    create_modal_dialogue(IDD_ABOUT);
 }
 
 AboutDlg::~AboutDlg() = default;
@@ -61,25 +61,6 @@ std::optional<LONG_PTR> AboutDlg::on_dialogue_message(
         }
         break;
 
-        case WM_COMMAND:
-            if (HIWORD(wParam) == BN_CLICKED)
-            {
-                switch (LOWORD(wParam))
-                {
-                    case IDOK:
-                    {
-                        EndDialog(1);
-                        return TRUE;
-                    }
-                    case IDCANCEL:
-                    {
-                        EndDialog(0LL);
-                        return TRUE;
-                    }
-                }
-            }
-            break;
-
         case WM_NOTIFY:
             switch (((LPNMHDR)lParam)->code)
             {
@@ -93,15 +74,6 @@ std::optional<LONG_PTR> AboutDlg::on_dialogue_message(
                     );
                     break;
                 }
-            }
-            break;
-
-        case WM_SYSCOMMAND:
-            if (wParam == SC_CLOSE)
-            {
-                // cancel
-                EndDialog(0LL);
-                return TRUE;
             }
             break;
 

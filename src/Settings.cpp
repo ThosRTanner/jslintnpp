@@ -32,7 +32,11 @@ Settings::Settings(JSLintNpp const *plugin, Profile_Handler *profile_handler) :
 void Settings::ShowDialog()
 {
     Settings_Dialogue dlg(plugin_, this);
-    *this = *reinterpret_cast<Settings *>(dlg.get_result());
+    auto res = dlg.get_result();
+    if (res > 0)
+    {
+        *this = *reinterpret_cast<Settings *>(res);
+    }
 }
 
 ScriptSourceDef const &Settings::GetScriptSource(Linter linter) const

@@ -27,6 +27,7 @@
 #include "Profile_Handler.h"
 #include "Settings.h"
 #include "Util.h"
+#include "Version_Info.h"
 
 #include "Plugin/Callback_Context.h"
 
@@ -71,7 +72,6 @@ JSLintNpp::JSLintNpp(NppData const &data) :
     // although worth noting that some dodgy stuff goes on with settings and
     // options.
     options_->ReadOptions();
-    downloader_->LoadVersions();
 }
 
 JSLintNpp::~JSLintNpp()
@@ -96,7 +96,7 @@ wchar_t const *JSLintNpp::get_plugin_name() noexcept
     )
 
 #define MAKE_SEPARATOR(entry) \
-    make_callback(entry, L"---", Callbacks::contexts, this, nullptr)
+    make_separator(entry, Callbacks::contexts, this)
 
 std::vector<FuncItem> &JSLintNpp::on_get_menu_entries()
 {
@@ -292,7 +292,6 @@ void JSLintNpp::showAboutDlg()
     AboutDlg dlg(this);
     int res = dlg.get_result();
     (void)res;
-    //pluginDialogBox(IDD_ABOUT, AboutDlgProc, this);
 }
 
 void JSLintNpp::createOutputWindow()
