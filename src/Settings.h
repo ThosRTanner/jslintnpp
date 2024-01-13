@@ -17,8 +17,6 @@
 
 #pragma once
 
-#include "JSLintOptions.h"
-
 #include "ScriptSourceDef.h"
 
 #include <string>

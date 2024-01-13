@@ -1,9 +1,27 @@
+// This file is part of JSLint Plugin for Notepad++
+// Copyright (C) 2010 Martin Vladic <martin.vladic@gmail.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 #include "StdHeaders.h"
 
 #include "Settings_Dialogue.h"
 
 #include "DownloadJSLint.h"
 #include "JSLintNpp.h"
+#include "Linter.h"
 #include "Settings.h"
 #include "Util.h"
 #include "Version_Info.h"
@@ -34,8 +52,8 @@ std::optional<LONG_PTR> Settings_Dialogue::on_dialogue_message(
     switch (message)
     {
         case WM_INITDIALOG:
-            LoadVersions(IDC_JSLINT_SCRIPT_VERSION, LINTER_JSLINT);
-            LoadVersions(IDC_JSHINT_SCRIPT_VERSION, LINTER_JSHINT);
+            LoadVersions(IDC_JSLINT_SCRIPT_VERSION, Linter::LINTER_JSLINT);
+            LoadVersions(IDC_JSHINT_SCRIPT_VERSION, Linter::LINTER_JSHINT);
             display_options();
             UpdateControls();
             centre_dialogue();
@@ -60,12 +78,13 @@ std::optional<LONG_PTR> Settings_Dialogue::on_dialogue_message(
 
                     case IDC_JSLINT_DOWNLOAD_LATEST:
                         switch (plugin_->get_downloader()->DownloadLatest(
-                            LINTER_JSLINT, latestVersion
+                            Linter::LINTER_JSLINT, latestVersion
                         ))
                         {
                             case DownloadJSLint::DOWNLOAD_OK:
                                 LoadVersions(
-                                    IDC_JSLINT_SCRIPT_VERSION, LINTER_JSLINT
+                                    IDC_JSLINT_SCRIPT_VERSION,
+                                    Linter::LINTER_JSLINT
                                 );
                                 ComboBox_SelectString(
                                     GetDlgItem(IDC_JSLINT_SCRIPT_VERSION),
@@ -91,12 +110,13 @@ std::optional<LONG_PTR> Settings_Dialogue::on_dialogue_message(
 
                     case IDC_JSHINT_DOWNLOAD_LATEST:
                         switch (plugin_->get_downloader()->DownloadLatest(
-                            LINTER_JSHINT, latestVersion
+                            Linter::LINTER_JSHINT, latestVersion
                         ))
                         {
                             case DownloadJSLint::DOWNLOAD_OK:
                                 LoadVersions(
-                                    IDC_JSHINT_SCRIPT_VERSION, LINTER_JSHINT
+                                    IDC_JSHINT_SCRIPT_VERSION,
+                                    Linter::LINTER_JSHINT
                                 );
                                 ComboBox_SelectString(
                                     GetDlgItem(IDC_JSHINT_SCRIPT_VERSION),
@@ -143,7 +163,9 @@ void Settings_Dialogue::LoadVersions(int versionsComboBoxID, Linter linter)
 
     for (auto const &version : plugin_->get_downloader()->GetVersions(linter))
     {
-        ComboBox_AddString(GetDlgItem(versionsComboBoxID), version.first.c_str());
+        ComboBox_AddString(
+            GetDlgItem(versionsComboBoxID), version.first.c_str()
+        );
     }
 }
 

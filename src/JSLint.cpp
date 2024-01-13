@@ -21,6 +21,7 @@
 
 #include "DownloadJSLint.h"
 #include "JSLintNpp.h"
+#include "JSLintOptions.h"
 #include "ScriptSourceDef.h"
 #include "Settings.h"
 #include "Util.h"

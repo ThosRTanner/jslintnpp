@@ -20,6 +20,7 @@
 #include "DownloadJSLint.h"
 
 #include "JSLintNpp.h"
+#include "Linter.h"
 #include "Util.h"
 #include "Version_Info.h"
 
@@ -62,8 +63,7 @@ DownloadJSLint::DownloadJSLint(JSLintNpp const *plugin) :
 }
 
 void DownloadJSLint::LoadVersions(
-    std::wstring const &fileSpec,
-    Linter_Versions &versions
+    std::wstring const &fileSpec, Linter_Versions &versions
 )
 {
     WIN32_FIND_DATA findFileData;
@@ -87,16 +87,16 @@ void DownloadJSLint::LoadVersions(
     }
 }
 
-DownloadJSLint::Linter_Versions const &DownloadJSLint::GetVersions(
-    Linter linter
+DownloadJSLint::Linter_Versions const &DownloadJSLint::GetVersions(Linter linter
 ) const
 {
-    return linter == LINTER_JSLINT ? m_jsLintVersions : m_jsHintVersions;
+    return linter == Linter::LINTER_JSLINT ? m_jsLintVersions
+                                           : m_jsHintVersions;
 }
 
 bool DownloadJSLint::HasVersion(Linter linter, std::wstring const &version)
 {
-    if (linter == LINTER_JSLINT)
+    if (linter == Linter::LINTER_JSLINT)
     {
         return m_jsLintVersions.find(version) != m_jsLintVersions.end();
     }
@@ -110,8 +110,8 @@ Version_Info &DownloadJSLint::GetVersion(
     Linter linter, std::wstring const &version
 )
 {
-    return linter == LINTER_JSLINT ? m_jsLintVersions[version]
-                                   : m_jsHintVersions[version];
+    return linter == Linter::LINTER_JSLINT ? m_jsLintVersions[version]
+                                           : m_jsHintVersions[version];
 }
 
 DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
@@ -146,7 +146,7 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
         }
 
         std::wstring fileName = Path::GetFullPath(
-            (linter == LINTER_JSLINT ? L"jslint." : L"jshint.")
+            (linter == Linter::LINTER_JSLINT ? L"jslint." : L"jshint.")
                 + latestVersion + L".js",
             m_versionsFolder
         );
@@ -164,7 +164,7 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
 
         if (nWritten == m_dwTotalSize)
         {
-            if (linter == LINTER_JSLINT)
+            if (linter == Linter::LINTER_JSLINT)
             {
                 m_jsLintVersions.insert(std::make_pair(
                     latestVersion, Version_Info(fileName, content)
@@ -239,9 +239,12 @@ bool DownloadJSLint::CheckVersion()
         return true;
     }
     std::string const match_start{
-        m_linter == LINTER_JSLINT ? "\nlet jslint_edition = \"v" : "/*! "
+        m_linter == Linter::LINTER_JSLINT ? "\nlet jslint_edition = \"v"
+                                          : "/*! "
     };
-    std::string const match_end{m_linter == LINTER_JSLINT ? "\";\n" : " */\n"};
+    std::string const match_end{
+        m_linter == Linter::LINTER_JSLINT ? "\";\n" : " */\n"
+    };
     std::string const code{m_lpBuffer, m_dwTotalSize};
     auto pos = code.find(match_start);
     if (pos == std::string::npos)
@@ -404,7 +407,8 @@ void DownloadJSLint::StartDownload(HWND hDlg, int nStatusID)
     urlComp.dwUrlPathLength = (DWORD)-1;
     urlComp.dwSchemeLength = (DWORD)-1;
     WinHttpCrackUrl(
-        m_linter == LINTER_JSLINT ? JSLINT_GITHUB_URL_W : JSHINT_GITHUB_URL_W,
+        m_linter == Linter::LINTER_JSLINT ? JSLINT_GITHUB_URL_W
+                                          : JSHINT_GITHUB_URL_W,
         0,
         0,
         &urlComp
@@ -470,14 +474,14 @@ INT_PTR CALLBACK DownloadJSLint::JSLintDownloadProgressDlgProc(
         _stprintf(
             szTitle,
             szTitleFormat,
-            m_linter == LINTER_JSLINT ? L"JSLint" : L"JSHint"
+            m_linter == Linter::LINTER_JSLINT ? L"JSLint" : L"JSHint"
         );
         SetWindowText(hDlg, szTitle);
 
         SetWindowText(
             GetDlgItem(hDlg, IDC_URL),
-            m_linter == LINTER_JSLINT ? JSLINT_GITHUB_URL_T
-                                      : JSHINT_GITHUB_URL_T
+            m_linter == Linter::LINTER_JSLINT ? JSLINT_GITHUB_URL_T
+                                              : JSHINT_GITHUB_URL_T
         );
         SetWindowText(GetDlgItem(hDlg, IDC_PROGRESS), L"Starting ...");
         auto self = reinterpret_cast<DownloadJSLint *>(lParam);

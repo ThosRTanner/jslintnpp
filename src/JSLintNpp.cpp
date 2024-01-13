@@ -23,6 +23,7 @@
 #include "DownloadJSLint.h"
 #include "JSLint.h"
 #include "JSLintOptions.h"
+#include "Linter.h"
 #include "OutputDlg.h"
 #include "Profile_Handler.h"
 #include "Settings.h"
@@ -33,31 +34,7 @@
 
 #include <memory>
 
-typedef Callback_Context_Base<JSLintNpp> Callbacks;
-
-#define CALLBACK_ENTRY(N)                                                 \
-    {                                                                     \
-        JSLintNpp::N,                                                     \
-            std::make_shared<Callback_Context<JSLintNpp, JSLintNpp::N>>() \
-    }
-
-template <>
-Callbacks::Contexts Callbacks::contexts = {
-#pragma warning(push)
-#pragma warning(disable : 26426)
-    CALLBACK_ENTRY(FUNC_INDEX_JSLINT_CURRENT_FILE),
-    CALLBACK_ENTRY(FUNC_INDEX_JSLINT_ALL_FILES),
-    CALLBACK_ENTRY(FUNC_INDEX_SEP_2),
-    CALLBACK_ENTRY(FUNC_INDEX_GOTO_PREV_LINT),
-    CALLBACK_ENTRY(FUNC_INDEX_GOTO_NEXT_LINT),
-    CALLBACK_ENTRY(FUNC_INDEX_SHOW_LINTS),
-    CALLBACK_ENTRY(FUNC_INDEX_SEP_6),
-    CALLBACK_ENTRY(FUNC_INDEX_JSLINT_OPTIONS),
-    CALLBACK_ENTRY(FUNC_INDEX_SETTINGS),
-    CALLBACK_ENTRY(FUNC_INDEX_SEP_9),
-    CALLBACK_ENTRY(FUNC_INDEX_ABOUT),
-#pragma warning(pop)
-};
+DEFINE_PLUGIN_MENU_CALLBACKS(JSLintNpp);
 
 JSLintNpp::JSLintNpp(NppData const &data) :
     Plugin(data, get_plugin_name()),
@@ -85,18 +62,9 @@ wchar_t const *JSLintNpp::get_plugin_name() noexcept
 }
 
 #define MAKE_CALLBACK(entry, text, method, shortcut) \
-    make_callback(                                   \
-        entry,                                       \
-        text,                                        \
-        Callbacks::contexts,                         \
-        this,                                        \
-        &JSLintNpp::method,                          \
-        false,                                       \
-        shortcut                                     \
-    )
+    PLUGIN_MENU_MAKE_CALLBACK(JSLintNpp, entry, text, method, false, shortcut)
 
-#define MAKE_SEPARATOR(entry) \
-    make_separator(entry, Callbacks::contexts, this)
+#define MAKE_SEPARATOR(entry) PLUGIN_MENU_MAKE_SEPARATOR(JSLintNpp, entry)
 
 std::vector<FuncItem> &JSLintNpp::on_get_menu_entries()
 {
@@ -154,7 +122,7 @@ void JSLintNpp::jsLintCurrentFile()
 
     int type;
     send_to_notepad(NPPM_GETCURRENTLANGTYPE, 0, &type);
-    if (options_->GetSelectedLinter() == LINTER_JSLINT)
+    if (options_->GetSelectedLinter() == Linter::LINTER_JSLINT)
     {
         if (type != L_JS && type != L_JAVASCRIPT && type != L_HTML
             && type != L_CSS)
@@ -217,7 +185,7 @@ void JSLintNpp::jsLintAllFiles()
             int type;
             send_to_notepad(NPPM_GETCURRENTLANGTYPE, 0, &type);
             if (type == L_JS || type == L_JAVASCRIPT
-                || (options_->GetSelectedLinter() == LINTER_JSLINT
+                || (options_->GetSelectedLinter() == Linter::LINTER_JSLINT
                     && (type == L_HTML || type == L_CSS)))
             {
                 ++numJSFiles;
@@ -236,7 +204,7 @@ void JSLintNpp::jsLintAllFiles()
 
     if (numJSFiles == 0)
     {
-        if (options_->GetSelectedLinter() == LINTER_JSLINT)
+        if (options_->GetSelectedLinter() == Linter::LINTER_JSLINT)
         {
             message_box(
                 (L"There is no JavaScript, HTML or CSS file opened in "

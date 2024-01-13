@@ -1,12 +1,29 @@
+// This file is part of JSLint Plugin for Notepad++
+// Copyright (C) 2010 Martin Vladic <martin.vladic@gmail.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either
+// version 2 of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 #include "StdHeaders.h"
 
 #include "ScriptSourceDef.h"
 
+#include "Linter.h"
+#include "Profile_Handler.h"
 #include "Version.h"
 
 #include "resource.h"
-
-#include <Profile_Handler.h>
 
 #define PROFILE_SETTINGS_GROUP_NAME L"Settings"
 #define PROFILE_SCRIPT_SOURCE_KEY_NAME L"_script_source"
@@ -84,7 +101,7 @@ ScriptSourceDef::~ScriptSourceDef()
 
 int ScriptSourceDef::GetScriptResourceID() const noexcept
 {
-    return m_linter == LINTER_JSLINT ? IDR_JSLINT : IDR_JSHINT;
+    return m_linter == Linter::LINTER_JSLINT ? IDR_JSLINT : IDR_JSHINT;
 }
 
 std::wstring ScriptSourceDef::get_undef_errmsg() const
@@ -96,18 +113,18 @@ std::wstring ScriptSourceDef::get_undef_errmsg() const
 
 LPCTSTR ScriptSourceDef::GetDefaultUndefVarErrMsg() const noexcept
 {
-    return m_linter == LINTER_JSLINT ? JSLINT_DEFAULT_UNDEF_VAR_ERR_MSG
-                                     : JSHINT_DEFAULT_UNDEF_VAR_ERR_MSG;
+    return m_linter == Linter::LINTER_JSLINT ? JSLINT_DEFAULT_UNDEF_VAR_ERR_MSG
+                                             : JSHINT_DEFAULT_UNDEF_VAR_ERR_MSG;
 }
 
 LPCSTR ScriptSourceDef::GetNamespace() const noexcept
 {
-    return m_linter == LINTER_JSLINT ? "JSLINT" : "JSHINT";
+    return m_linter == Linter::LINTER_JSLINT ? "JSLINT" : "JSHINT";
 }
 
 std::wstring ScriptSourceDef::prefix() const
 {
-    return m_linter == LINTER_JSLINT ? L"jslint" : L"jshint";
+    return m_linter == Linter::LINTER_JSLINT ? L"jslint" : L"jshint";
 }
 
 std::wstring ScriptSourceDef::get_settings_value(

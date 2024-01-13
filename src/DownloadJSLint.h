@@ -1,3 +1,5 @@
+#pragma once
+
 // This file is part of JSLint Plugin for Notepad++
 // Copyright (C) 2010 Martin Vladic <martin.vladic@gmail.com>
 //
@@ -15,16 +17,13 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#pragma once
-
-#include "JSLintOptions.h"
-
 #include <winhttp.h>
 
 #include <unordered_map>
 #include <string>
 
 class JSLintNpp;
+enum class Linter;
 class Version_Info;
 
 class DownloadJSLint

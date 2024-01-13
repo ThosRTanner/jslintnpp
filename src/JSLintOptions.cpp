@@ -21,6 +21,7 @@
 
 #include "DownloadJSLint.h"
 #include "JSLintNpp.h"
+#include "Linter.h"
 #include "Util.h"
 
 #include "resource.h"
@@ -46,8 +47,8 @@
 #define PROFILE_JSHINT_OPTIONS_GROUP_NAME L"JSHint Options"
 #define PROFILE_ADDITIONAL_OPTIONS_KEY_NAME L"jslintnpp_additional_options"
 
-//This is defined in 2 places. Why?
-//In fact a whole bunch of this looks common to this and ScriptSourceDef class.
+// This is defined in 2 places. Why?
+// In fact a whole bunch of this looks common to this and ScriptSourceDef class.
 #define MIN_VERSION_BUILD 110
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -603,7 +604,7 @@ HWND JSLintOptions::m_hSubDlg;
 
 JSLintOptions::JSLintOptions(std::wstring const &options_file) :
     options_file_(options_file),
-    m_selectedLinter(LINTER_JSLINT),
+    m_selectedLinter(Linter::LINTER_JSLINT),
     m_jsLintOptions(options_file),
     m_jsHintOptions(options_file)
 {
@@ -634,7 +635,7 @@ void JSLintOptions::ReadOptions()
         );
         if (_tcscmp(szValue, L"JSHint") == 0)
         {
-            m_selectedLinter = LINTER_JSHINT;
+            m_selectedLinter = Linter::LINTER_JSHINT;
         }
     }
     m_jsLintOptions.ReadOptions();
@@ -648,7 +649,7 @@ void JSLintOptions::SaveOptions()
     WritePrivateProfileString(
         PROFILE_JSLINT_GROUP_NAME,
         PROFILE_SELECTED_LINTER_KEY_NAME,
-        m_selectedLinter == LINTER_JSLINT ? L"JSLint" : L"JSHint",
+        m_selectedLinter == Linter::LINTER_JSLINT ? L"JSLint" : L"JSHint",
         strConfigFileName.c_str()
     );
 
@@ -668,7 +669,7 @@ void JSLintOptions::SetSelectedLinter(Linter selectedLinter)
 
 LinterOptions *JSLintOptions::GetSelectedLinterOptions()
 {
-    if (m_selectedLinter == LINTER_JSLINT)
+    if (m_selectedLinter == Linter::LINTER_JSLINT)
     {
         return &m_jsLintOptions;
     }
@@ -677,7 +678,7 @@ LinterOptions *JSLintOptions::GetSelectedLinterOptions()
 
 LinterOptions const *JSLintOptions::GetSelectedLinterOptions() const
 {
-    if (m_selectedLinter == LINTER_JSLINT)
+    if (m_selectedLinter == Linter::LINTER_JSLINT)
     {
         return &m_jsLintOptions;
     }
@@ -857,7 +858,7 @@ JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
             0
         );
 
-        if (m_options.GetSelectedLinter() == LINTER_JSLINT)
+        if (m_options.GetSelectedLinter() == Linter::LINTER_JSLINT)
         {
             m_hSubDlg = m_hWndJSLintOptionsSubdlg;
             ComboBox_SelectString(hWndSelectedLinter, 0, L"JSLint");
@@ -917,12 +918,12 @@ JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
                     if (_tcsicmp(buffer, L"JSLint") == 0)
                     {
-                        m_options.SetSelectedLinter(LINTER_JSLINT);
+                        m_options.SetSelectedLinter(Linter::LINTER_JSLINT);
                         m_hSubDlg = m_hWndJSLintOptionsSubdlg;
                     }
                     else
                     {
-                        m_options.SetSelectedLinter(LINTER_JSHINT);
+                        m_options.SetSelectedLinter(Linter::LINTER_JSHINT);
                         m_hSubDlg = m_hWndJSHintOptionsSubdlg;
                     }
 
@@ -931,7 +932,7 @@ JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
                 }
                 else
                 {
-                    if (m_options.GetSelectedLinter() == LINTER_JSLINT)
+                    if (m_options.GetSelectedLinter() == Linter::LINTER_JSLINT)
                     {
                         ComboBox_SelectString(hWndSelectedLinter, 0, L"JSLint");
                     }

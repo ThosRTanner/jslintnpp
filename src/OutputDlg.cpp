@@ -700,25 +700,18 @@ void OutputDlg::CopyToClipboard()
 #endif
                 GlobalFree(hResult);
                 message_box(
-                    L"Unable to set Clipboard data",
-                    MB_OK | MB_ICONERROR
+                    L"Unable to set Clipboard data", MB_OK | MB_ICONERROR
                 );
             }
         }
         else
         {
-            message_box(
-                L"Cannot empty the Clipboard",
-                MB_OK | MB_ICONERROR
-            );
+            message_box(L"Cannot empty the Clipboard", MB_OK | MB_ICONERROR);
         }
         CloseClipboard();
     }
     else
     {
-        message_box(
-            L"Cannot open the Clipboard",
-            MB_OK | MB_ICONERROR
-        );
+        message_box(L"Cannot open the Clipboard", MB_OK | MB_ICONERROR);
     }
 }
