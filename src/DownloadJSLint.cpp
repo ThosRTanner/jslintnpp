@@ -19,6 +19,7 @@
 
 #include "DownloadJSLint.h"
 
+#include "Download_Progress_Bar.h"
 #include "JSLintNpp.h"
 #include "Linter.h"
 #include "Util.h"
@@ -31,18 +32,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma comment(lib, "winhttp.lib")
 
-// This thinks it runs in node so it might not run any more. not sure.
-#define JSLINT_GITHUB_URL_W \
-    L"https://raw.github.com/jslint-org/jslint/master/jslint.mjs"
-#define JSLINT_GITHUB_URL_T \
+// FIXME These 3 currently duplicated in progress bar.
+//  This thinks it runs in node so it might not run any more. not sure.
+#define JSLINT_GITHUB_URL \
     L"https://raw.github.com/jslint-org/jslint/master/jslint.mjs"
 
-#define JSHINT_GITHUB_URL_W \
+#define JSHINT_GITHUB_URL \
     L"https://raw.github.com/jshint/jshint/master/dist/jshint.js"
-#define JSHINT_GITHUB_URL_T \
-    L"https://raw.github.com/jshint/jshint/master/dist/jshint.js"
-
-#define WM_DOWNLOAD_FINISHED WM_USER + 1
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -119,10 +115,16 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
 )
 {
     m_linter = linter;
-    if (plugin_->pluginDialogBox(
-            IDD_DOWNLOAD_PROGRESS, JSLintDownloadProgressDlgProc, this
-        )
-        == IDOK)
+    Download_Progress_Bar progress_bar{
+        plugin_,
+        linter,
+        [this](Download_Progress_Bar *progress_bar)
+        {
+            StartDownload(progress_bar);
+        }
+    };
+    DownloadResult res = static_cast<DownloadResult>(progress_bar.get_result());
+    if (res == DOWNLOAD_OK)
     {
         latestVersion = m_version;
         if (latestVersion.empty())
@@ -176,20 +178,19 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
                     latestVersion, Version_Info(fileName, content)
                 ));
             }
-            m_result = DOWNLOAD_OK;
         }
         else
         {
-            m_result = DOWNLOAD_FAILED;
+            res = DOWNLOAD_FAILED;
         }
     }
     delete[] m_lpBuffer;
     m_lpBuffer = NULL;
 
-    return m_result;
+    return res;
 }
 
-void DownloadJSLint::CleanupContext()
+void DownloadJSLint::CleanupContext(DownloadResult result)
 {
     if (m_hRequest)
     {
@@ -209,27 +210,22 @@ void DownloadJSLint::CleanupContext()
         WinHttpCloseHandle(m_hSession);
         m_hSession = NULL;
     }
+    progress_bar_->completed(result);
 }
 
 void DownloadJSLint::DownloadOK()
 {
-    CleanupContext();
-    m_result = DownloadJSLint::DOWNLOAD_OK;
-    PostMessage(m_hDlg, WM_DOWNLOAD_FINISHED, 1, 0);
+    CleanupContext(DOWNLOAD_OK);
 }
 
 void DownloadJSLint::DownloadNoNewVersion()
 {
-    CleanupContext();
-    m_result = DownloadJSLint::DOWNLOAD_NO_NEW_VERSION;
-    PostMessage(m_hDlg, WM_DOWNLOAD_FINISHED, 0, 0);
+    CleanupContext(DOWNLOAD_NO_NEW_VERSION);
 }
 
 void DownloadJSLint::DownloadFailed()
 {
-    CleanupContext();
-    m_result = DownloadJSLint::DOWNLOAD_FAILED;
-    PostMessage(m_hDlg, WM_DOWNLOAD_FINISHED, 0, 0);
+    CleanupContext(DOWNLOAD_FAILED);
 }
 
 bool DownloadJSLint::CheckVersion()
@@ -347,9 +343,7 @@ void DownloadJSLint::AsyncCallbackHandler(
 
                 m_dwTotalSize += m_dwSize;
 
-                TCHAR szStatus[1024];
-                _stprintf(szStatus, L"Received %d bytes", m_dwTotalSize);
-                SetWindowText(GetDlgItem(m_hDlg, m_nStatusID), szStatus);
+                progress_bar_->update(m_dwTotalSize);
 
                 if (! CheckVersion())
                 {
@@ -371,10 +365,9 @@ void DownloadJSLint::AsyncCallbackHandler(
     }
 }
 
-void DownloadJSLint::StartDownload(HWND hDlg, int nStatusID)
+void DownloadJSLint::StartDownload(Download_Progress_Bar *progress_bar)
 {
-    m_hDlg = hDlg;
-    m_nStatusID = nStatusID;
+    progress_bar_ = progress_bar;
     m_hSession = 0;
     m_hConnect = 0;
     m_hRequest = 0;
@@ -407,8 +400,8 @@ void DownloadJSLint::StartDownload(HWND hDlg, int nStatusID)
     urlComp.dwUrlPathLength = (DWORD)-1;
     urlComp.dwSchemeLength = (DWORD)-1;
     WinHttpCrackUrl(
-        m_linter == Linter::LINTER_JSLINT ? JSLINT_GITHUB_URL_W
-                                          : JSHINT_GITHUB_URL_W,
+        m_linter == Linter::LINTER_JSLINT ? JSLINT_GITHUB_URL
+                                          : JSHINT_GITHUB_URL,
         0,
         0,
         &urlComp
@@ -459,39 +452,4 @@ void DownloadJSLint::StartDownload(HWND hDlg, int nStatusID)
         DownloadFailed();
         return;
     }
-}
-
-INT_PTR CALLBACK DownloadJSLint::JSLintDownloadProgressDlgProc(
-    HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam
-)
-{
-    if (uMessage == WM_INITDIALOG)
-    {
-        TCHAR szTitleFormat[100];
-        GetWindowText(hDlg, szTitleFormat, _countof(szTitleFormat));
-
-        TCHAR szTitle[100];
-        _stprintf(
-            szTitle,
-            szTitleFormat,
-            m_linter == Linter::LINTER_JSLINT ? L"JSLint" : L"JSHint"
-        );
-        SetWindowText(hDlg, szTitle);
-
-        SetWindowText(
-            GetDlgItem(hDlg, IDC_URL),
-            m_linter == Linter::LINTER_JSLINT ? JSLINT_GITHUB_URL_T
-                                              : JSHINT_GITHUB_URL_T
-        );
-        SetWindowText(GetDlgItem(hDlg, IDC_PROGRESS), L"Starting ...");
-        auto self = reinterpret_cast<DownloadJSLint *>(lParam);
-        self->StartDownload(hDlg, IDC_PROGRESS);
-        CenterWindow(hDlg, self->plugin_->get_notepad_window());
-    }
-    else if (uMessage == WM_DOWNLOAD_FINISHED)
-    {
-        EndDialog(hDlg, wParam);
-    }
-
-    return 0;
 }

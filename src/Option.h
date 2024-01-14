@@ -1,3 +1,5 @@
+#pragma once
+
 // This file is part of JSLint Plugin for Notepad++
 // Copyright (C) 2010 Martin Vladic <martin.vladic@gmail.com>
 //
@@ -15,31 +17,28 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#pragma once
-
-#include "ScriptSourceDef.h"
-
 #include <string>
 
-class JSLintNpp;
-class Profile_Handler;
-class Settings_Dialogue;
-
-class Settings
+enum OptionType
 {
-  public:
-    Settings(JSLintNpp const *, Profile_Handler *);
+    OPTION_TYPE_UNKNOWN,
+    OPTION_TYPE_BOOL,
+    OPTION_TYPE_INT,
+    OPTION_TYPE_ARR_STRING
+};
 
-    void ShowDialog();
+struct Option
+{
+    Option();
 
-    ScriptSourceDef const &GetScriptSource(Linter linter) const;
+    Option(std::wstring const &name);
 
-  private:
-    JSLintNpp const *plugin_;
-    std::wstring config_file_;
+    Option(
+        OptionType type, std::wstring const &name, std::wstring const &value
+    );
 
-    ScriptSourceDef m_jsLintScript;
-    ScriptSourceDef m_jsHintScript;
-
-    friend class Settings_Dialogue;
+    OptionType type;
+    std::wstring name;
+    std::wstring value;
+    std::wstring defaultValue;
 };

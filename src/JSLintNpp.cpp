@@ -169,7 +169,7 @@ void JSLintNpp::jsLintAllFiles()
 
     int numJSFiles = 0;
 
-    int numOpenFiles = send_to_notepad(NPPM_GETNBOPENFILES, 0, PRIMARY_VIEW);
+    auto numOpenFiles = send_to_notepad(NPPM_GETNBOPENFILES, 0, PRIMARY_VIEW);
     if (numOpenFiles > 0)
     {
         createOutputWindow();
@@ -258,8 +258,6 @@ void JSLintNpp::showSettingsDlg()
 void JSLintNpp::showAboutDlg()
 {
     AboutDlg dlg(this);
-    int res = dlg.get_result();
-    (void)res;
 }
 
 void JSLintNpp::createOutputWindow()
@@ -292,7 +290,7 @@ void JSLintNpp::doJSLint()
     delete tr.lpstrText;
 
     // get code page of the text
-    int nSciCodePage = send_to_editor(SCI_GETCODEPAGE);
+    auto nSciCodePage = send_to_editor(SCI_GETCODEPAGE);
     if (nSciCodePage != SC_CP_UTF8)
     {
         strScript = TextConversion::A_To_UTF8(strScript);    // convert to UTF-8

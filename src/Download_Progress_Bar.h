@@ -1,3 +1,5 @@
+#pragma once
+
 // This file is part of JSLint Plugin for Notepad++
 // Copyright (C) 2010 Martin Vladic <martin.vladic@gmail.com>
 //
@@ -15,31 +17,38 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#pragma once
+#include "Plugin/Modal_Dialogue_Interface.h"
 
-#include "ScriptSourceDef.h"
+#include <functional>
 
-#include <string>
+//class __single_inheritance DownloadJSLint;    // Thank you microsoft.
+enum class Linter;
 
-class JSLintNpp;
-class Profile_Handler;
-class Settings_Dialogue;
-
-class Settings
+class Download_Progress_Bar : public Modal_Dialogue_Interface
 {
   public:
-    Settings(JSLintNpp const *, Profile_Handler *);
+    typedef std::function<void (Download_Progress_Bar *)> Download_Func;
 
-    void ShowDialog();
+    Download_Progress_Bar(
+        Plugin const *, Linter, Download_Func
+    );
 
-    ScriptSourceDef const &GetScriptSource(Linter linter) const;
+    ~Download_Progress_Bar();
+
+    /** Show progress (sort of) */
+    void update(DWORD transferred);
+
+    /** Flag operation is completed.
+     *
+     * Result will be returned via get_result
+     */
+    void completed(int result);
 
   private:
-    JSLintNpp const *plugin_;
-    std::wstring config_file_;
+    std::optional<LONG_PTR> on_dialogue_message(
+        UINT message, WPARAM wParam, LPARAM lParam
+    ) override;
 
-    ScriptSourceDef m_jsLintScript;
-    ScriptSourceDef m_jsHintScript;
-
-    friend class Settings_Dialogue;
+    Linter linter_;
+    Download_Func start_download_;
 };

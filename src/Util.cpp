@@ -41,10 +41,10 @@ void StringSplit(
     std::wstring str, std::wstring delim, std::vector<std::wstring> &results
 )
 {
-    int cutAt;
-    while ((cutAt = str.find_first_of(delim)) != str.npos)
+    std::size_t cutAt;
+    while (cutAt = str.find_first_of(delim), cutAt != str.npos)
     {
-        if (cutAt > 0)
+        if (cutAt != 0)
         {
             results.push_back(str.substr(0, cutAt));
         }
@@ -224,7 +224,7 @@ std::wstring Path::GetTempFileName()
     }
 
     TCHAR szTempFileName[MAX_PATH];
-    if (::GetTempFileName(szTempPath, nullptr, 0, szTempFileName) == 0)
+    if (::GetTempFileName(szTempPath, L"", 0, szTempFileName) == 0)
     {
         return L"";
     }

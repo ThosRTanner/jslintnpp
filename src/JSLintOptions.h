@@ -17,54 +17,12 @@
 
 #pragma once
 
-class JSLintNpp;
+#include "Option.h"
 
 #include <map>
 #include <string>
 
-////////////////////////////////////////////////////////////////////////////////
-
-enum OptionType
-{
-    OPTION_TYPE_UNKNOWN,
-    OPTION_TYPE_BOOL,
-    OPTION_TYPE_INT,
-    OPTION_TYPE_ARR_STRING
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct Option
-{
-    Option() : type(OPTION_TYPE_UNKNOWN)
-    {
-    }
-
-    Option(std::wstring const &name) :
-        type(OPTION_TYPE_BOOL),
-        name(name),
-        value(L""),
-        defaultValue(L"")
-    {
-    }
-
-    Option(
-        OptionType type, std::wstring const &name, std::wstring const &value
-    ) :
-        type(type),
-        name(name),
-        value(value),
-        defaultValue(value)
-    {
-    }
-
-    OptionType type;
-    std::wstring name;
-    std::wstring value;
-    std::wstring defaultValue;
-};
-
-////////////////////////////////////////////////////////////////////////////////
+class JSLintNpp;
 
 class LinterOptions
 {
@@ -76,9 +34,6 @@ class LinterOptions
 
     virtual std::wstring GetOptionsCommentString() const;
     std::wstring GetOptionsJSONString() const;
-
-    // std::wstring GetOptionName(UINT id) const;
-    UINT GetOptionID(std::wstring const &name) const;
 
     void CheckOption(UINT id);
     void UncheckOption(UINT id);

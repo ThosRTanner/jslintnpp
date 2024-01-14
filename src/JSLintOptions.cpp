@@ -22,6 +22,7 @@
 #include "DownloadJSLint.h"
 #include "JSLintNpp.h"
 #include "Linter.h"
+#include "Option.h"
 #include "Util.h"
 
 #include "resource.h"
@@ -78,12 +79,11 @@ void LinterOptions::ReadOptions()
         );
         if (_ttoi(szValue) >= MIN_VERSION_BUILD)
         {
-            std::map<UINT, Option>::iterator it;
-            for (it = m_options.begin(); it != m_options.end(); ++it)
+            for (auto &option : m_options)
             {
                 GetPrivateProfileString(
                     m_optionsGroupName,
-                    it->second.name.c_str(),
+                    option.second.name.c_str(),
                     NULL,
                     szValue,
                     _countof(szValue),
@@ -92,26 +92,26 @@ void LinterOptions::ReadOptions()
                 if (_tcscmp(szValue, L"") != 0)
                 {
                     std::wstring strValue = TrimSpaces(szValue);
-                    if (it->second.type == OPTION_TYPE_BOOL)
+                    if (option.second.type == OPTION_TYPE_BOOL)
                     {
                         if (strValue == L"true" || strValue == L"false"
                             || strValue.empty())
                         {
-                            it->second.value = strValue;
+                            option.second.value = strValue;
                         }
                     }
-                    else if (it->second.type == OPTION_TYPE_INT)
+                    else if (option.second.type == OPTION_TYPE_INT)
                     {
                         int value;
                         if (_stscanf(strValue.c_str(), L"%d", &value) != EOF
                             && value > 0)
                         {
-                            it->second.value = strValue;
+                            option.second.value = strValue;
                         }
                     }
-                    else if (it->second.type == OPTION_TYPE_ARR_STRING)
+                    else if (option.second.type == OPTION_TYPE_ARR_STRING)
                     {
-                        it->second.value = strValue;
+                        option.second.value = strValue;
                     }
                 }
             }
@@ -133,13 +133,12 @@ void LinterOptions::SaveOptions()
 {
     std::wstring strConfigFileName = options_file_;
 
-    std::map<UINT, Option>::iterator it;
-    for (it = m_options.begin(); it != m_options.end(); ++it)
+    for (auto const & option : m_options)
     {
         WritePrivateProfileString(
             m_optionsGroupName,
-            it->second.name.c_str(),
-            it->second.value.c_str(),
+            option.second.name.c_str(),
+            option.second.value.c_str(),
             strConfigFileName.c_str()
         );
     }
@@ -152,19 +151,6 @@ void LinterOptions::SaveOptions()
     );
 }
 
-UINT LinterOptions::GetOptionID(std::wstring const &optionName) const
-{
-    std::map<UINT, Option>::const_iterator it;
-    for (it = m_options.begin(); it != m_options.end(); ++it)
-    {
-        if (it->second.name == optionName)
-        {
-            break;
-        }
-    }
-    return it->first;
-}
-
 bool LinterOptions::IsOptionIncluded(Option const &option) const
 {
     return ! option.value.empty();
@@ -174,18 +160,17 @@ std::wstring LinterOptions::GetOptionsCommentString() const
 {
     std::wstring strOptions;
 
-    std::map<UINT, Option>::const_iterator it;
-    for (it = m_options.begin(); it != m_options.end(); ++it)
+    for (auto const &option : m_options)
     {
-        if (IsOptionIncluded(it->second))
+        if (IsOptionIncluded(option.second))
         {
-            if (it->first != IDC_PREDEFINED)
+            if (option.first != IDC_PREDEFINED)
             {
                 if (! strOptions.empty())
                 {
                     strOptions += L", ";
                 }
-                strOptions += it->second.name + L": " + it->second.value;
+                strOptions += option.second.name + L": " + option.second.value;
             }
         }
     }
@@ -197,53 +182,54 @@ std::wstring LinterOptions::GetOptionsJSONString() const
 {
     std::wstring strOptions;
 
-    std::map<UINT, Option>::const_iterator it;
-    for (it = m_options.begin(); it != m_options.end(); ++it)
+    for (auto const & option : m_options)
     {
-        if (IsOptionIncluded(it->second))
+        if (not IsOptionIncluded(option.second))
         {
-            std::wstring value;
+            continue;
+        }
 
-            if (it->second.type == OPTION_TYPE_ARR_STRING)
+        std::wstring value;
+
+        if (option.second.type == OPTION_TYPE_ARR_STRING)
+        {
+            std::vector<std::wstring> arr;
+            StringSplit(option.second.value, L",", arr);
+            std::vector<std::wstring>::const_iterator itArr;
+            for (itArr = arr.begin(); itArr != arr.end(); ++itArr)
             {
-                std::vector<std::wstring> arr;
-                StringSplit(it->second.value, L",", arr);
-                std::vector<std::wstring>::const_iterator itArr;
-                for (itArr = arr.begin(); itArr != arr.end(); ++itArr)
+                if (value.empty())
                 {
-                    if (value.empty())
-                    {
-                        value += L"[";
-                    }
-                    else
-                    {
-                        value += L", ";
-                    }
-
-                    std::wstring element = TrimSpaces(*itArr);
-                    FindReplace(element, L"\\", L"\\\\");
-                    FindReplace(element, L"\"", L"\\\"");
-
-                    value += L"\"" + element + L"\"";
+                    value += L"[";
                 }
-                if (! value.empty())
+                else
                 {
-                    value += L"]";
+                    value += L", ";
                 }
-            }
-            else
-            {
-                value = it->second.value;
-            }
 
+                std::wstring element = TrimSpaces(*itArr);
+                FindReplace(element, L"\\", L"\\\\");
+                FindReplace(element, L"\"", L"\\\"");
+
+                value += L"\"" + element + L"\"";
+            }
             if (! value.empty())
             {
-                if (! strOptions.empty())
-                {
-                    strOptions += L", ";
-                }
-                strOptions += it->second.name + L": " + value;
+                value += L"]";
             }
+        }
+        else
+        {
+            value = option.second.value;
+        }
+
+        if (! value.empty())
+        {
+            if (! strOptions.empty())
+            {
+                strOptions += L", ";
+            }
+            strOptions += option.second.name + L": " + value;
         }
     }
 
@@ -304,12 +290,11 @@ void LinterOptions::SetAdditionalOptions(std::wstring const &additionalOptions)
 
 void LinterOptions::ClearAllOptions()
 {
-    std::map<UINT, Option>::iterator it;
-    for (it = m_options.begin(); it != m_options.end(); ++it)
+    for (auto & option : m_options)
     {
-        if (it->first != IDC_PREDEFINED)
+        if (option.first != IDC_PREDEFINED)
         {
-            it->second.value = it->second.defaultValue;
+            option.second.value = option.second.defaultValue;
         }
     }
 }
@@ -318,26 +303,26 @@ BOOL LinterOptions::UpdateOptions(
     HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
 )
 {
+    ////AARRGGGHH
     if (bSaveOrValidate)
     {
-        std::map<UINT, Option>::iterator it;
-        for (it = m_options.begin(); it != m_options.end(); ++it)
+        for (auto const & option : m_options)
         {
-            if (it->second.type == OPTION_TYPE_BOOL)
+            if (option.second.type == OPTION_TYPE_BOOL)
             {
                 int checkState =
-                    Button_GetCheck(GetDlgItem(hSubDlg, it->first));
+                    Button_GetCheck(GetDlgItem(hSubDlg, option.first));
                 if (checkState == BST_UNCHECKED)
                 {
-                    UncheckOption(it->first);
+                    UncheckOption(option.first);
                 }
                 else if (checkState == BST_CHECKED)
                 {
-                    CheckOption(it->first);
+                    CheckOption(option.first);
                 }
                 else
                 {
-                    ClearOption(it->first);
+                    ClearOption(option.first);
                 }
             }
         }
@@ -345,13 +330,13 @@ BOOL LinterOptions::UpdateOptions(
         // predefined
         std::wstring strPredefined =
             TrimSpaces(GetWindowText(GetDlgItem(hDlg, IDC_PREDEFINED)));
-        if (! strPredefined.empty())
+        if (strPredefined.empty())
         {
-            SetOption(IDC_PREDEFINED, strPredefined);
+            ResetOption(IDC_PREDEFINED);
         }
         else
         {
-            ResetOption(IDC_PREDEFINED);
+            SetOption(IDC_PREDEFINED, strPredefined);
         }
 
         // additional options

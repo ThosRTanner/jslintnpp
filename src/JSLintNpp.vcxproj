@@ -97,6 +97,9 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ConformanceMode>true</ConformanceMode>
+      <DisableLanguageExtensions>true</DisableLanguageExtensions>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <ExternalWarningLevel>Level1</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -121,6 +124,9 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ConformanceMode>true</ConformanceMode>
+      <DisableLanguageExtensions>true</DisableLanguageExtensions>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <ExternalWarningLevel>Level1</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -153,6 +159,9 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ConformanceMode>true</ConformanceMode>
+      <DisableLanguageExtensions>true</DisableLanguageExtensions>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <ExternalWarningLevel>Level1</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -179,6 +188,9 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <ConformanceMode>true</ConformanceMode>
+      <DisableLanguageExtensions>true</DisableLanguageExtensions>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <ExternalWarningLevel>Level1</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -207,6 +219,7 @@
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="DownloadJSLint.cpp" />
+    <ClCompile Include="Download_Progress_Bar.cpp" />
     <ClCompile Include="JSLint.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -224,6 +237,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">StdHeaders.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="JSLintOptions.cpp" />
+    <ClCompile Include="Option.cpp" />
     <ClCompile Include="OutputDlg.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -262,6 +276,7 @@
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="afxres.h" />
     <ClInclude Include="DownloadJSLint.h" />
+    <ClInclude Include="Download_Progress_Bar.h" />
     <ClInclude Include="JSLint.h" />
     <ClInclude Include="JSLintNpp.h" />
     <ClInclude Include="JSLintOptions.h" />
@@ -270,6 +285,7 @@
     <ClInclude Include="Notepad++\Notepad_plus_msgs.h" />
     <ClInclude Include="Notepad++\PluginInterface.h" />
     <ClInclude Include="Notepad++\Scintilla.h" />
+    <ClInclude Include="Option.h" />
     <ClInclude Include="OutputDlg.h" />
     <ClInclude Include="Profile_Handler.h" />
     <ClInclude Include="resource.h" />
