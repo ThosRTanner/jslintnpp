@@ -22,7 +22,6 @@
 #include <unordered_map>
 #include <string>
 
-class Download_Progress_Bar;
 class JSLintNpp;
 enum class Linter;
 class Version_Info;
@@ -52,34 +51,5 @@ class DownloadJSLint
     Linter_Versions m_jsLintVersions;
     Linter_Versions m_jsHintVersions;
 
-    Download_Progress_Bar *progress_bar_;
-    HINTERNET m_hSession;
-    HINTERNET m_hConnect;
-    HINTERNET m_hRequest;
-    DWORD m_dwSize;
-    DWORD m_dwTotalSize;
-    LPSTR m_lpBuffer;
-    std::wstring m_version;
-
-    static Linter m_linter;
-
     void LoadVersions(std::wstring const &fileSpec, Linter_Versions &versions);
-
-    void CleanupContext(DownloadResult result);
-    void DownloadOK();
-    void DownloadNoNewVersion();
-    void DownloadFailed();
-    bool CheckVersion();
-    static void CALLBACK AsyncCallback(
-        HINTERNET hInternet, DWORD_PTR dwContext, DWORD dwInternetStatus,
-        LPVOID lpvStatusInformation, DWORD dwStatusInformationLength
-    );
-    void AsyncCallbackHandler(
-        DWORD dwInternetStatus, LPVOID lpvStatusInformation,
-        DWORD dwStatusInformationLength
-    );
-    void StartDownload(Download_Progress_Bar *);
-    static INT_PTR CALLBACK JSLintDownloadProgressDlgProc(
-        HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam
-    );
 };

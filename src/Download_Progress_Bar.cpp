@@ -2,7 +2,7 @@
 
 #include "Download_Progress_Bar.h"
 
-//#include "DownloadJSLint.h"
+#include "Downloader.h"
 #include "Linter.h"
 
 #include "resource.h"
@@ -10,9 +10,6 @@
 #include <tchar.h>
 #include <WinUser.h>
 
-//#include <functional>
-
-// FIXME Pass these as params maybe?
 #define JSLINT_GITHUB_URL \
     L"https://raw.github.com/jslint-org/jslint/master/jslint.mjs"
 
@@ -22,27 +19,36 @@
 #define WM_DOWNLOAD_FINISHED (WM_USER + 1)
 
 Download_Progress_Bar::Download_Progress_Bar(
-    Plugin const *plugin, Linter linter, Download_Func start_download
+    Plugin const *plugin, Linter linter//, Download_Func start_download
 ) :
     Modal_Dialogue_Interface(plugin),
-    linter_(linter),
-    start_download_(start_download)
+    linter_(linter)
 {
     create_modal_dialogue(IDD_DOWNLOAD_PROGRESS);
 }
 
 Download_Progress_Bar::~Download_Progress_Bar() = default;
 
-void Download_Progress_Bar::update(DWORD transferred)
+void Download_Progress_Bar::update(std::size_t transferred)
 {
     TCHAR szStatus[1024];
-    _stprintf(szStatus, L"Received %d bytes", transferred);
+    _stprintf(szStatus, L"Received %lld bytes", transferred);
     SetWindowText(GetDlgItem(IDC_PROGRESS), szStatus);
 }
 
 void Download_Progress_Bar::completed(int result)
 {
     PostMessage(window(), WM_DOWNLOAD_FINISHED, result, 0);
+}
+
+std::vector<uint8_t> const &Download_Progress_Bar::data() const
+{
+    return downloader_->data();
+}
+
+std::wstring Download_Progress_Bar::version() const
+{
+    return downloader_->version();
 }
 
 std::optional<LONG_PTR> Download_Progress_Bar::on_dialogue_message(
@@ -64,14 +70,22 @@ std::optional<LONG_PTR> Download_Progress_Bar::on_dialogue_message(
             );
             SetWindowText(window(), szTitle);
 
-            SetWindowText(
-                GetDlgItem(IDC_URL),
-                linter_ == Linter::LINTER_JSLINT ? JSLINT_GITHUB_URL
-                                                 : JSHINT_GITHUB_URL
-            );
+            wchar_t const * const url = linter_ == Linter::LINTER_JSLINT
+                ? JSLINT_GITHUB_URL
+                : JSHINT_GITHUB_URL;
+
+            SetWindowText(GetDlgItem(IDC_URL), url);
             SetWindowText(GetDlgItem(IDC_PROGRESS), L"Starting ...");
-            std::invoke(start_download_, this);
             centre_dialogue();
+
+            try
+            {
+                downloader_ = std::make_unique<Downloader>(this, url, linter_);
+            }
+            catch (std::exception const&)
+            {
+                EndDialog(Clicked_Close);
+            }
             break;
         }
 

@@ -218,8 +218,10 @@
     <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.cpp" />
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="DownloadJSLint.cpp" />
     <ClCompile Include="Download_Progress_Bar.cpp" />
+    <ClCompile Include="Internet_Handle.cpp" />
     <ClCompile Include="JSLint.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -275,8 +277,10 @@
     <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.h" />
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="afxres.h" />
+    <ClInclude Include="Downloader.h" />
     <ClInclude Include="DownloadJSLint.h" />
     <ClInclude Include="Download_Progress_Bar.h" />
+    <ClInclude Include="Internet_Handle.h" />
     <ClInclude Include="JSLint.h" />
     <ClInclude Include="JSLintNpp.h" />
     <ClInclude Include="JSLintOptions.h" />

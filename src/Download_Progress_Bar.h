@@ -19,24 +19,24 @@
 
 #include "Plugin/Modal_Dialogue_Interface.h"
 
-#include <functional>
+#include <stdint.h>
 
-//class __single_inheritance DownloadJSLint;    // Thank you microsoft.
+#include <memory>
+#include <string>
+#include <vector>
+
+class Downloader;
 enum class Linter;
 
 class Download_Progress_Bar : public Modal_Dialogue_Interface
 {
   public:
-    typedef std::function<void (Download_Progress_Bar *)> Download_Func;
-
-    Download_Progress_Bar(
-        Plugin const *, Linter, Download_Func
-    );
+    Download_Progress_Bar(Plugin const *, Linter);
 
     ~Download_Progress_Bar();
 
     /** Show progress (sort of) */
-    void update(DWORD transferred);
+    void update(std::size_t transferred);
 
     /** Flag operation is completed.
      *
@@ -44,11 +44,17 @@ class Download_Progress_Bar : public Modal_Dialogue_Interface
      */
     void completed(int result);
 
+    /** Get the downloaded data */
+    std::vector<uint8_t> const &data() const;
+
+    /** Get the version number of the downloaded code */
+    std::wstring version() const;
+
   private:
     std::optional<LONG_PTR> on_dialogue_message(
         UINT message, WPARAM wParam, LPARAM lParam
     ) override;
 
     Linter linter_;
-    Download_Func start_download_;
+    std::unique_ptr<Downloader> downloader_;
 };
