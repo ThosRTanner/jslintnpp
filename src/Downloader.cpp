@@ -221,24 +221,5 @@ bool Downloader::already_have_version()
     version_ = TextConversion::A_To_T(code.substr(pos, pos2 - pos));
     // FIXME!
     return false;
-    // return not HasVersion(linter_, _version);
-}
-
-Url_Components::Url_Components(wchar_t const *url) :
-    url_components_(std::make_unique<URL_COMPONENTS>())
-{
-    url_components_->dwStructSize = sizeof(URL_COMPONENTS);
-    url_components_->lpszHostName = &hostname_[0];
-    url_components_->dwHostNameLength =
-        sizeof(hostname_) / sizeof(hostname_[0]);
-    url_components_->dwUrlPathLength = -1;
-    url_components_->dwSchemeLength = -1;
-    if (WinHttpCrackUrl(url, 0, 0, url_components_.get()) == 0)
-    {
-        throw std::runtime_error("Failed to decode URL");
-    }
-}
-
-Url_Components::~Url_Components()
-{
+    // return not HasVersion(linter_, version_);
 }

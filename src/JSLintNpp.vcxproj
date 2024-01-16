@@ -264,6 +264,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StdHeaders.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">StdHeaders.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="Url_Components.cpp" />
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="Version_Info.cpp" />
   </ItemGroup>
@@ -298,6 +299,7 @@
     <ClInclude Include="Settings_Dialogue.h" />
     <ClInclude Include="StdHeaders.h" />
     <ClInclude Include="TargetVer.h" />
+    <ClInclude Include="Url_Components.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Version.h" />
     <ClInclude Include="Version_Info.h" />
