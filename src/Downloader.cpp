@@ -1,6 +1,7 @@
 #include "StdHeaders.h"
 
 #include "Downloader.h"
+#include "Version_Info.h"
 
 #include "Download_Progress_Bar.h"
 #include "Linter.h"
@@ -32,10 +33,12 @@ auto open_session()
 }    // namespace
 
 Downloader::Downloader(
-    Download_Progress_Bar *progress_bar, wchar_t const *url, Linter linter
+    Download_Progress_Bar *progress_bar, wchar_t const *url, Linter linter,
+    Linter_Versions const &versions
 ) :
     progress_bar_(progress_bar),
     linter_(linter),
+    versions_(versions),
     url_components_(url),
     session_(open_session()),
     connect_(open_connection()),
@@ -219,7 +222,5 @@ bool Downloader::already_have_version()
         return false;
     }
     version_ = TextConversion::A_To_T(code.substr(pos, pos2 - pos));
-    // FIXME!
-    return false;
-    // return not HasVersion(linter_, version_);
+    return versions_.contains(version_);
 }

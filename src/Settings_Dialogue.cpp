@@ -34,11 +34,12 @@
 #include <string>
 
 Settings_Dialogue::Settings_Dialogue(
-    JSLintNpp const *plugin, Settings *settings
+    JSLintNpp const *plugin, Settings *settings, DownloadJSLint *downloader
 ) :
     Modal_Dialogue_Interface(plugin),
     plugin_(plugin),
-    settings_(std::make_unique<Settings>(*settings))
+    settings_(std::make_unique<Settings>(*settings)),
+    downloader_(downloader)
 {
     create_modal_dialogue(IDD_SETTINGS);
 }
@@ -77,7 +78,7 @@ std::optional<LONG_PTR> Settings_Dialogue::on_dialogue_message(
                         break;
 
                     case IDC_JSLINT_DOWNLOAD_LATEST:
-                        switch (plugin_->get_downloader()->DownloadLatest(
+                        switch (downloader_->DownloadLatest(
                             Linter::LINTER_JSLINT, latestVersion
                         ))
                         {
@@ -109,7 +110,7 @@ std::optional<LONG_PTR> Settings_Dialogue::on_dialogue_message(
                         break;
 
                     case IDC_JSHINT_DOWNLOAD_LATEST:
-                        switch (plugin_->get_downloader()->DownloadLatest(
+                        switch (downloader_->DownloadLatest(
                             Linter::LINTER_JSHINT, latestVersion
                         ))
                         {
@@ -161,7 +162,7 @@ void Settings_Dialogue::LoadVersions(int versionsComboBoxID, Linter linter)
 {
     ComboBox_ResetContent(GetDlgItem(versionsComboBoxID));
 
-    for (auto const &version : plugin_->get_downloader()->GetVersions(linter))
+    for (auto const &version : plugin_->downloader()->GetVersions(linter))
     {
         ComboBox_AddString(
             GetDlgItem(versionsComboBoxID), version.first.c_str()

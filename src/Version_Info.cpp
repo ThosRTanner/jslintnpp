@@ -4,7 +4,9 @@
 
 #include <tchar.h>
 
-std::string Version_Info::GetContent()
+#include <vector>
+
+std::string Version_Info::GetContent() const
 {
     if (m_content.empty())
     {
@@ -16,16 +18,16 @@ std::string Version_Info::GetContent()
             if (size > 0)
             {
                 fseek(fp, 0, SEEK_SET);
-                char *buffer = new char[size + 1];
-                size_t nRead = fread(buffer, 1, size, fp);
+                std::vector<char> buffer;
+                buffer.resize(size);
+                size_t nRead = fread(&buffer[0], 1, size, fp);
                 if (nRead == size)
                 {
-                    m_content = std::string(buffer, size);
+                    m_content = std::string(buffer.begin(), buffer.end());
                 }
-                delete[] buffer;
             }
+            fclose(fp);
         }
     }
-
     return m_content;
 }

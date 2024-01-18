@@ -42,8 +42,10 @@ JSLintNpp::JSLintNpp(NppData const &data) :
     config_file_name_(get_config_file_name()),
     profile_handler_(std::make_unique<Profile_Handler>(config_file_name_)),
     options_(std::make_unique<JSLintOptions>(config_file_name_)),
-    settings_(std::make_unique<Settings>(this, profile_handler_.get())),
-    downloader_(std::make_unique<DownloadJSLint>(this))
+    downloader_(std::make_unique<DownloadJSLint>(this)),
+    settings_(std::make_unique<Settings>(
+        this, profile_handler_.get(), downloader_.get()
+    ))
 {
     // It's not clear to me why some of this isn't done in the constructors
     // although worth noting that some dodgy stuff goes on with settings and
@@ -264,8 +266,9 @@ void JSLintNpp::createOutputWindow()
 {
     if (! output_dialogue_)
     {
-        output_dialogue_ =
-            std::make_unique<OutputDlg>(FUNC_INDEX_SHOW_LINTS, this);
+        output_dialogue_ = std::make_unique<OutputDlg>(
+            FUNC_INDEX_SHOW_LINTS, this, options_.get()
+        );
     }
 }
 

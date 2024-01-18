@@ -18,6 +18,8 @@
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include "Internet_Handle.h"
+#include "Linter_Versions.h"
+#include "Url_Components.h"
 
 #include <stdint.h>
 
@@ -31,28 +33,6 @@ typedef struct _WINHTTP_URL_COMPONENTS URL_COMPONENTS;
 class Download_Progress_Bar;
 enum class Linter;
 
-class Url_Components
-{
-  public:
-    Url_Components(wchar_t const *url);
-
-    ~Url_Components();
-
-    URL_COMPONENTS const *get() const
-    {
-        return url_components_.get();
-    }
-
-    wchar_t const *get_hostname()
-    {
-        return &hostname_[0];
-    }
-
-  private:
-    std::unique_ptr<URL_COMPONENTS> url_components_;
-    wchar_t hostname_[256];
-};
-
 class Downloader
 {
   public:
@@ -64,7 +44,7 @@ class Downloader
         DOWNLOAD_FAILED
     };
 
-    Downloader(Download_Progress_Bar *progress_bar, wchar_t const *url, Linter linter);
+    Downloader(Download_Progress_Bar *, wchar_t const *url, Linter, Linter_Versions const &);
 
     ~Downloader();
 
@@ -81,6 +61,7 @@ class Downloader
   private:
     Download_Progress_Bar *progress_bar_;
     Linter linter_;
+    Linter_Versions const &versions_;
     Url_Components url_components_;
     Internet_Handle session_;
     Internet_Handle connect_;

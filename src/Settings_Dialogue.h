@@ -21,6 +21,7 @@
 
 #include <memory>
 
+class DownloadJSLint;
 class JSLintNpp;
 enum class Linter;
 class Settings;
@@ -28,13 +29,14 @@ class Settings;
 class Settings_Dialogue : public Modal_Dialogue_Interface
 {
   public:
-    Settings_Dialogue(JSLintNpp const *plugin, Settings *settings);
+    Settings_Dialogue(JSLintNpp const *, Settings *, DownloadJSLint *);
 
     ~Settings_Dialogue();
 
   private:
     JSLintNpp const *plugin_;
     std::unique_ptr<Settings> settings_;
+    DownloadJSLint *downloader_;
 
     std::optional<LONG_PTR> on_dialogue_message(
         UINT message, WPARAM wParam, LPARAM lParam

@@ -27,10 +27,9 @@
 
 #include <stdio.h>
 
-
 DownloadJSLint::DownloadJSLint(JSLintNpp const *plugin) :
     plugin_(plugin),
-    config_dir_(plugin_->GetConfigDir()),
+    config_dir_(plugin_->config_dir()),
     m_versionsFolder(Path::GetFullPath(L"JSLint", config_dir_))
 {
     if (! Path::IsFileExists(m_versionsFolder))
@@ -67,38 +66,31 @@ void DownloadJSLint::LoadVersions(
     }
 }
 
-DownloadJSLint::Linter_Versions const &DownloadJSLint::GetVersions(Linter linter
-) const
+Linter_Versions const &DownloadJSLint::GetVersions(Linter linter) const
 {
     return linter == Linter::LINTER_JSLINT ? m_jsLintVersions
                                            : m_jsHintVersions;
 }
 
 bool DownloadJSLint::HasVersion(Linter linter, std::wstring const &version)
+    const
 {
-    if (linter == Linter::LINTER_JSLINT)
-    {
-        return m_jsLintVersions.find(version) != m_jsLintVersions.end();
-    }
-    else
-    {
-        return m_jsHintVersions.find(version) != m_jsHintVersions.end();
-    }
+    auto const &versions = GetVersions(linter);
+    return versions.find(version) != versions.end();
 }
 
-Version_Info &DownloadJSLint::GetVersion(
+Version_Info const &DownloadJSLint::GetVersion(
     Linter linter, std::wstring const &version
-)
+) const
 {
-    return linter == Linter::LINTER_JSLINT ? m_jsLintVersions[version]
-                                           : m_jsHintVersions[version];
+    return GetVersions(linter).at(version);
 }
 
 DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
     Linter linter, std::wstring &latestVersion
 )
 {
-    Download_Progress_Bar progress_bar{plugin_, linter};
+    Download_Progress_Bar progress_bar{plugin_, linter, GetVersions(linter)};
     DownloadResult res = static_cast<DownloadResult>(progress_bar.get_result());
     if (res == DOWNLOAD_OK)
     {
@@ -129,31 +121,22 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
             m_versionsFolder
         );
 
-        size_t nWritten = 0;
         auto const &data = progress_bar.data();
+
+        size_t written = 0;
         FILE *fp = _tfopen(fileName.c_str(), L"wb+");
         if (fp != NULL)
         {
-            nWritten = fwrite(&data[0], 1, data.size(), fp);
+            written = fwrite(&data[0], 1, data.size(), fp);
             fclose(fp);
         }
 
-        if (nWritten == data.size())
+        if (written == data.size())
         {
             std::string content(data.begin(), data.end());
-
-            if (linter == Linter::LINTER_JSLINT)
-            {
-                m_jsLintVersions.insert(std::make_pair(
-                    latestVersion, Version_Info(fileName, content)
-                ));
-            }
-            else
-            {
-                m_jsHintVersions.insert(std::make_pair(
-                    latestVersion, Version_Info(fileName, content)
-                ));
-            }
+            GetVersions(linter).insert(
+                std::make_pair(latestVersion, Version_Info(fileName, content))
+            );
         }
         else
         {
@@ -162,4 +145,3 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
     }
     return res;
 }
-

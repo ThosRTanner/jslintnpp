@@ -21,6 +21,7 @@
 
 #include <string>
 
+class DownloadJSLint;
 class JSLintNpp;
 class Profile_Handler;
 class Settings_Dialogue;
@@ -28,7 +29,7 @@ class Settings_Dialogue;
 class Settings
 {
   public:
-    Settings(JSLintNpp const *, Profile_Handler *);
+    Settings(JSLintNpp const *, Profile_Handler *, DownloadJSLint *);
 
     void ShowDialog();
 
@@ -37,6 +38,7 @@ class Settings
   private:
     JSLintNpp const *plugin_;
     std::wstring config_file_;
+    DownloadJSLint *downloader_;
 
     ScriptSourceDef m_jsLintScript;
     ScriptSourceDef m_jsHintScript;

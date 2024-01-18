@@ -1,3 +1,5 @@
+#pragma once
+
 // This file is part of JSLint Plugin for Notepad++
 // Copyright (C) 2010 Martin Vladic <martin.vladic@gmail.com>
 //
@@ -15,36 +17,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#include "StdHeaders.h"
+#include <string>
+#include <unordered_map>
 
-#include "Settings.h"
+class Version_Info;
 
-#include "JSLintNpp.h"
-#include "Linter.h"
-#include "Settings_Dialogue.h"
-
-Settings::Settings(
-    JSLintNpp const *plugin, Profile_Handler *profile_handler,
-    DownloadJSLint *downloader
-) :
-    plugin_(plugin),
-    downloader_(downloader),
-    m_jsLintScript(Linter::LINTER_JSLINT, profile_handler),
-    m_jsHintScript(Linter::LINTER_JSHINT, profile_handler)
-{
-}
-
-void Settings::ShowDialog()
-{
-    Settings_Dialogue dlg(plugin_, this, downloader_);
-    auto res = dlg.get_result();
-    if (res > 0)
-    {
-        *this = *reinterpret_cast<Settings *>(res);
-    }
-}
-
-ScriptSourceDef const &Settings::GetScriptSource(Linter linter) const
-{
-    return linter == Linter::LINTER_JSLINT ? m_jsLintScript : m_jsHintScript;
-}
+typedef std::unordered_map<std::wstring, Version_Info> Linter_Versions;

@@ -51,9 +51,12 @@ OutputDlg::TabDefinition OutputDlg::m_tabs[] = {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-OutputDlg::OutputDlg(int menu_entry, JSLintNpp const *plugin) :
+OutputDlg::OutputDlg(
+    int menu_entry, JSLintNpp const *plugin, JSLintOptions *options
+) :
     Docking_Dialogue_Interface(IDD_OUTPUT, plugin),
-    plugin_(plugin)
+    plugin_(plugin),
+    options_(options)
 {
     for (int i = 0; i < NUM_LIST_VIEWS; ++i)
     {
@@ -111,9 +114,7 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
                     std::wstring var = fileLint.lint.GetUndefVar(plugin_);
                     if (! var.empty())
                     {
-                        plugin_->get_options()->AppendOption(
-                            IDC_PREDEFINED, var
-                        );
+                        options_->AppendOption(IDC_PREDEFINED, var);
                     }
                 }
                 return TRUE;

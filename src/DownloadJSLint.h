@@ -17,7 +17,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#include <unordered_map>
+#include "Linter_Versions.h"
+
 #include <string>
 
 class JSLintNpp;
@@ -37,10 +38,12 @@ class DownloadJSLint
     };
     DownloadResult DownloadLatest(Linter linter, std::wstring &latestVersion);
 
-    typedef std::unordered_map<std::wstring, Version_Info> Linter_Versions;
     Linter_Versions const &GetVersions(Linter linter) const;
-    bool HasVersion(Linter linter, std::wstring const &version);
-    Version_Info &GetVersion(Linter linter, std::wstring const &version);
+
+    bool HasVersion(Linter linter, std::wstring const &version) const;
+
+    Version_Info const &GetVersion(Linter linter, std::wstring const &version)
+        const;
 
   private:
     JSLintNpp const *plugin_;
@@ -48,6 +51,13 @@ class DownloadJSLint
     std::wstring m_versionsFolder;
     Linter_Versions m_jsLintVersions;
     Linter_Versions m_jsHintVersions;
+
+    Linter_Versions &GetVersions(Linter linter)
+    {
+        return const_cast<Linter_Versions &>(
+            static_cast<DownloadJSLint const *>(this)->GetVersions(linter)
+        );
+    }
 
     void LoadVersions(std::wstring const &fileSpec, Linter_Versions &versions);
 };

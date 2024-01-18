@@ -26,12 +26,13 @@
 #include <list>
 #include <vector>
 
+class JSLintOptions;
 class JSLintNpp;
 
 class OutputDlg : public Docking_Dialogue_Interface
 {
   public:
-    OutputDlg(int menu, JSLintNpp const *);
+    OutputDlg(int menu, JSLintNpp const *, JSLintOptions *);
     ~OutputDlg();
 
     void on_display() noexcept
@@ -51,6 +52,7 @@ class OutputDlg : public Docking_Dialogue_Interface
 
   private:
     JSLintNpp const *plugin_;
+    JSLintOptions *options_;
     HICON m_hTabIcon;
     HWND m_hWndTab;
 

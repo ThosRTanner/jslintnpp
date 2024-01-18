@@ -24,9 +24,9 @@ class Version_Info
         return m_fileName;
     }
 
-    std::string GetContent();
+    std::string GetContent() const;
 
   private:
     std::wstring m_fileName;
-    std::string m_content;
+    mutable std::string m_content;
 };

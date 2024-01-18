@@ -19,10 +19,11 @@
 #define WM_DOWNLOAD_FINISHED (WM_USER + 1)
 
 Download_Progress_Bar::Download_Progress_Bar(
-    Plugin const *plugin, Linter linter//, Download_Func start_download
+    Plugin const *plugin, Linter linter, Linter_Versions const &versions
 ) :
     Modal_Dialogue_Interface(plugin),
-    linter_(linter)
+    linter_(linter),
+    versions_(versions)
 {
     create_modal_dialogue(IDD_DOWNLOAD_PROGRESS);
 }
@@ -70,7 +71,7 @@ std::optional<LONG_PTR> Download_Progress_Bar::on_dialogue_message(
             );
             SetWindowText(window(), szTitle);
 
-            wchar_t const * const url = linter_ == Linter::LINTER_JSLINT
+            wchar_t const *const url = linter_ == Linter::LINTER_JSLINT
                 ? JSLINT_GITHUB_URL
                 : JSHINT_GITHUB_URL;
 
@@ -80,9 +81,10 @@ std::optional<LONG_PTR> Download_Progress_Bar::on_dialogue_message(
 
             try
             {
-                downloader_ = std::make_unique<Downloader>(this, url, linter_);
+                downloader_ =
+                    std::make_unique<Downloader>(this, url, linter_, versions_);
             }
-            catch (std::exception const&)
+            catch (std::exception const &)
             {
                 EndDialog(Clicked_Close);
             }

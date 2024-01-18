@@ -34,7 +34,7 @@ class Url_Components
         return url_components_.get();
     }
 
-    wchar_t const *get_hostname()
+    wchar_t const *get_hostname() const
     {
         return &hostname_[0];
     }

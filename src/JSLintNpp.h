@@ -57,27 +57,22 @@ class JSLintNpp : public Plugin
         FUNC_INDEX_ABOUT
     };
 
-    auto GetConfigFileName() const
-    {
-        return config_file_name_;
-    }
-
-    auto GetConfigDir() const
+    auto const &config_dir() const
     {
         return config_dir_;
     }
 
-    auto get_downloader() const
+    DownloadJSLint const *downloader() const
     {
         return downloader_.get();
     }
 
-    auto get_options() const
+    JSLintOptions const *options() const
     {
         return options_.get();
     }
 
-    auto get_settings() const
+    Settings const *settings() const
     {
         return settings_.get();
     }
@@ -129,7 +124,7 @@ class JSLintNpp : public Plugin
     std::wstring config_file_name_;
     std::unique_ptr<Profile_Handler> profile_handler_;
     std::unique_ptr<JSLintOptions> options_;
-    std::unique_ptr<Settings> settings_;
     std::unique_ptr<DownloadJSLint> downloader_;
+    std::unique_ptr<Settings> settings_;
     std::unique_ptr<OutputDlg> output_dialogue_;
 };

@@ -19,6 +19,8 @@
 
 #include "Plugin/Modal_Dialogue_Interface.h"
 
+#include "Linter_Versions.h"
+
 #include <stdint.h>
 
 #include <memory>
@@ -27,11 +29,12 @@
 
 class Downloader;
 enum class Linter;
+class Version_Info;
 
 class Download_Progress_Bar : public Modal_Dialogue_Interface
 {
   public:
-    Download_Progress_Bar(Plugin const *, Linter);
+    Download_Progress_Bar(Plugin const *, Linter, Linter_Versions const &);
 
     ~Download_Progress_Bar();
 
@@ -56,5 +59,6 @@ class Download_Progress_Bar : public Modal_Dialogue_Interface
     ) override;
 
     Linter linter_;
+    Linter_Versions const &versions_;
     std::unique_ptr<Downloader> downloader_;
 };
