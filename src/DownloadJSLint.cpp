@@ -75,8 +75,7 @@ Linter_Versions const &DownloadJSLint::GetVersions(Linter linter) const
 bool DownloadJSLint::HasVersion(Linter linter, std::wstring const &version)
     const
 {
-    auto const &versions = GetVersions(linter);
-    return versions.find(version) != versions.end();
+    return GetVersions(linter).contains(version);
 }
 
 Version_Info const &DownloadJSLint::GetVersion(
