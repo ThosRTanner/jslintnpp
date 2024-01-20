@@ -19,10 +19,10 @@
 
 #include "JSLintOptions.h"
 
-// #include "DownloadJSLint.h"
 #include "JSLintNpp.h"
 #include "Linter.h"
 #include "Option.h"
+#include "Options_Dialogue.h"
 #include "Profile_Handler.h"
 #include "Util.h"
 
@@ -30,7 +30,6 @@
 
 #include <windowsx.h>
 
-// #include <map>
 #include <string>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -253,6 +252,10 @@ JSLintOptions::JSLintOptions(Profile_Handler *profile_handler) :
     m_m_options = this;
 }
 
+JSLintOptions::~JSLintOptions()
+{
+}
+
 // FIXME
 //**************************************************************************************
 //
@@ -300,18 +303,9 @@ void JSLintOptions::SetSelectedLinter(Linter selectedLinter)
     m_selectedLinter = selectedLinter;
 }
 
-Linter_Options *JSLintOptions::GetSelectedLinterOptions()
+Linter_Options const *JSLintOptions::GetLinterOptions(Linter linter) const
 {
-    if (m_selectedLinter == Linter::LINTER_JSLINT)
-    {
-        return &m_jsLintOptions;
-    }
-    return &m_jsHintOptions;
-}
-
-Linter_Options const *JSLintOptions::GetSelectedLinterOptions() const
-{
-    if (m_selectedLinter == Linter::LINTER_JSLINT)
+    if (linter == Linter::LINTER_JSLINT)
     {
         return &m_jsLintOptions;
     }
@@ -595,5 +589,6 @@ JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 void JSLintOptions::ShowDialog(JSLintNpp const *plugin)
 {
+    Options_Dialogue dialogue(plugin);
     plugin->pluginDialogBox(IDD_OPTIONS, DlgProc, plugin);
 }

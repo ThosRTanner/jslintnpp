@@ -23,6 +23,7 @@
 #include <string>
 
 class Profile_Handler;
+
 class Linter_Options
 {
   public:

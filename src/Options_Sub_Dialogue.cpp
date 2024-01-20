@@ -15,25 +15,55 @@
 
 #include "Options_Sub_Dialogue.h"
 
+#include "Linter_Options.h"
 #include "Options_Dialogue.h"
 
 #include "resource.h"
 
-#include <WinUser.h>
 #include <windowsx.h>
+#include <WinUser.h>
 
 Options_Sub_Dialogue::Options_Sub_Dialogue(
-    int dialogue_id, Plugin *plugin, Options_Dialogue *parent,
+    int dialogue_id, Plugin const *plugin, Options_Dialogue const *parent,
     Linter_Options *options
 ) :
     Non_Modal_Dialogue_Interface(dialogue_id, plugin, parent->window()),
     parent_(parent),
     options_(options)
 {
+    //Overlay the parent window.
+    HWND hWndOptionsPlaceholder = ::GetDlgItem(parent_->window(), IDC_OPTIONS_PLACEHOLDER);
+    RECT rect;
+    GetWindowRect(hWndOptionsPlaceholder, &rect);
+    POINT ptTopLeft;
+    ptTopLeft.x = rect.left;
+    ptTopLeft.y = rect.top;
+    ScreenToClient(parent_->window(), &ptTopLeft);
+    SetWindowPos(
+        window(),
+        hWndOptionsPlaceholder,
+        ptTopLeft.x,
+        ptTopLeft.y,
+        rect.right - rect.left,
+        rect.bottom - rect.top,
+        0
+    );
 }
 
 Options_Sub_Dialogue::~Options_Sub_Dialogue()
 {
+}
+
+void Options_Sub_Dialogue::show()
+{
+    // FIXME Populate contents in a less crap way than this.
+    options_->UpdateOptions(parent_->window(), window(), false, false);
+    ::ShowWindow(window(), SW_SHOW);
+}
+
+void Options_Sub_Dialogue::hide()
+{
+    ::ShowWindow(window(), SW_HIDE);
 }
 
 std::optional<LONG_PTR> Options_Sub_Dialogue::on_dialogue_message(
@@ -61,9 +91,11 @@ std::optional<LONG_PTR> Options_Sub_Dialogue::on_dialogue_message(
                     default:
                         Button_SetCheck(item, BST_CHECKED);
                 }
-                //m_options.UpdateOptions(m_hDlg, m_hSubDlg, true, false);
-                //Now we need to update the options dialogue with the contents of this window.
 
+                // THis is deeply horrible and needs extracting into here.
+                options_->UpdateOptions(
+                    parent_->window(), window(), true, false
+                );
             }
         }
     }

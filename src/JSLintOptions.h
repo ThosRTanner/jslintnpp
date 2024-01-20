@@ -58,13 +58,30 @@ class JSLintOptions
   public:
     JSLintOptions(Profile_Handler *);
 
+    ~JSLintOptions();
+
     void ReadOptions();
     void SaveOptions();
 
     Linter GetSelectedLinter() const;
     void SetSelectedLinter(Linter selectedLinter);
-    Linter_Options const *GetSelectedLinterOptions() const;
-    Linter_Options *GetSelectedLinterOptions();
+    Linter_Options const* GetSelectedLinterOptions() const
+    {
+        return GetLinterOptions(m_selectedLinter);
+    }
+
+    Linter_Options* GetSelectedLinterOptions()
+    {
+        return GetLinterOptions(m_selectedLinter);
+    }
+
+    Linter_Options const *GetLinterOptions(Linter) const;
+    Linter_Options* GetLinterOptions(Linter linter)
+    {
+        return const_cast<Linter_Options *>(
+            static_cast<JSLintOptions const *>(this)->GetLinterOptions(linter)
+        );
+    }
 
     std::wstring GetOptionsJSONString() const;
 

@@ -15,15 +15,19 @@
 
 #include "Plugin/Modal_Dialogue_Interface.h"
 
+#include "Linter.h"
+
+#include <map>
 #include <memory>
 
 class JSLintNpp;
 class JSLintOptions;
+class Options_Sub_Dialogue;
 
 class Options_Dialogue : public Modal_Dialogue_Interface
 {
   public:
-    Options_Dialogue(JSLintNpp *);
+    Options_Dialogue(JSLintNpp const *);
 
     ~Options_Dialogue();
 
@@ -37,5 +41,9 @@ class Options_Dialogue : public Modal_Dialogue_Interface
         UINT message, WPARAM wParam, LPARAM lParam
     ) noexcept override;
 
+    std::optional<LONG_PTR> on_command(WPARAM wParam) noexcept;
+
     std::unique_ptr<JSLintOptions> options_;
+    std::map<Linter, std::unique_ptr<Options_Sub_Dialogue>> sub_dialogues_;
+    Linter current_linter_;
 };

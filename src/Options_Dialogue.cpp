@@ -18,14 +18,20 @@
 #include "JSLintNpp.h"
 #include "JSLintOptions.h"
 #include "Linter.h"
+#include "Options_Sub_Dialogue.h"
 
 #include "resource.h"
 
 #include <windowsx.h>
+#include "tchar.h"
+#include "WinUser.h"
 
-Options_Dialogue::Options_Dialogue(JSLintNpp *plugin) :
+#include <map>
+
+Options_Dialogue::Options_Dialogue(JSLintNpp const *plugin) :
     Modal_Dialogue_Interface(plugin),
-    options_(std::make_unique<JSLintOptions>(*plugin->options()))
+    options_(std::make_unique<JSLintOptions>(*(plugin->options()))),
+    current_linter_(options_->GetSelectedLinter())
 {
     create_modal_dialogue(IDD_OPTIONS);
 }
@@ -45,65 +51,36 @@ std::optional<LONG_PTR> Options_Dialogue::on_dialogue_message(
             centre_dialogue();
 
             // initialize selected linter combo box
-            HWND hWndSelectedLinter = GetDlgItem(IDC_SELECTED_LINTER);
+            HWND const hWndSelectedLinter = GetDlgItem(IDC_SELECTED_LINTER);
             ComboBox_AddString(hWndSelectedLinter, L"JSLint");
             ComboBox_AddString(hWndSelectedLinter, L"JSHint");
 
-            // create JSLint and JSHint options subdialog
-            HWND hWndOptionsPlaceholder = GetDlgItem(IDC_OPTIONS_PLACEHOLDER);
-            RECT rect;
-            GetWindowRect(hWndOptionsPlaceholder, &rect);
-            POINT ptTopLeft;
-            ptTopLeft.x = rect.left;
-            ptTopLeft.y = rect.top;
-            ScreenToClient(window(), &ptTopLeft);
+            std::map<Linter, int> const linters{
+                {Linter::LINTER_JSLINT, IDD_JSLINT_OPTIONS},
+                {Linter::LINTER_JSHINT, IDD_JSHINT_OPTIONS}
+            };
 
-            //THis appears to be a non modal dialogue window stuck on top of the modal one.
-            /*
-            auto m_hWndJSLintOptionsSubdlg = CreateDialog(
-                plugin()->module(),
-                MAKEINTRESOURCE(IDD_JSLINT_OPTIONS),
-                window(),
-                SubDlgProc
-            );
-            SetWindowPos(
-                m_hWndJSLintOptionsSubdlg,
-                hWndOptionsPlaceholder,
-                ptTopLeft.x,
-                ptTopLeft.y,
-                rect.right - rect.left,
-                rect.bottom - rect.top,
-                0
-            );
-
-            auto m_hWndJSHintOptionsSubdlg = CreateDialog(
-                plugin()->module(),
-                MAKEINTRESOURCE(IDD_JSHINT_OPTIONS),
-                window(),
-                SubDlgProc
-            );
-            SetWindowPos(
-                m_hWndJSHintOptionsSubdlg,
-                hWndOptionsPlaceholder,
-                ptTopLeft.x,
-                ptTopLeft.y,
-                rect.right - rect.left,
-                rect.bottom - rect.top,
-                0
-            );
-
-            if (options_->GetSelectedLinter() == Linter::LINTER_JSLINT)
+            for (auto const &linter : linters)
             {
-                auto m_hSubDlg = m_hWndJSLintOptionsSubdlg;
+                sub_dialogues_[linter.first] =
+                    std::make_unique<Options_Sub_Dialogue>(
+                        linter.second,
+                        plugin(),
+                        this,
+                        options_->GetLinterOptions(linter.first)
+                    );
+            }
+
+            if (current_linter_ == Linter::LINTER_JSLINT)
+            {
                 ComboBox_SelectString(hWndSelectedLinter, 0, L"JSLint");
             }
             else
             {
-                auto m_hSubDlg = m_hWndJSHintOptionsSubdlg;
                 ComboBox_SelectString(hWndSelectedLinter, 0, L"JSHint");
             }
-            //options_->UpdateOptions(m_hDlg, m_hSubDlg, false, false);
-            //ShowWindow(m_hSubDlg, SW_SHOW);
+
+            sub_dialogues_[current_linter_]->show();
 
             // subclass IDC_PREDEFINED
             /*
@@ -117,92 +94,88 @@ std::optional<LONG_PTR> Options_Dialogue::on_dialogue_message(
         }
 
         case WM_COMMAND:
+            return on_command(wParam);
+    }
+    return std::nullopt;
+}
+
+std::optional<LONG_PTR> Options_Dialogue::on_command(WPARAM wParam) noexcept
+{
+    switch (HIWORD(wParam))
+    {
+        case BN_CLICKED:
         {
-            if (HIWORD(wParam) == BN_CLICKED)
+            switch (LOWORD(wParam))
             {
-                switch (LOWORD(wParam))
-                {
-                    case IDC_CLEAR_ALL:
-                        //options_->UpdateOptions(m_hDlg, m_hSubDlg, true, false);
-                        options_->ClearAllOptions();
-                       // options_->UpdateOptions(
-                       //     m_hDlg, m_hSubDlg, false, false
-                        //);
-                        break;
+                case IDC_CLEAR_ALL:
+                    // options_->UpdateOptions(m_hDlg, m_hSubDlg, true,
+                    // false);
+                    options_->ClearAllOptions();
+                    // options_->UpdateOptions(
+                    //     m_hDlg, m_hSubDlg, false, false
+                    //);
+                    break;
 
-                    case IDOK:
-                        //if (options_->UpdateOptions(
-                         //       m_hDlg, m_hSubDlg, true, true
-                        //    ))
-                        {
-                            //*m_m_options = m_options;
-                            EndDialog(1);
-                        }
-                        return 1;
-
-                    case IDCANCEL:
-                        EndDialog(0LL);
-                        return 1;
-
-                    default:
-                        break;
-                }
-            }
-            else if (HIWORD(wParam) == CBN_SELCHANGE)
-            {
-                HWND hWndSelectedLinter = GetDlgItem(IDC_SELECTED_LINTER);
-                int curSel = ComboBox_GetCurSel(hWndSelectedLinter);
-                if (curSel != CB_ERR)
-                {
-                    /*
-                    if (options_->UpdateOptions(m_hDlg, m_hSubDlg, true, true))
+                case IDOK:
+                    // if (options_->UpdateOptions(
+                    //        m_hDlg, m_hSubDlg, true, true
+                    //    ))
                     {
-                        TCHAR buffer[32];
-                        ComboBox_GetLBText(hWndSelectedLinter, curSel, buffer);
-
-                        ShowWindow(m_hSubDlg, SW_HIDE);
-
-                        if (_tcsicmp(buffer, L"JSLint") == 0)
-                        {
-                            options_->SetSelectedLinter(Linter::LINTER_JSLINT);
-                            m_hSubDlg = m_hWndJSLintOptionsSubdlg;
-                        }
-                        else
-                        {
-                            options_->SetSelectedLinter(Linter::LINTER_JSHINT);
-                            m_hSubDlg = m_hWndJSHintOptionsSubdlg;
-                        }
-
-                        options_->UpdateOptions(
-                            m_hDlg, m_hSubDlg, false, false
-                        );
-                        ShowWindow(m_hSubDlg, SW_SHOW);
+                        //*m_m_options = m_options;
+                        EndDialog(Clicked_OK);
                     }
-                    else
-                    {
-                        if (options_->GetSelectedLinter()
-                            == Linter::LINTER_JSLINT)
-                        {
-                            ComboBox_SelectString(
-                                hWndSelectedLinter, 0, L"JSLint"
-                            );
-                        }
-                        else
-                        {
-                            ComboBox_SelectString(
-                                hWndSelectedLinter, 0, L"JSHint"
-                            );
-                        }
-                    }
-                    */
-                }
+                    return 1;
+
+                case IDCANCEL:
+                    EndDialog(Clicked_Cancel);
+                    return 1;
+
+                default:
+                    break;
             }
-            else if (HIWORD(wParam) == EN_KILLFOCUS)
-            {
-                //options_->UpdateOptions(m_hDlg, m_hSubDlg, true, false);
-            }
+            break;
         }
-        break;
+
+        case CBN_SELCHANGE:
+        {
+            HWND const hWndSelectedLinter = GetDlgItem(IDC_SELECTED_LINTER);
+            int const curSel = ComboBox_GetCurSel(hWndSelectedLinter);
+            if (curSel == CB_ERR)
+            {
+                break;
+            }
+            if (true /*options_->UpdateOptions(m_hDlg, m_hSubDlg, true, true)*/)
+            {
+                sub_dialogues_[current_linter_]->hide();
+
+                current_linter_ =
+                    curSel == 0 ? Linter::LINTER_JSHINT : Linter::LINTER_JSLINT;
+
+                options_->SetSelectedLinter(current_linter_);
+                sub_dialogues_[current_linter_]->show();
+            }
+            else
+            {
+                if (current_linter_ == Linter::LINTER_JSLINT)
+                {
+                    ComboBox_SelectString(hWndSelectedLinter, 0, L"JSLint");
+                }
+                else
+                {
+                    ComboBox_SelectString(hWndSelectedLinter, 0, L"JSHint");
+                }
+            }
+            break;
+        }
+
+        case EN_KILLFOCUS:
+        {
+            // options_->UpdateOptions(m_hDlg, m_hSubDlg, true, false);
+            break;
+        }
+
+        default:
+            break;
     }
     return std::nullopt;
 }

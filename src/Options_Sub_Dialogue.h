@@ -22,16 +22,20 @@ class Options_Sub_Dialogue : public Non_Modal_Dialogue_Interface
 {
   public:
     Options_Sub_Dialogue(
-        int dialogue_id, Plugin *plugin, Options_Dialogue *parent, Linter_Options *options
+        int dialogue_id, Plugin const *plugin, Options_Dialogue const *parent, Linter_Options *options
     );
 
     ~Options_Sub_Dialogue();
+
+    void show();
+
+    void hide();
 
   private:
     std::optional<LONG_PTR> on_dialogue_message(
         UINT message, WPARAM wParam, LPARAM lParam
     ) noexcept override;
 
-    Options_Dialogue *parent_;
+    Options_Dialogue const *parent_;
     Linter_Options *options_;
 };
