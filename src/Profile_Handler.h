@@ -28,6 +28,9 @@ class Profile_Handler
 
     ~Profile_Handler();
 
+    /** Check if a key exists in a section */
+    bool has_key(std::wstring const &section, std::wstring const &key) const;
+
     /** Get the value of a key in a section.
      *
      * This returns the supplied default value if the key doesn't exist in the

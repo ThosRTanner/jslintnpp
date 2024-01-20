@@ -239,7 +239,10 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">StdHeaders.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="JSLintOptions.cpp" />
+    <ClCompile Include="Linter_Options.cpp" />
     <ClCompile Include="Option.cpp" />
+    <ClCompile Include="Options_Dialogue.cpp" />
+    <ClCompile Include="Options_Sub_Dialogue.cpp" />
     <ClCompile Include="OutputDlg.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -286,12 +289,15 @@
     <ClInclude Include="JSLintNpp.h" />
     <ClInclude Include="JSLintOptions.h" />
     <ClInclude Include="Linter.h" />
+    <ClInclude Include="Linter_Options.h" />
     <ClInclude Include="Linter_Versions.h" />
     <ClInclude Include="Notepad++\menuCmdID.h" />
     <ClInclude Include="Notepad++\Notepad_plus_msgs.h" />
     <ClInclude Include="Notepad++\PluginInterface.h" />
     <ClInclude Include="Notepad++\Scintilla.h" />
     <ClInclude Include="Option.h" />
+    <ClInclude Include="Options_Dialogue.h" />
+    <ClInclude Include="Options_Sub_Dialogue.h" />
     <ClInclude Include="OutputDlg.h" />
     <ClInclude Include="Profile_Handler.h" />
     <ClInclude Include="resource.h" />

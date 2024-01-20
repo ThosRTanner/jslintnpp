@@ -41,7 +41,7 @@ JSLintNpp::JSLintNpp(NppData const &data) :
     config_dir_(get_config_dir()),
     config_file_name_(get_config_file_name()),
     profile_handler_(std::make_unique<Profile_Handler>(config_file_name_)),
-    options_(std::make_unique<JSLintOptions>(config_file_name_)),
+    options_(std::make_unique<JSLintOptions>(profile_handler_.get())),
     downloader_(std::make_unique<DownloadJSLint>(this)),
     settings_(std::make_unique<Settings>(
         this, profile_handler_.get(), downloader_.get()

@@ -21,9 +21,7 @@ Profile_Handler::Profile_Handler(std::wstring const &file) : profile_file_(file)
         return;
     }
 
-    // Only for c++20
-    // auto buff{std::make_unique_for_overwrite<wchar_t[]>(Buff_Size)};
-    std::unique_ptr<wchar_t[]> buff{new wchar_t[Buff_Size]};
+    auto buff{std::make_unique_for_overwrite<wchar_t[]>(Buff_Size)};
 
     // What we do here is extract all the keys and values so we can look them up
     // later. Cos we will use them all..
@@ -80,6 +78,13 @@ Profile_Handler::~Profile_Handler()
             );
         }
     }
+}
+
+bool Profile_Handler::has_key(
+    std::wstring const &section, std::wstring const &key
+) const
+{
+    return values_.contains(section) && values_.at(section).contains(key);
 }
 
 int Profile_Handler::get_int_value(

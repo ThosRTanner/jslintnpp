@@ -17,59 +17,19 @@
 
 #pragma once
 
-#include "Option.h"
+#include "Linter_Options.h"
 
-#include <map>
 #include <string>
 
 class JSLintNpp;
-
-class LinterOptions
-{
-  public:
-    LinterOptions(LPCTSTR optionsGroupName, std::wstring const &options_file);
-
-    void ReadOptions();
-    void SaveOptions();
-
-    virtual std::wstring GetOptionsCommentString() const;
-    std::wstring GetOptionsJSONString() const;
-
-    void CheckOption(UINT id);
-    void UncheckOption(UINT id);
-    void ClearOption(UINT id);
-
-    void SetOption(UINT id, std::wstring const &value);
-    void AppendOption(UINT id, std::wstring const &value);
-    void ResetOption(UINT id);
-
-    void SetAdditionalOptions(std::wstring const &additionalOptions);
-
-    void ClearAllOptions();
-
-    bool IsOptionIncluded(Option const &option) const;
-
-    virtual int GetTabWidth() = 0;
-
-    virtual BOOL UpdateOptions(
-        HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
-    );
-
-  protected:
-    LPCTSTR m_optionsGroupName;
-    std::map<UINT, Option> m_options;
-    std::wstring m_additionalOptions;
-
-  private:
-    std::wstring options_file_;
-};
+class Profile_Handler;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class JSLintLinterOptions : public LinterOptions
+class JSLintLinterOptions : public Linter_Options
 {
   public:
-    JSLintLinterOptions(std::wstring const &options_file);
+    JSLintLinterOptions(Profile_Handler *profile_handler);
 
     int GetTabWidth();
     BOOL UpdateOptions(
@@ -80,10 +40,10 @@ class JSLintLinterOptions : public LinterOptions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class JSHintLinterOptions : public LinterOptions
+class JSHintLinterOptions : public Linter_Options
 {
   public:
-    JSHintLinterOptions(std::wstring const &config_file);
+    JSHintLinterOptions(Profile_Handler *profile_handler);
 
     int GetTabWidth();
     std::wstring GetOptionsCommentString() const;
@@ -96,15 +56,15 @@ enum class Linter;
 class JSLintOptions
 {
   public:
-    JSLintOptions(std::wstring const &);
+    JSLintOptions(Profile_Handler *);
 
     void ReadOptions();
     void SaveOptions();
 
     Linter GetSelectedLinter() const;
     void SetSelectedLinter(Linter selectedLinter);
-    LinterOptions const *GetSelectedLinterOptions() const;
-    LinterOptions *GetSelectedLinterOptions();
+    Linter_Options const *GetSelectedLinterOptions() const;
+    Linter_Options *GetSelectedLinterOptions();
 
     std::wstring GetOptionsJSONString() const;
 
@@ -117,7 +77,8 @@ class JSLintOptions
     void ShowDialog(JSLintNpp const *);
 
   private:
-    std::wstring options_file_;
+    Profile_Handler *profile_handler_;
+    //std::wstring options_file_;
     Linter m_selectedLinter;
     JSLintLinterOptions m_jsLintOptions;
     JSHintLinterOptions m_jsHintOptions;
