@@ -90,7 +90,7 @@ class JSLintOptions
         HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
     );
     void AppendOption(UINT id, std::wstring const &value);
-    void ClearAllOptions();
+    void ResetAllOptions();
     void ShowDialog(JSLintNpp const *);
 
   private:

@@ -43,11 +43,7 @@ class Linter_Options
     void AppendOption(UINT id, std::wstring const &value);
     void ResetOption(UINT id);
 
-    void SetAdditionalOptions(std::wstring const &additionalOptions);
-
-    void ClearAllOptions();
-
-    bool IsOptionIncluded(Option const &option) const;
+    void ResetAllOptions();
 
     virtual int GetTabWidth() = 0;
 
@@ -58,7 +54,6 @@ class Linter_Options
   protected:
     LPCTSTR m_optionsGroupName;
     std::map<UINT, Option> m_options;
-    std::wstring m_additionalOptions;
 
   private:
     Profile_Handler *profile_handler_;

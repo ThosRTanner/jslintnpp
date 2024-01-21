@@ -27,11 +27,8 @@
 #include <tchar.h>
 #include <windowsx.h>
 
-////////////////////////////////////////////////////////////////////////////////
-
-#define PROFILE_ADDITIONAL_OPTIONS_KEY_NAME L"jslintnpp_additional_options"
-
-////////////////////////////////////////////////////////////////////////////////
+#include <cstdio>
+#include <string>
 
 Linter_Options::Linter_Options(
     LPCTSTR optionsGroupName, Profile_Handler *profile_handler
@@ -41,6 +38,8 @@ Linter_Options::Linter_Options(
     profile_handler_(profile_handler)
 {
     m_options[IDC_PREDEFINED] = Option(OPTION_TYPE_ARR_STRING, L"predef", L"");
+    m_options[IDC_ADDITIONAL_OPTIONS] =
+        Option(OPTION_TYPE_ARR_STRING, L"jslintnpp_additional_options", L"");
 }
 
 void Linter_Options::ReadOptions()
@@ -99,10 +98,6 @@ void Linter_Options::ReadOptions()
                 break;
         }
     }
-
-    m_additionalOptions = profile_handler_->get_str_value(
-        m_optionsGroupName, PROFILE_ADDITIONAL_OPTIONS_KEY_NAME
-    );
 }
 
 void Linter_Options::SaveOptions()
@@ -113,17 +108,6 @@ void Linter_Options::SaveOptions()
             m_optionsGroupName, option.second.name, option.second.value
         );
     }
-
-    profile_handler_->set_str_value(
-        m_optionsGroupName,
-        PROFILE_ADDITIONAL_OPTIONS_KEY_NAME,
-        m_additionalOptions
-    );
-}
-
-bool Linter_Options::IsOptionIncluded(Option const &option) const
-{
-    return ! option.value.empty();
 }
 
 std::wstring Linter_Options::GetOptionsCommentString() const
@@ -132,9 +116,10 @@ std::wstring Linter_Options::GetOptionsCommentString() const
 
     for (auto const &option : m_options)
     {
-        if (IsOptionIncluded(option.second))
+        if (not option.second.is_unset())
         {
-            if (option.first != IDC_PREDEFINED)
+            if (option.first != IDC_PREDEFINED
+                && option.first != IDC_ADDITIONAL_OPTIONS)
             {
                 if (! strOptions.empty())
                 {
@@ -151,10 +136,20 @@ std::wstring Linter_Options::GetOptionsCommentString() const
 std::wstring Linter_Options::GetOptionsJSONString() const
 {
     std::wstring strOptions;
+    std::wstring additional_options;
 
     for (auto const &option : m_options)
     {
-        if (not IsOptionIncluded(option.second))
+        if (option.first == IDC_ADDITIONAL_OPTIONS)
+        {
+            // Special treatment for additional options - they always come at
+            // the end. This isn't really necessary but is compatible with
+            // existing code and arguably less confusing.
+            additional_options = option.second.value;
+            continue;
+        }
+
+        if (option.second.is_unset())
         {
             continue;
         }
@@ -203,15 +198,15 @@ std::wstring Linter_Options::GetOptionsJSONString() const
         }
     }
 
-    if (! m_additionalOptions.empty())
+    // Additional options come last, for compatibility
+    if (not additional_options.empty())
     {
         if (! strOptions.empty())
         {
             strOptions += L", ";
         }
-        strOptions += m_additionalOptions;
+        strOptions += additional_options;
     }
-
     return L"{ " + strOptions + L" }";
 }
 
@@ -253,12 +248,7 @@ void Linter_Options::ResetOption(UINT id)
     m_options[id].value = m_options[id].defaultValue;
 }
 
-void Linter_Options::SetAdditionalOptions(std::wstring const &additionalOptions)
-{
-    m_additionalOptions = additionalOptions;
-}
-
-void Linter_Options::ClearAllOptions()
+void Linter_Options::ResetAllOptions()
 {
     for (auto &option : m_options)
     {
@@ -276,6 +266,7 @@ BOOL Linter_Options::UpdateOptions(
     ////AARRGGGHH
     if (bSaveOrValidate)
     {
+        // Saving
         for (auto const &option : m_options)
         {
             if (option.second.type == OPTION_TYPE_BOOL)
@@ -295,6 +286,11 @@ BOOL Linter_Options::UpdateOptions(
                     ClearOption(option.first);
                 }
             }
+            else
+            {
+                // Why don't we save numeric or string values here?
+                continue;
+            }
         }
 
         // predefined
@@ -312,51 +308,51 @@ BOOL Linter_Options::UpdateOptions(
         // additional options
         std::wstring strAdditionalOptions =
             TrimSpaces(GetWindowText(GetDlgItem(hDlg, IDC_ADDITIONAL_OPTIONS)));
-        SetAdditionalOptions(strAdditionalOptions);
+        SetOption(IDC_ADDITIONAL_OPTIONS, strPredefined);
     }
     else
     {
         std::map<UINT, Option>::iterator it;
         for (it = m_options.begin(); it != m_options.end(); ++it)
         {
-            if (it->second.type == OPTION_TYPE_BOOL)
+            if (it->first == IDC_PREDEFINED
+                || it->first == IDC_ADDITIONAL_OPTIONS)
             {
-                int checkState;
-                if (it->second.value == L"false")
-                {
-                    checkState = BST_UNCHECKED;
-                }
-                else if (it->second.value == L"true")
-                {
-                    checkState = BST_CHECKED;
-                }
-                else
-                {
-                    checkState = BST_INDETERMINATE;
-                }
-                Button_SetCheck(GetDlgItem(hSubDlg, it->first), checkState);
+                SetWindowText(
+                    GetDlgItem(hDlg, it->first), it->second.value.c_str()
+                );
+                continue;
             }
-            else if (it->second.type == OPTION_TYPE_INT || it->second.type == OPTION_TYPE_ARR_STRING)
+
+            switch (it->second.type)
             {
-                if (GetDlgItem(hDlg, it->first))
+                case OPTION_TYPE_BOOL:
                 {
-                    SetWindowText(
-                        GetDlgItem(hDlg, it->first), it->second.value.c_str()
-                    );
+                    int checkState;
+                    if (it->second.value == L"false")
+                    {
+                        checkState = BST_UNCHECKED;
+                    }
+                    else if (it->second.value == L"true")
+                    {
+                        checkState = BST_CHECKED;
+                    }
+                    else
+                    {
+                        checkState = BST_INDETERMINATE;
+                    }
+                    Button_SetCheck(GetDlgItem(hSubDlg, it->first), checkState);
+                    break;
                 }
-                else
-                {
+
+                case OPTION_TYPE_INT:
+                case OPTION_TYPE_ARR_STRING:
                     SetWindowText(
                         GetDlgItem(hSubDlg, it->first), it->second.value.c_str()
                     );
-                }
+                    break;
             }
         }
-
-        SetWindowText(
-            GetDlgItem(hDlg, IDC_ADDITIONAL_OPTIONS),
-            m_additionalOptions.c_str()
-        );
     }
 
     return TRUE;

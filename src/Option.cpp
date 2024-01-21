@@ -23,9 +23,7 @@ Option::Option() : type(OPTION_TYPE_UNKNOWN)
 
 Option::Option(std::wstring const &name) :
     type(OPTION_TYPE_BOOL),
-    name(name),
-    value(L""),
-    defaultValue(L"")
+    name(name)
 {
 }
 
@@ -37,4 +35,9 @@ Option::Option(
     value(value),
     defaultValue(value)
 {
+}
+
+bool Option::is_unset() const
+{
+    return value.empty();
 }

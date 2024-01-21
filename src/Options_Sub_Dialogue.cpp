@@ -58,6 +58,10 @@ void Options_Sub_Dialogue::show()
 {
     // FIXME Populate contents in a less crap way than this.
     options_->UpdateOptions(parent_->window(), window(), false, false);
+    SetWindowText(
+        ::GetDlgItem(parent_->window(), IDC_PREVIEW),
+        options_->GetOptionsCommentString().c_str()
+    );
     ::ShowWindow(window(), SW_SHOW);
 }
 

@@ -346,9 +346,9 @@ void JSLintOptions::AppendOption(UINT id, std::wstring const &value)
     GetSelectedLinterOptions()->AppendOption(id, value);
 }
 
-void JSLintOptions::ClearAllOptions()
+void JSLintOptions::ResetAllOptions()
 {
-    GetSelectedLinterOptions()->ClearAllOptions();
+    GetSelectedLinterOptions()->ResetAllOptions();
 }
 
 INT_PTR CALLBACK JSLintOptions::PredefinedControlWndProc(
@@ -513,7 +513,7 @@ JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
             {
                 case IDC_CLEAR_ALL:
                     m_options.UpdateOptions(m_hDlg, m_hSubDlg, true, false);
-                    m_options.ClearAllOptions();
+                    m_options.ResetAllOptions();
                     m_options.UpdateOptions(m_hDlg, m_hSubDlg, false, false);
                     break;
                 case IDOK:

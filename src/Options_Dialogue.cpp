@@ -110,7 +110,7 @@ std::optional<LONG_PTR> Options_Dialogue::on_command(WPARAM wParam) noexcept
                 case IDC_CLEAR_ALL:
                     // options_->UpdateOptions(m_hDlg, m_hSubDlg, true,
                     // false);
-                    options_->ClearAllOptions();
+                    options_->ResetAllOptions();
                     // options_->UpdateOptions(
                     //     m_hDlg, m_hSubDlg, false, false
                     //);
@@ -152,6 +152,7 @@ std::optional<LONG_PTR> Options_Dialogue::on_command(WPARAM wParam) noexcept
                     curSel == 0 ? Linter::LINTER_JSHINT : Linter::LINTER_JSLINT;
 
                 options_->SetSelectedLinter(current_linter_);
+
                 sub_dialogues_[current_linter_]->show();
             }
             else

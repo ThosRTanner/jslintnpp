@@ -37,6 +37,8 @@ struct Option
         OptionType type, std::wstring const &name, std::wstring const &value
     );
 
+    bool is_unset() const;
+
     OptionType type;
     std::wstring name;
     std::wstring value;
