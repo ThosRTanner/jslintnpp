@@ -28,6 +28,8 @@
 #include <windowsx.h>
 
 #include <cstdio>
+
+#include <optional>
 #include <string>
 
 Linter_Options::Linter_Options(
@@ -259,6 +261,12 @@ void Linter_Options::ResetAllOptions()
     }
 }
 
+std::optional<std::wstring>
+Linter_Options::check_valid(int, std::wstring const &) const
+{
+    return std::nullopt;
+}
+
 BOOL Linter_Options::UpdateOptions(
     HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
 )
@@ -296,19 +304,21 @@ BOOL Linter_Options::UpdateOptions(
         // predefined
         std::wstring strPredefined =
             TrimSpaces(GetWindowText(GetDlgItem(hDlg, IDC_PREDEFINED)));
+        /*
         if (strPredefined.empty())
         {
             ResetOption(IDC_PREDEFINED);
         }
         else
         {
-            SetOption(IDC_PREDEFINED, strPredefined);
-        }
+        */
+        SetOption(IDC_PREDEFINED, strPredefined);
+        //}
 
         // additional options
         std::wstring strAdditionalOptions =
             TrimSpaces(GetWindowText(GetDlgItem(hDlg, IDC_ADDITIONAL_OPTIONS)));
-        SetOption(IDC_ADDITIONAL_OPTIONS, strPredefined);
+        SetOption(IDC_ADDITIONAL_OPTIONS, strAdditionalOptions);
     }
     else
     {

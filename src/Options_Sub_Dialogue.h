@@ -31,10 +31,14 @@ class Options_Sub_Dialogue : public Non_Modal_Dialogue_Interface
 
     void hide();
 
+    bool update(bool validate);
+
   private:
     std::optional<LONG_PTR> on_dialogue_message(
         UINT message, WPARAM wParam, LPARAM lParam
     ) noexcept override;
+
+    void update_comment_string() const noexcept;
 
     Options_Dialogue const *parent_;
     Linter_Options *options_;

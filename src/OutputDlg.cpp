@@ -528,8 +528,7 @@ void OutputDlg::SelectNextLint()
     if (count == 0)
     {
         // no lints, set focus to editor
-        HWND hWndScintilla = plugin_->get_scintilla_window();
-        SetFocus(hWndScintilla);
+        ::SetFocus(plugin_->get_scintilla_window());
         return;
     }
 
@@ -561,8 +560,7 @@ void OutputDlg::SelectPrevLint()
     if (count == 0)
     {
         // no lints, set focus to editor
-        HWND hWndScintilla = plugin_->get_scintilla_window();
-        SetFocus(hWndScintilla);
+        ::SetFocus(plugin_->get_scintilla_window());
         return;
     }
 

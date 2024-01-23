@@ -251,7 +251,7 @@ BOOL Settings_Dialogue::update_options() noexcept
                 L"JSLint",
                 MB_OK | MB_ICONERROR
             );
-            SetFocus(GetDlgItem(IDC_JSLINT_SCRIPT_VERSION));
+            SetFocus(IDC_JSLINT_SCRIPT_VERSION);
             return FALSE;
         }
         settings_->m_jsLintScript.m_scriptVersion =
@@ -269,7 +269,7 @@ BOOL Settings_Dialogue::update_options() noexcept
                     L"Please enter 'undefined variable' error message text!",
                     MB_OK | MB_ICONERROR
                 );
-                SetFocus(GetDlgItem(IDC_JSLINT_UNDEF_VAR_ERR_MSG));
+                SetFocus(IDC_JSLINT_UNDEF_VAR_ERR_MSG);
                 return FALSE;
             }
             settings_->m_jsLintScript.m_undefVarErrMsg = undefVarErrMsg;
@@ -295,7 +295,7 @@ BOOL Settings_Dialogue::update_options() noexcept
             message_box(
                 L"Please select JSHint script version!", MB_OK | MB_ICONERROR
             );
-            SetFocus(GetDlgItem(IDC_JSHINT_SCRIPT_VERSION));
+            SetFocus(IDC_JSHINT_SCRIPT_VERSION);
             return FALSE;
         }
         settings_->m_jsHintScript.m_scriptVersion =
@@ -313,7 +313,7 @@ BOOL Settings_Dialogue::update_options() noexcept
                     L"Please enter 'undefined variable' error message text!",
                     MB_OK | MB_ICONERROR
                 );
-                SetFocus(GetDlgItem(IDC_JSHINT_UNDEF_VAR_ERR_MSG));
+                SetFocus(IDC_JSHINT_UNDEF_VAR_ERR_MSG);
                 return FALSE;
             }
             settings_->m_jsHintScript.m_undefVarErrMsg = undefVarErrMsg;

@@ -238,3 +238,68 @@ std::wstring Path::GetModuleFileName(HMODULE hModule)
     ::GetModuleFileName(hModule, szPath, MAX_PATH);
     return szPath;
 }
+
+std::string TextConversion::UTF8_To_A(std::string const &str)
+{
+    int wsize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+    wchar_t *wbuffer = new wchar_t[wsize];
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wbuffer, wsize);
+    int size =
+        WideCharToMultiByte(CP_ACP, 0, wbuffer, wsize, NULL, 0, NULL, NULL);
+    char *buffer = new char[size];
+    WideCharToMultiByte(CP_ACP, 0, wbuffer, wsize, buffer, size, NULL, NULL);
+    delete[] wbuffer;
+    std::string result(buffer);
+    delete[] buffer;
+    return result;
+}
+
+std::wstring TextConversion::UTF8_To_W(std::string const &str)
+{
+    int wsize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+    wchar_t *wbuffer = new wchar_t[wsize];
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wbuffer, wsize);
+    std::wstring result(wbuffer);
+    delete[] wbuffer;
+    return result;
+}
+
+std::string TextConversion::A_To_UTF8(std::string const &str)
+{
+    int wsize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
+    wchar_t *wbuffer = new wchar_t[wsize];
+    MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, wbuffer, wsize);
+    int size =
+        WideCharToMultiByte(CP_UTF8, 0, wbuffer, wsize, NULL, 0, NULL, NULL);
+    char *buffer = new char[size];
+    WideCharToMultiByte(CP_UTF8, 0, wbuffer, wsize, buffer, size, NULL, NULL);
+    delete[] wbuffer;
+    std::string result(buffer);
+    delete[] buffer;
+    return result;
+}
+
+std::string TextConversion::W_To_UTF8(std::wstring const &wstr)
+{
+    int size =
+        WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
+    char *buffer = new char[size];
+    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buffer, size, NULL, NULL);
+    std::string result(buffer);
+    delete[] buffer;
+    return result;
+}
+
+std::wstring TextConversion::A_To_T(std::string const &str)
+{
+#if defined(UNICODE) || defined(_UNICODE)
+    int wsize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
+    wchar_t *wbuffer = new wchar_t[wsize];
+    MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, wbuffer, wsize);
+    std::wstring result(wbuffer);
+    delete[] wbuffer;
+    return result;
+#else
+    return str;
+#endif
+}

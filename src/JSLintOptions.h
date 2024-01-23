@@ -19,38 +19,14 @@
 
 #include "Linter_Options.h"
 
+#include "JSLintLinterOptions.h"
+#include "JSHintLinterOptions.h"
+#include "Linter.h"
+
 #include <string>
 
 class JSLintNpp;
 class Profile_Handler;
-
-////////////////////////////////////////////////////////////////////////////////
-
-class JSLintLinterOptions : public Linter_Options
-{
-  public:
-    JSLintLinterOptions(Profile_Handler *profile_handler);
-
-    int GetTabWidth();
-    BOOL UpdateOptions(
-        HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
-    );
-    std::wstring GetOptionsCommentString() const;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-class JSHintLinterOptions : public Linter_Options
-{
-  public:
-    JSHintLinterOptions(Profile_Handler *profile_handler);
-
-    int GetTabWidth();
-    std::wstring GetOptionsCommentString() const;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
 enum class Linter;
 
 class JSLintOptions
@@ -61,10 +37,13 @@ class JSLintOptions
     ~JSLintOptions();
 
     void ReadOptions();
+
     void SaveOptions();
 
     Linter GetSelectedLinter() const;
+
     void SetSelectedLinter(Linter selectedLinter);
+
     Linter_Options const* GetSelectedLinterOptions() const
     {
         return GetLinterOptions(m_selectedLinter);
@@ -76,6 +55,7 @@ class JSLintOptions
     }
 
     Linter_Options const *GetLinterOptions(Linter) const;
+
     Linter_Options* GetLinterOptions(Linter linter)
     {
         return const_cast<Linter_Options *>(
@@ -86,16 +66,17 @@ class JSLintOptions
     std::wstring GetOptionsJSONString() const;
 
     int GetTabWidth();
+
     BOOL UpdateOptions(
         HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
     );
+
     void AppendOption(UINT id, std::wstring const &value);
     void ResetAllOptions();
     void ShowDialog(JSLintNpp const *);
 
   private:
     Profile_Handler *profile_handler_;
-    //std::wstring options_file_;
     Linter m_selectedLinter;
     JSLintLinterOptions m_jsLintOptions;
     JSHintLinterOptions m_jsHintOptions;

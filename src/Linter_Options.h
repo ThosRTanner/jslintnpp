@@ -20,6 +20,7 @@
 #include "Option.h"
 
 #include <map>
+#include <optional>
 #include <string>
 
 class Profile_Handler;
@@ -32,7 +33,8 @@ class Linter_Options
     void ReadOptions();
     void SaveOptions();
 
-    virtual std::wstring GetOptionsCommentString() const;
+    virtual std::wstring GetOptionsCommentString() const = 0;
+
     std::wstring GetOptionsJSONString() const;
 
     void CheckOption(UINT id);
@@ -45,11 +47,18 @@ class Linter_Options
 
     void ResetAllOptions();
 
-    virtual int GetTabWidth() = 0;
+    virtual int GetTabWidth() const = 0;
+
+    virtual std::optional<std::wstring> check_valid(int, std::wstring const &) const;
 
     virtual BOOL UpdateOptions(
         HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
     );
+
+    std::map<UINT, Option> const &get_options() const noexcept
+    {
+        return m_options;
+    }
 
   protected:
     LPCTSTR m_optionsGroupName;

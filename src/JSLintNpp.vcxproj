@@ -222,6 +222,7 @@
     <ClCompile Include="DownloadJSLint.cpp" />
     <ClCompile Include="Download_Progress_Bar.cpp" />
     <ClCompile Include="Internet_Handle.cpp" />
+    <ClCompile Include="JSHintLinterOptions.cpp" />
     <ClCompile Include="JSLint.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -232,6 +233,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StdHeaders.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">StdHeaders.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="JSLintLinterOptions.cpp" />
     <ClCompile Include="JSLintNpp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -285,7 +287,9 @@
     <ClInclude Include="DownloadJSLint.h" />
     <ClInclude Include="Download_Progress_Bar.h" />
     <ClInclude Include="Internet_Handle.h" />
+    <ClInclude Include="JSHintLinterOptions.h" />
     <ClInclude Include="JSLint.h" />
+    <ClInclude Include="JSLintLinterOptions.h" />
     <ClInclude Include="JSLintNpp.h" />
     <ClInclude Include="JSLintOptions.h" />
     <ClInclude Include="Linter.h" />

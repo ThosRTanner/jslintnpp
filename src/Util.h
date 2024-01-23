@@ -22,16 +22,21 @@
 #include <vector>
 
 std::wstring TrimSpaces(std::wstring const &str);
+
 void StringSplit(
     std::wstring str, std::wstring delim, std::vector<std::wstring> &results
 );
+
 std::wstring StringJoin(std::vector<std::wstring> &results, std::wstring delim);
+
 void FindReplace(
     std::wstring &str, std::wstring const &strOld, std::wstring const &strNew
 );
 
 BOOL CenterWindow(HWND hWnd, HWND hParentWnd, BOOL bRepaint = FALSE);
+
 std::wstring GetWindowText(HWND hWnd);
+
 void DoEvents();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,7 +96,7 @@ class IOException : public std::exception
 class Path
 {
   public:
-    static std::wstring GetPathRoot(std::wstring const &strPath);
+    //static std::wstring GetPathRoot(std::wstring const &strPath);
     static std::wstring GetDirectoryName(std::wstring const &strPath);
     static std::wstring GetFileName(std::wstring const &strPath);
     static std::wstring GetFileNameWithoutExtension(std::wstring const &strPath
@@ -164,32 +169,9 @@ class TempFile
 class TextConversion
 {
   public:
-    static std::string UTF8_To_A(std::string const &str)
-    {
-        int wsize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
-        wchar_t *wbuffer = new wchar_t[wsize];
-        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wbuffer, wsize);
-        int size =
-            WideCharToMultiByte(CP_ACP, 0, wbuffer, wsize, NULL, 0, NULL, NULL);
-        char *buffer = new char[size];
-        WideCharToMultiByte(
-            CP_ACP, 0, wbuffer, wsize, buffer, size, NULL, NULL
-        );
-        delete[] wbuffer;
-        std::string result(buffer);
-        delete[] buffer;
-        return result;
-    }
+    static std::string UTF8_To_A(std::string const &str);
 
-    static std::wstring UTF8_To_W(std::string const &str)
-    {
-        int wsize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
-        wchar_t *wbuffer = new wchar_t[wsize];
-        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wbuffer, wsize);
-        std::wstring result(wbuffer);
-        delete[] wbuffer;
-        return result;
-    }
+    static std::wstring UTF8_To_W(std::string const &str);
 
     static std::wstring UTF8_To_T(std::string const &str)
     {
@@ -200,37 +182,9 @@ class TextConversion
 #endif
     }
 
-    static std::string A_To_UTF8(std::string const &str)
-    {
-        int wsize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
-        wchar_t *wbuffer = new wchar_t[wsize];
-        MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, wbuffer, wsize);
-        int size = WideCharToMultiByte(
-            CP_UTF8, 0, wbuffer, wsize, NULL, 0, NULL, NULL
-        );
-        char *buffer = new char[size];
-        WideCharToMultiByte(
-            CP_UTF8, 0, wbuffer, wsize, buffer, size, NULL, NULL
-        );
-        delete[] wbuffer;
-        std::string result(buffer);
-        delete[] buffer;
-        return result;
-    }
+    static std::string A_To_UTF8(std::string const &str);
 
-    static std::string W_To_UTF8(std::wstring const &wstr)
-    {
-        int size = WideCharToMultiByte(
-            CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL
-        );
-        char *buffer = new char[size];
-        WideCharToMultiByte(
-            CP_ACP, 0, wstr.c_str(), -1, buffer, size, NULL, NULL
-        );
-        std::string result(buffer);
-        delete[] buffer;
-        return result;
-    }
+    static std::string W_To_UTF8(std::wstring const &wstr);
 
     static std::string T_To_UTF8(std::wstring const &tstr)
     {
@@ -241,17 +195,5 @@ class TextConversion
 #endif
     }
 
-    static std::wstring A_To_T(std::string const &str)
-    {
-#if defined(UNICODE) || defined(_UNICODE)
-        int wsize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
-        wchar_t *wbuffer = new wchar_t[wsize];
-        MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, wbuffer, wsize);
-        std::wstring result(wbuffer);
-        delete[] wbuffer;
-        return result;
-#else
-        return str;
-#endif
-    }
+    static std::wstring A_To_T(std::string const &str);
 };

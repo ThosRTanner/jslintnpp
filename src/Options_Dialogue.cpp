@@ -108,27 +108,23 @@ std::optional<LONG_PTR> Options_Dialogue::on_command(WPARAM wParam) noexcept
             switch (LOWORD(wParam))
             {
                 case IDC_CLEAR_ALL:
-                    // options_->UpdateOptions(m_hDlg, m_hSubDlg, true,
-                    // false);
+                    // This appears to be just so the 'predefined' state doesn't
+                    // get cleared.
+                    sub_dialogues_[current_linter_]->update(false);
                     options_->ResetAllOptions();
-                    // options_->UpdateOptions(
-                    //     m_hDlg, m_hSubDlg, false, false
-                    //);
+                    sub_dialogues_[current_linter_]->show();
                     break;
 
                 case IDOK:
-                    // if (options_->UpdateOptions(
-                    //        m_hDlg, m_hSubDlg, true, true
-                    //    ))
+                    if (sub_dialogues_[current_linter_]->update(true))
                     {
-                        //*m_m_options = m_options;
                         EndDialog(Clicked_OK);
                     }
-                    return 1;
+                    return TRUE;
 
                 case IDCANCEL:
                     EndDialog(Clicked_Cancel);
-                    return 1;
+                    return TRUE;
 
                 default:
                     break;
@@ -144,7 +140,7 @@ std::optional<LONG_PTR> Options_Dialogue::on_command(WPARAM wParam) noexcept
             {
                 break;
             }
-            if (true /*options_->UpdateOptions(m_hDlg, m_hSubDlg, true, true)*/)
+            if (sub_dialogues_[current_linter_]->update(true))
             {
                 sub_dialogues_[current_linter_]->hide();
 
@@ -171,7 +167,8 @@ std::optional<LONG_PTR> Options_Dialogue::on_command(WPARAM wParam) noexcept
 
         case EN_KILLFOCUS:
         {
-            // options_->UpdateOptions(m_hDlg, m_hSubDlg, true, false);
+            //Why do we do this? Update the command line comment?
+            sub_dialogues_[current_linter_]->update(false);
             break;
         }
 
