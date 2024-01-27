@@ -19,6 +19,7 @@
 #include "JSLintOptions.h"
 #include "Linter.h"
 #include "Options_Sub_Dialogue.h"
+#include "Util.h"
 
 #include "resource.h"
 
@@ -26,7 +27,10 @@
 #include "tchar.h"
 #include "WinUser.h"
 
+#include <functional>
 #include <map>
+
+using namespace std::placeholders;
 
 Options_Dialogue::Options_Dialogue(JSLintNpp const *plugin) :
     Modal_Dialogue_Interface(plugin),
@@ -40,7 +44,7 @@ Options_Dialogue::~Options_Dialogue()
 {
 }
 
-std::optional<LONG_PTR> Options_Dialogue::on_dialogue_message(
+std::optional<INT_PTR> Options_Dialogue::on_dialogue_message(
     UINT message, WPARAM wParam, LPARAM lParam
 ) noexcept
 {
@@ -82,14 +86,11 @@ std::optional<LONG_PTR> Options_Dialogue::on_dialogue_message(
 
             sub_dialogues_[current_linter_]->show();
 
-            // subclass IDC_PREDEFINED
-            /*
-            HWND hWndPredefined = GetDlgItem(IDC_PREDEFINED);
-            WNDPROC oldWndProc = (WNDPROC)SetWindowLongPtr(
-                hWndPredefined, GWLP_WNDPROC, (LONG_PTR)PredefinedControlWndProc
+            auto f = std::bind(
+                &Options_Dialogue::Item_Callback_Function, this, _1, _2, _3, _4
             );
-            SetProp(hWndPredefined, L"OldWndProc", (HANDLE)oldWndProc);
-            */
+            add_item_callback(IDC_PREDEFINED, f);
+
             break;
         }
 
@@ -99,7 +100,7 @@ std::optional<LONG_PTR> Options_Dialogue::on_dialogue_message(
     return std::nullopt;
 }
 
-std::optional<LONG_PTR> Options_Dialogue::on_command(WPARAM wParam) noexcept
+std::optional<INT_PTR> Options_Dialogue::on_command(WPARAM wParam) noexcept
 {
     switch (HIWORD(wParam))
     {
@@ -167,13 +168,49 @@ std::optional<LONG_PTR> Options_Dialogue::on_command(WPARAM wParam) noexcept
 
         case EN_KILLFOCUS:
         {
-            //Why do we do this? Update the command line comment?
+            // Why do we do this? Update the command line comment?
             sub_dialogues_[current_linter_]->update(false);
             break;
         }
 
         default:
             break;
+    }
+    return std::nullopt;
+}
+
+std::optional<INT_PTR> Options_Dialogue::Item_Callback_Function(
+    HWND handle, UINT message, WPARAM wParam, LPARAM lParam
+)
+{
+    if (message == WM_PASTE)
+    {
+        if (IsClipboardFormatAvailable(CF_TEXT))
+        {
+            if (OpenClipboard(NULL))
+            {
+                HGLOBAL hGlobal = GetClipboardData(CF_TEXT);
+                if (hGlobal)
+                {
+                    LPSTR lpData = (LPSTR)GlobalLock(hGlobal);
+                    if (lpData != NULL)
+                    {
+                        std::wstring str(TextConversion::A_To_T(lpData));
+
+                        std::vector<std::wstring> results;
+                        StringSplit(str, L" \t\r\n", results);
+                        str = StringJoin(results, L", ");
+
+                        SendMessage(
+                            handle, EM_REPLACESEL, TRUE, (LPARAM)str.c_str()
+                        );
+                    }
+                    GlobalUnlock(hGlobal);
+                }
+                CloseClipboard();
+            }
+        }
+        return 0;
     }
     return std::nullopt;
 }

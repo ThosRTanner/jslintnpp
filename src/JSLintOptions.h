@@ -91,7 +91,6 @@ class JSLintOptions
     static HWND m_hWndJSLintOptionsSubdlg;
     static HWND m_hWndJSHintOptionsSubdlg;
     static HWND m_hSubDlg;
-
     static INT_PTR CALLBACK PredefinedControlWndProc(
         HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam
     );

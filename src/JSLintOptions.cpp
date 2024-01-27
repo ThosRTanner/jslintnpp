@@ -404,5 +404,9 @@ JSLintOptions::DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 void JSLintOptions::ShowDialog(JSLintNpp const *plugin)
 {
     Options_Dialogue dialogue(plugin);
-    plugin->pluginDialogBox(IDD_OPTIONS, DlgProc, plugin);
+    if (dialogue.get_result() == Options_Dialogue::Clicked_OK)
+    {
+        *this = *dialogue.get_options();
+    }
+    //plugin->pluginDialogBox(IDD_OPTIONS, DlgProc, plugin);
 }

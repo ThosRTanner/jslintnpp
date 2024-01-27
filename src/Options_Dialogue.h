@@ -36,12 +36,21 @@ class Options_Dialogue : public Modal_Dialogue_Interface
         return Modal_Dialogue_Interface::window();
     }
 
+    auto get_options() const noexcept
+    {
+        return options_.get();
+    }
+
   private:
-    std::optional<LONG_PTR> on_dialogue_message(
+    std::optional<INT_PTR> on_dialogue_message(
         UINT message, WPARAM wParam, LPARAM lParam
     ) noexcept override;
 
-    std::optional<LONG_PTR> on_command(WPARAM wParam) noexcept;
+    std::optional<INT_PTR> on_command(WPARAM wParam) noexcept;
+
+    std::optional<LRESULT> Item_Callback_Function(
+        HWND, UINT, WPARAM, LPARAM
+    );
 
     std::unique_ptr<JSLintOptions> options_;
     std::map<Linter, std::unique_ptr<Options_Sub_Dialogue>> sub_dialogues_;
