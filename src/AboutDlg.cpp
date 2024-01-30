@@ -46,7 +46,7 @@ std::optional<LONG_PTR> AboutDlg::on_dialogue_message(
             HWND hWndVersionStatic = GetDlgItem(IDC_VERSION_STATIC);
 
             TCHAR szVersionFormat[50];
-            GetWindowText(
+            ::GetWindowText(
                 hWndVersionStatic, szVersionFormat, _countof(szVersionFormat)
             );
 
@@ -55,7 +55,7 @@ std::optional<LONG_PTR> AboutDlg::on_dialogue_message(
                 szVersion, szVersionFormat, L"Unicode", MY_PRODUCT_VERSION
             );
 
-            SetWindowText(hWndVersionStatic, szVersion);
+            ::SetWindowText(hWndVersionStatic, szVersion);
 
             centre_dialogue();
         }

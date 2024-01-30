@@ -34,8 +34,4 @@ class JSLintLinterOptions : public Linter_Options
     int GetTabWidth() const override;
 
     std::optional<std::wstring> check_valid(int, std::wstring const &) const override;
-
-    BOOL UpdateOptions(
-        HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
-    ) override;
 };

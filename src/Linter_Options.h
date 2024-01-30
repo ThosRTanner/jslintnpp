@@ -51,10 +51,6 @@ class Linter_Options
 
     virtual std::optional<std::wstring> check_valid(int, std::wstring const &) const;
 
-    virtual BOOL UpdateOptions(
-        HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
-    );
-
     std::map<UINT, Option> const &get_options() const noexcept
     {
         return m_options;

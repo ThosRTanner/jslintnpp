@@ -182,6 +182,7 @@ bool Options_Sub_Dialogue::update(bool validate)
                 break;
         }
     }
+
     return true;
 }
 
@@ -191,27 +192,60 @@ std::optional<LONG_PTR> Options_Sub_Dialogue::on_dialogue_message(
 {
     if (message == WM_COMMAND)
     {
-        if (HIWORD(wParam) == BN_CLICKED)
+        switch (HIWORD(wParam))
         {
-            UINT id = LOWORD(wParam);
-            if (IDC_CHECK_FIRST_OPTION <= id && id <= IDC_CHECK_LAST_OPTION)
+            case BN_CLICKED:
             {
-                auto const item = GetDlgItem(id);
-                switch (Button_GetCheck(item))
+                UINT id = LOWORD(wParam);
+                if (IDC_CHECK_FIRST_OPTION <= id && id <= IDC_CHECK_LAST_OPTION)
                 {
-                    case BST_UNCHECKED:
-                        Button_SetCheck(item, BST_INDETERMINATE);
-                        break;
+                    auto const item = GetDlgItem(id);
+                    switch (Button_GetCheck(item))
+                    {
+                        case BST_UNCHECKED:
+                            Button_SetCheck(item, BST_INDETERMINATE);
+                            options_->ClearOption(id);
+                            break;
 
-                    case BST_CHECKED:
-                        Button_SetCheck(item, BST_UNCHECKED);
-                        break;
+                        case BST_CHECKED:
+                            Button_SetCheck(item, BST_UNCHECKED);
+                            options_->UncheckOption(id);
+                            break;
 
-                    default:
-                        Button_SetCheck(item, BST_CHECKED);
+                        default:
+                            Button_SetCheck(item, BST_CHECKED);
+                            options_->CheckOption(id);
+                    }
+
+                    update_comment_string();
+
+                    return TRUE;
                 }
+                break;
+            }
 
+            case EN_KILLFOCUS:
+            {
+                UINT id = LOWORD(wParam);
+                switch (id)
+                {
+                    case IDC_IDENT:
+                    case IDC_MAXLEN:
+                    case IDC_MAXERR:
+                        auto const value{TrimSpaces(get_window_text(id))};
+                        auto message = options_->check_valid(id, value);
+                        if (message.has_value())
+                        {
+                            message_box(
+                                message.value().c_str(), MB_OK | MB_ICONERROR
+                            );
+                            SetFocus(id);
+                            return false;
+                        }
+                        options_->SetOption(id, value);
+                }
                 update_comment_string();
+                return TRUE;
             }
         }
     }

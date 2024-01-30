@@ -86,34 +86,6 @@ void FindReplace(
     }
 }
 
-BOOL CenterWindow(HWND hWnd, HWND hParentWnd, BOOL bRepaint)
-{
-    RECT rectParent;
-    RECT rect;
-    INT height, width;
-    INT x, y;
-
-    ::GetWindowRect(hParentWnd, &rectParent);
-    ::GetWindowRect(hWnd, &rect);
-    width = rect.right - rect.left;
-    height = rect.bottom - rect.top;
-    x = ((rectParent.right - rectParent.left) - width) / 2;
-    x += rectParent.left;
-    y = ((rectParent.bottom - rectParent.top) - height) / 2;
-    y += rectParent.top;
-    return ::MoveWindow(hWnd, x, y, width, height, bRepaint);
-}
-
-std::wstring GetWindowText(HWND hWnd)
-{
-    int nLength = GetWindowTextLength(hWnd);
-    TCHAR *szBuffer = new TCHAR[nLength + 1];
-    GetWindowText(hWnd, szBuffer, nLength + 1);
-    std::wstring result = szBuffer;
-    delete[] szBuffer;
-    return result;
-}
-
 void DoEvents()
 {
     MSG msg;
@@ -213,30 +185,6 @@ bool Path::IsDir(std::wstring const &strPath)
 bool Path::IsFileExists(std::wstring const &strPath)
 {
     return ::PathFileExists(strPath.c_str()) ? true : false;
-}
-
-std::wstring Path::GetTempFileName()
-{
-    TCHAR szTempPath[MAX_PATH];
-    if (::GetTempPath(MAX_PATH, szTempPath) == 0)
-    {
-        return L"";
-    }
-
-    TCHAR szTempFileName[MAX_PATH];
-    if (::GetTempFileName(szTempPath, L"", 0, szTempFileName) == 0)
-    {
-        return L"";
-    }
-
-    return szTempFileName;
-}
-
-std::wstring Path::GetModuleFileName(HMODULE hModule)
-{
-    TCHAR szPath[MAX_PATH] = {0};
-    ::GetModuleFileName(hModule, szPath, MAX_PATH);
-    return szPath;
 }
 
 std::string TextConversion::UTF8_To_A(std::string const &str)

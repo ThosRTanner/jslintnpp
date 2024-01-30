@@ -25,12 +25,12 @@
 #include "resource.h"
 
 #include <tchar.h>
-#include <windowsx.h>
 
 #include <cstdio>
 
 #include <optional>
 #include <string>
+#include <vector>
 
 Linter_Options::Linter_Options(
     LPCTSTR optionsGroupName, Profile_Handler *profile_handler
@@ -265,105 +265,4 @@ std::optional<std::wstring>
 Linter_Options::check_valid(int, std::wstring const &) const
 {
     return std::nullopt;
-}
-
-BOOL Linter_Options::UpdateOptions(
-    HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
-)
-{
-    ////AARRGGGHH
-    if (bSaveOrValidate)
-    {
-        // Saving
-        for (auto const &option : m_options)
-        {
-            if (option.second.type == OPTION_TYPE_BOOL)
-            {
-                int checkState =
-                    Button_GetCheck(GetDlgItem(hSubDlg, option.first));
-                if (checkState == BST_UNCHECKED)
-                {
-                    UncheckOption(option.first);
-                }
-                else if (checkState == BST_CHECKED)
-                {
-                    CheckOption(option.first);
-                }
-                else
-                {
-                    ClearOption(option.first);
-                }
-            }
-            else
-            {
-                // Why don't we save numeric or string values here?
-                continue;
-            }
-        }
-
-        // predefined
-        std::wstring strPredefined =
-            TrimSpaces(GetWindowText(GetDlgItem(hDlg, IDC_PREDEFINED)));
-        /*
-        if (strPredefined.empty())
-        {
-            ResetOption(IDC_PREDEFINED);
-        }
-        else
-        {
-        */
-        SetOption(IDC_PREDEFINED, strPredefined);
-        //}
-
-        // additional options
-        std::wstring strAdditionalOptions =
-            TrimSpaces(GetWindowText(GetDlgItem(hDlg, IDC_ADDITIONAL_OPTIONS)));
-        SetOption(IDC_ADDITIONAL_OPTIONS, strAdditionalOptions);
-    }
-    else
-    {
-        std::map<UINT, Option>::iterator it;
-        for (it = m_options.begin(); it != m_options.end(); ++it)
-        {
-            if (it->first == IDC_PREDEFINED
-                || it->first == IDC_ADDITIONAL_OPTIONS)
-            {
-                SetWindowText(
-                    GetDlgItem(hDlg, it->first), it->second.value.c_str()
-                );
-                continue;
-            }
-
-            switch (it->second.type)
-            {
-                case OPTION_TYPE_BOOL:
-                {
-                    int checkState;
-                    if (it->second.value == L"false")
-                    {
-                        checkState = BST_UNCHECKED;
-                    }
-                    else if (it->second.value == L"true")
-                    {
-                        checkState = BST_CHECKED;
-                    }
-                    else
-                    {
-                        checkState = BST_INDETERMINATE;
-                    }
-                    Button_SetCheck(GetDlgItem(hSubDlg, it->first), checkState);
-                    break;
-                }
-
-                case OPTION_TYPE_INT:
-                case OPTION_TYPE_ARR_STRING:
-                    SetWindowText(
-                        GetDlgItem(hSubDlg, it->first), it->second.value.c_str()
-                    );
-                    break;
-            }
-        }
-    }
-
-    return TRUE;
 }

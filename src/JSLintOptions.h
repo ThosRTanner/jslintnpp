@@ -67,10 +67,6 @@ class JSLintOptions
 
     int GetTabWidth();
 
-    BOOL UpdateOptions(
-        HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
-    );
-
     void AppendOption(UINT id, std::wstring const &value);
     void ResetAllOptions();
     void ShowDialog(JSLintNpp const *);
@@ -80,23 +76,4 @@ class JSLintOptions
     Linter m_selectedLinter;
     JSLintLinterOptions m_jsLintOptions;
     JSHintLinterOptions m_jsHintOptions;
-
-    // Get rid of this crapness
-    //
-    // MAYBE A DIALOGUE_INTERFACE like thing. these methods are contorted.
-    static JSLintOptions m_options;    // copy of options whilst editing
-    static JSLintOptions
-        *m_m_options;    // pointer to current options so it can be overwritten.
-    static HWND m_hDlg;
-    static HWND m_hWndJSLintOptionsSubdlg;
-    static HWND m_hWndJSHintOptionsSubdlg;
-    static HWND m_hSubDlg;
-    static INT_PTR CALLBACK PredefinedControlWndProc(
-        HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam
-    );
-
-    static INT_PTR CALLBACK
-    SubDlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
-    static INT_PTR CALLBACK
-    DlgProc(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam);
 };

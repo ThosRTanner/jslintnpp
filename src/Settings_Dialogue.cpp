@@ -23,14 +23,13 @@
 #include "JSLintNpp.h"
 #include "Linter.h"
 #include "Settings.h"
-#include "Util.h"
-#include "Version_Info.h"
+#include "Util.h"            //Do NOT remove
+#include "Version_Info.h"    //Do NOT remove
 
 #include "resource.h"
 
 #include <windowsx.h>
 
-#include <map>
 #include <string>
 
 Settings_Dialogue::Settings_Dialogue(
@@ -255,14 +254,14 @@ BOOL Settings_Dialogue::update_options() noexcept
             return FALSE;
         }
         settings_->m_jsLintScript.m_scriptVersion =
-            GetWindowText(GetDlgItem(IDC_JSLINT_SCRIPT_VERSION));
+            get_window_text(IDC_JSLINT_SCRIPT_VERSION);
 
         if (IsDlgButtonChecked(IDC_JSLINT_SPEC_UNDEF_VAR_ERR_MSG))
         {
             settings_->m_jsLintScript.m_bSpecUndefVarErrMsg = true;
 
             std::wstring undefVarErrMsg =
-                GetWindowText(GetDlgItem(IDC_JSLINT_UNDEF_VAR_ERR_MSG));
+                get_window_text(IDC_JSLINT_UNDEF_VAR_ERR_MSG);
             if (undefVarErrMsg.empty())
             {
                 message_box(
@@ -299,14 +298,14 @@ BOOL Settings_Dialogue::update_options() noexcept
             return FALSE;
         }
         settings_->m_jsHintScript.m_scriptVersion =
-            GetWindowText(GetDlgItem(IDC_JSHINT_SCRIPT_VERSION));
+            get_window_text(IDC_JSHINT_SCRIPT_VERSION);
 
         if (IsDlgButtonChecked(IDC_JSHINT_SPEC_UNDEF_VAR_ERR_MSG))
         {
             settings_->m_jsHintScript.m_bSpecUndefVarErrMsg = true;
 
             std::wstring undefVarErrMsg =
-                GetWindowText(GetDlgItem(IDC_JSHINT_UNDEF_VAR_ERR_MSG));
+                get_window_text(IDC_JSHINT_UNDEF_VAR_ERR_MSG);
             if (undefVarErrMsg.empty())
             {
                 message_box(

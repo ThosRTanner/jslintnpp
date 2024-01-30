@@ -19,16 +19,13 @@
 
 #include "JSLintLinterOptions.h"
 
-#include "Util.h"
-
 #include "resource.h"
 
 #include <tchar.h>
-#include <WinUser.h>
 
 #include <cstdio>
-
 #include <optional>
+#include <string>
 
 #define PROFILE_JSLINT_OPTIONS_GROUP_NAME L"JSLint Options"
 
@@ -137,96 +134,4 @@ std::optional<std::wstring> JSLintLinterOptions::check_valid(
         }
     }
     return std::nullopt;
-}
-
-BOOL JSLintLinterOptions::UpdateOptions(
-    HWND hDlg, HWND hSubDlg, bool bSaveOrValidate, bool bShowErrorMessage
-)
-{
-    if (! Linter_Options::UpdateOptions(
-            hDlg, hSubDlg, bSaveOrValidate, bShowErrorMessage
-        ))
-    {
-        return FALSE;
-    }
-
-    if (bSaveOrValidate)
-    {
-        // indent
-        std::wstring strIndent =
-            TrimSpaces(GetWindowText(GetDlgItem(hSubDlg, IDC_IDENT)));
-        if (! strIndent.empty())
-        {
-            int indent;
-            if (_stscanf(strIndent.c_str(), L"%d", &indent) == EOF
-                || indent < 0)
-            {
-                if (bShowErrorMessage)
-                {
-                    MessageBox(
-                        hSubDlg,
-                        (L"Indentation must be an integer greater than or "
-                         L"equal to zero"),
-                        L"JSLint",
-                        MB_OK | MB_ICONERROR
-                    );
-                    SetFocus(GetDlgItem(hDlg, IDC_IDENT));
-                }
-                return FALSE;
-            }
-        }
-        SetOption(IDC_IDENT, strIndent);
-
-        // maxlen
-        std::wstring strMaxlen =
-            TrimSpaces(GetWindowText(GetDlgItem(hSubDlg, IDC_MAXLEN)));
-        if (! strMaxlen.empty())
-        {
-            int maxlen;
-            if (_stscanf(strMaxlen.c_str(), L"%d", &maxlen) == EOF
-                || maxlen < 1)
-            {
-                if (bShowErrorMessage)
-                {
-                    MessageBox(
-                        hSubDlg,
-                        (L"Maximum line length must be an integer greater than "
-                         L"zero"),
-                        L"JSLint",
-                        MB_OK | MB_ICONERROR
-                    );
-                    SetFocus(GetDlgItem(hDlg, IDC_MAXLEN));
-                }
-                return FALSE;
-            }
-        }
-        SetOption(IDC_MAXLEN, strMaxlen);
-
-        // maxerr
-        std::wstring strMaxerr =
-            TrimSpaces(GetWindowText(GetDlgItem(hSubDlg, IDC_MAXERR)));
-        if (! strMaxerr.empty())
-        {
-            int maxerr;
-            if (_stscanf(strMaxerr.c_str(), L"%d", &maxerr) == EOF
-                || maxerr < 1)
-            {
-                if (bShowErrorMessage)
-                {
-                    MessageBox(
-                        hSubDlg,
-                        (L"Maximum numer of errors must be an integer greater "
-                         L"than zero"),
-                        L"JSLint",
-                        MB_OK | MB_ICONERROR
-                    );
-                    SetFocus(GetDlgItem(hDlg, IDC_MAXERR));
-                }
-                return FALSE;
-            }
-        }
-        SetOption(IDC_MAXERR, strMaxerr);
-    }
-
-    return TRUE;
 }

@@ -21,10 +21,8 @@
 
 #include "resource.h"
 
-#define PROFILE_JSHINT_OPTIONS_GROUP_NAME L"JSHint Options"
-
 JSHintLinterOptions::JSHintLinterOptions(Profile_Handler *profile_handler) :
-    Linter_Options(PROFILE_JSHINT_OPTIONS_GROUP_NAME, profile_handler)
+    Linter_Options(L"JSHint Options", profile_handler)
 {
     m_options[IDC_CHECK_DEBUG] = Option(L"debug");
     m_options[IDC_CHECK_FORIN] = Option(L"forin");

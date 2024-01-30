@@ -23,9 +23,19 @@
 #include "JSLintOptions.h"
 #include "Util.h"
 
+#include "resource.h"
+
+#include "Notepad_plus_msgs.h"
+#include "Scintilla.h"
+
 #include <CommCtrl.h>
+#include <WinBase.h>
+#include <WinUser.h>
+#include <basetsd.h>
+#include <tchar.h>
 
 #include <sstream>
+#include <string>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -432,12 +442,8 @@ void OutputDlg::AddLints(
     LVITEM lvI;
     lvI.mask = LVIF_TEXT | LVIF_STATE;
 
-    for (std::list<JSLintReportItem>::const_iterator it = lints.begin();
-         it != lints.end();
-         ++it)
+    for (auto const & lint : lints)
     {
-        JSLintReportItem const &lint = *it;
-
         HWND hWndListView = m_hWndListViews[lint.GetType()];
 
         lvI.iSubItem = 0;

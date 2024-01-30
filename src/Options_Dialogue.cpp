@@ -23,12 +23,15 @@
 
 #include "resource.h"
 
+#include <WinBase.h>
+#include <WinUser.h>
+#include <basetsd.h>
 #include <windowsx.h>
-#include "tchar.h"
-#include "WinUser.h"
 
 #include <functional>
 #include <map>
+#include <string>
+#include <vector>
 
 using namespace std::placeholders;
 
@@ -169,6 +172,7 @@ std::optional<INT_PTR> Options_Dialogue::on_command(WPARAM wParam) noexcept
         case EN_KILLFOCUS:
         {
             // Why do we do this? Update the command line comment?
+            // Seems little point in this
             sub_dialogues_[current_linter_]->update(false);
             break;
         }

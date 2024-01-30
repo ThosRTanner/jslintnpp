@@ -1,5 +1,3 @@
-#include "Option.h"
-
 // This file is part of JSLint Plugin for Notepad++
 // Copyright (C) 2010 Martin Vladic <martin.vladic@gmail.com>
 //
@@ -16,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+#include "StdHeaders.h"
+
+#include "Option.h"
 
 Option::Option() : type(OPTION_TYPE_UNKNOWN)
 {

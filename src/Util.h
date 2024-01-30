@@ -17,7 +17,6 @@
 
 #pragma once
 
-////////////////////////////////////////////////////////////////////////////////
 #include <string>
 #include <vector>
 
@@ -33,70 +32,15 @@ void FindReplace(
     std::wstring &str, std::wstring const &strOld, std::wstring const &strNew
 );
 
-BOOL CenterWindow(HWND hWnd, HWND hParentWnd, BOOL bRepaint = FALSE);
-
-std::wstring GetWindowText(HWND hWnd);
-
 void DoEvents();
 
 ////////////////////////////////////////////////////////////////////////////////
-
-class Win32Handle
-{
-    Win32Handle(Win32Handle const &rhs);
-    Win32Handle &operator=(Win32Handle const &rhs);
-
-  public:
-    Win32Handle() : m_handle(NULL)
-    {
-    }
-    Win32Handle(HANDLE handle) : m_handle(handle)
-    {
-    }
-
-    ~Win32Handle()
-    {
-        if (m_handle != NULL)
-        {
-            CloseHandle(m_handle);
-        }
-    }
-
-    Win32Handle &operator=(HANDLE handle)
-    {
-        if (m_handle != NULL)
-        {
-            CloseHandle(m_handle);
-        }
-        m_handle = handle;
-        return *this;
-    }
-
-    operator HANDLE()
-    {
-        return m_handle;
-    }
-    HANDLE *operator&()
-    {
-        return &m_handle;
-    }
-
-  private:
-    HANDLE m_handle;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-class IOException : public std::exception
-{
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 
 class Path
 {
   public:
-    //static std::wstring GetPathRoot(std::wstring const &strPath);
     static std::wstring GetDirectoryName(std::wstring const &strPath);
     static std::wstring GetFileName(std::wstring const &strPath);
     static std::wstring GetFileNameWithoutExtension(std::wstring const &strPath
@@ -113,55 +57,6 @@ class Path
     static bool IsRelative(std::wstring const &strPath);
     static bool IsDir(std::wstring const &strPath);
     static bool IsFileExists(std::wstring const &strPath);
-
-    static std::wstring GetTempFileName();
-    static std::wstring GetModuleFileName(HMODULE hModule);
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-class TempFile
-{
-  public:
-    ~TempFile()
-    {
-        // delete temp file
-        if (! m_strFileName.empty())
-        {
-            DeleteFile(m_strFileName.c_str());
-        }
-    }
-
-    // create temp file
-    void Create()
-    {
-        m_strFileName = Path::GetTempFileName();
-        if (m_strFileName.empty())
-        {
-            throw IOException();
-        }
-    }
-
-    // test if temp file is created
-    operator bool() const
-    {
-        return ! m_strFileName.empty();
-    }
-
-    // return temp file name as std std::string
-    std::wstring const &GetFileName() const
-    {
-        return m_strFileName;
-    }
-
-    // return temp file name as Win32 std::string
-    operator LPCTSTR() const
-    {
-        return m_strFileName.c_str();
-    }
-
-  private:
-    std::wstring m_strFileName;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

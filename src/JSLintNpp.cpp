@@ -326,23 +326,6 @@ void JSLintNpp::doJSLint()
     }
 }
 
-template <>
-INT_PTR JSLintNpp::pluginDialogBox(
-    UINT idDlg, DLGPROC lpDlgProc, void const *self
-) const
-{
-    HWND hWndFocus = ::GetFocus();
-    INT_PTR nRet = ::DialogBoxParam(
-        module(),
-        MAKEINTRESOURCE(idDlg),
-        get_notepad_window(),
-        lpDlgProc,
-        reinterpret_cast<LPARAM>(self)
-    );
-    ::SetFocus(hWndFocus);
-    return nRet;
-}
-
 std::wstring JSLintNpp::get_config_dir() const
 {
     TCHAR szConfigDir[MAX_PATH];

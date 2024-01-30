@@ -92,29 +92,10 @@ class JSLintNpp : public Plugin
     void showSettingsDlg();
     void showAboutDlg();
 
-#if 0
-	void on_notification(SCNotification const*) noexcept override;
-
-	LRESULT on_message(UINT, WPARAM, LPARAM) noexcept override;
-#endif
-
     void doJSLint();
 
     void createOutputWindow();
 
-  public:
-    template <class T>
-    INT_PTR pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc, T *self) const
-    {
-        return pluginDialogBox(
-            idDlg, lpDlgProc, static_cast<void const *>(self)
-        );
-    }
-
-    template <>
-    INT_PTR pluginDialogBox(UINT idDlg, DLGPROC lpDlgProc, void const *) const;
-
-  private:
     std::wstring get_config_file_name() const;
 
     std::wstring get_config_dir() const;
