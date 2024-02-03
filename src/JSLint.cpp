@@ -30,6 +30,12 @@
 #include <libplatform/libplatform.h>
 #include <v8.h>
 
+#include <cfloat>
+#include <cstdint>
+#include <exception>
+#include <memory>
+#include <stdio.h>
+
 using namespace v8;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,10 +57,10 @@ std::wstring JSLintReportItem::GetUndefVar(JSLintNpp const *plugin) const
 
         std::wstring errMsg = scriptSource.get_undef_errmsg();
 
-        std::wstring::size_type i = errMsg.find(L"%s");
+        std::wstring::size_type const i = errMsg.find(L"%s");
         if (i != std::wstring::npos)
         {
-            int nAfter = errMsg.size() - (i + 2);
+            auto const nAfter = errMsg.size() - (i + 2);
             if (m_strReason.substr(0, i) == errMsg.substr(0, i)
                 && m_strReason.substr(m_strReason.size() - nAfter)
                     == errMsg.substr(i + 2))
@@ -68,27 +74,10 @@ std::wstring JSLintReportItem::GetUndefVar(JSLintNpp const *plugin) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/*
-void fatalErrorHandler(const char* location, const char* message)
-{
-}
-
-void messageListener(Handle<Message> message, Handle<Value> data)
-{
-    Local<String> msg = message->Get();
-    String::AsciiValue str(msg);
-    const char* sz = *str;
-    const char* a = sz;
-    int line = message->GetLineNumber();
-    int sc = message->GetStartColumn();
-    int ec = message->GetEndColumn();
-}
-*/
-
 class V8_Instance
 {
   public:
-    V8_Instance()
+    V8_Instance() // noexcept
     {
         // FIXME Remove hardcoded path
         V8::InitializeICUDefaultLocation(
@@ -102,10 +91,18 @@ class V8_Instance
 
     ~V8_Instance()
     {
-        V8::Dispose();
-        V8::DisposePlatform();
-        // A note: When you are debugging, notepad++ will crash or hang at this
-        // point (when deleting platform_). It's OK when running normally.
+        try
+        {
+            V8::Dispose();
+            V8::DisposePlatform();
+            // A note: When you are debugging, notepad++ will crash or hang at
+            // this point (when deleting platform_). It's OK when running
+            // normally.
+        }
+        catch (std::exception const& err)
+        {
+            printf("%s\n", err.what());
+        }
     }
 
   private:
@@ -114,7 +111,7 @@ class V8_Instance
 
 std::unique_ptr<V8_Instance> v8_instance;
 
-JSLint::JSLint(JSLintNpp const *plugin) : plugin_(plugin)
+JSLint::JSLint(JSLintNpp const *plugin) noexcept : plugin_(plugin)
 {
 }
 
@@ -133,8 +130,8 @@ void JSLint::CheckScript(
     // divide by zero doesn't throw exception, but in presence of WebEdit it
     // does. So, here we are setting fp control word to the default (no fp
     // exceptions are thrown).
-    unsigned int cw = _controlfp(0, 0);    // Get the default fp control word
-    unsigned int cwOriginal = _controlfp(cw, MCW_EM);
+    unsigned int const cw = _controlfp(0, 0);    // Get the default fp control word
+    unsigned int const cwOriginal = _controlfp(cw, MCW_EM);
 
     if (! v8_instance)
     {
@@ -154,7 +151,7 @@ void JSLint::CheckScript(
         HandleScope handle_scope(isolate);
 
         // Create a new context.
-        Local<Context> context = Context::New(isolate);
+        Local<Context> const context = Context::New(isolate);
 
         // Enter the context for compiling and running the hello world script.
         Context::Scope context_scope(context);
@@ -261,7 +258,7 @@ void JSLint::CheckScript(
             throw JSLintUnexpectedException();
         }
 
-        Handle<Object> data =
+        Handle<Object> const data =
             script->Run(context).ToLocalChecked().As<Object>();
 
         // read errors
@@ -272,7 +269,7 @@ void JSLint::CheckScript(
             .ToLocal(&errors);
         if (! errors.IsEmpty())
         {
-            int32_t length =
+            int32_t const length =
                 errors
                     ->Get(
                         context, String::NewFromUtf8Literal(isolate, "length")
@@ -282,13 +279,13 @@ void JSLint::CheckScript(
                     .ToChecked();
             for (int32_t i = 0; i < length; ++i)
             {
-                Local<Value> eVal = errors->Get(context, Int32::New(isolate, i))
+                Local<Value> const eVal = errors->Get(context, Int32::New(isolate, i))
                                         .ToLocalChecked();
                 if (eVal->IsObject())
                 {
-                    Local<Object> e = eVal->ToObject(context).ToLocalChecked();
+                    Local<Object> const e = eVal->ToObject(context).ToLocalChecked();
 
-                    int line = e->Get(
+                    int const line = e->Get(
                                     context,
                                     String::NewFromUtf8Literal(isolate, "line")
                     )
@@ -350,7 +347,7 @@ void JSLint::CheckScript(
             .ToLocal(&unused);
         if (! unused.IsEmpty())
         {
-            int32_t length =
+            int32_t const length =
                 unused
                     ->Get(
                         context, String::NewFromUtf8Literal(isolate, "length")
@@ -360,14 +357,14 @@ void JSLint::CheckScript(
                     .ToChecked();
             for (int32_t i = 0; i < length; ++i)
             {
-                Handle<Value> eVal =
+                Handle<Value> const eVal =
                     unused->Get(context, Int32::New(isolate, i))
                         .ToLocalChecked();
                 if (eVal->IsObject())
                 {
-                    Handle<Object> e = eVal->ToObject(context).ToLocalChecked();
+                    Handle<Object> const e = eVal->ToObject(context).ToLocalChecked();
 
-                    int line = e->Get(
+                    int const line = e->Get(
                                     context,
                                     String::NewFromUtf8Literal(isolate, "line")
                     )
@@ -420,35 +417,35 @@ std::string JSLint::LoadCustomDataResource(
 )
 {
     HRSRC hRes = FindResource(hModule, lpName, lpType);
-    if (hRes == NULL)
+    if (hRes == nullptr)
     {
         throw JSLintResourceException();
     }
 
-    DWORD dwSize = SizeofResource(hModule, hRes);
+    DWORD const dwSize = SizeofResource(hModule, hRes);
     if (dwSize == 0)
     {
         throw JSLintResourceException();
     }
 
     HGLOBAL hResLoad = LoadResource(hModule, hRes);
-    if (hResLoad == NULL)
+    if (hResLoad == nullptr)
     {
         throw JSLintResourceException();
     }
 
     LPVOID pData = LockResource(hResLoad);
-    if (pData == NULL)
+    if (pData == nullptr)
     {
         throw JSLintResourceException();
     }
 
-    return std::string((char const *)pData, dwSize);
+    return std::string(static_cast<char const *>(pData), dwSize);
 }
 
 int JSLint::GetNumTabs(
     std::string const &strScript, int line, int character, int tabWidth
-)
+) noexcept
 {
     int numTabs = 0;
 

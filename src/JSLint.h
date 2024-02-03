@@ -47,28 +47,33 @@ class JSLintReportItem
     {
     }
 
-    Type GetType() const
+    Type GetType() const noexcept
     {
         return m_type;
     }
-    int GetLine() const
+
+    int GetLine() const noexcept
     {
         return m_line;
     }
-    int GetCharacter() const
+
+    int GetCharacter() const noexcept
     {
         return m_character;
     }
+
     std::wstring GetReason() const
     {
         return m_strReason;
     }
+
     std::wstring GetEvidence() const
     {
         return m_strEvidence;
     }
 
     bool IsReasonUndefVar(JSLintNpp const *plugin) const;
+
     std::wstring GetUndefVar(JSLintNpp const *plugin) const;
 
   private:
@@ -84,7 +89,7 @@ class JSLintReportItem
 class JSLint
 {
   public:
-    JSLint(JSLintNpp const *);
+    JSLint(JSLintNpp const *) noexcept;
 
     void CheckScript(
         std::string const &strOptions, std::string const &strScript,
@@ -97,9 +102,9 @@ class JSLint
         HMODULE hModule, LPCTSTR lpName, LPCTSTR lpType
     );
 
-    int GetNumTabs(
+    static int GetNumTabs(
         std::string const &strScript, int line, int character, int tabWidth
-    );
+    ) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +112,7 @@ class JSLint
 class JSLintException : public std::exception
 {
   public:
-    JSLintException(char const *what) : std::exception(what)
+    JSLintException(char const *what) noexcept : std::exception(what)
     {
     }
 };
@@ -115,7 +120,7 @@ class JSLintException : public std::exception
 class JSLintResourceException : public JSLintException
 {
   public:
-    JSLintResourceException() :
+    JSLintResourceException() noexcept :
         JSLintException("Failed to load JSLINT script from resource!")
     {
     }
@@ -124,7 +129,7 @@ class JSLintResourceException : public JSLintException
 class JSLintUnexpectedException : public JSLintException
 {
   public:
-    JSLintUnexpectedException() :
+    JSLintUnexpectedException() noexcept :
         JSLintException("Unexpected error while running JSLINT script!")
     {
     }

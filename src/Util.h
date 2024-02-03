@@ -32,7 +32,7 @@ void FindReplace(
     std::wstring &str, std::wstring const &strOld, std::wstring const &strNew
 );
 
-void DoEvents();
+void DoEvents() noexcept;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,22 +41,14 @@ void DoEvents();
 class Path
 {
   public:
-    static std::wstring GetDirectoryName(std::wstring const &strPath);
     static std::wstring GetFileName(std::wstring const &strPath);
-    static std::wstring GetFileNameWithoutExtension(std::wstring const &strPath
-    );
-    static std::wstring GetPathNameWithoutExtension(std::wstring const &strPath
-    );
-    static std::wstring GetExtension(std::wstring const &strPath);
 
-    static std::wstring GetFullPath(std::wstring const &strPath);
     static std::wstring GetFullPath(
         std::wstring const &strPath, std::wstring const &strBaseDir
     );
 
-    static bool IsRelative(std::wstring const &strPath);
-    static bool IsDir(std::wstring const &strPath);
-    static bool IsFileExists(std::wstring const &strPath);
+    static bool IsRelative(std::wstring const &strPath) noexcept;
+    static bool FileExists(std::wstring const &strPath) noexcept;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,17 +56,11 @@ class Path
 class TextConversion
 {
   public:
-    static std::string UTF8_To_A(std::string const &str);
-
     static std::wstring UTF8_To_W(std::string const &str);
 
     static std::wstring UTF8_To_T(std::string const &str)
     {
-#if defined(UNICODE) || defined(_UNICODE)
         return UTF8_To_W(str);
-#else
-        return UTF8_To_A(str);
-#endif
     }
 
     static std::string A_To_UTF8(std::string const &str);
@@ -83,11 +69,7 @@ class TextConversion
 
     static std::string T_To_UTF8(std::wstring const &tstr)
     {
-#if defined(UNICODE) || defined(_UNICODE)
         return W_To_UTF8(tstr);
-#else
-        return A_To_UTF8(tstr);
-#endif
     }
 
     static std::wstring A_To_T(std::string const &str);

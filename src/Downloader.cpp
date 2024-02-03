@@ -1,7 +1,7 @@
 #include "StdHeaders.h"
 
 #include "Downloader.h"
-#include "Version_Info.h"
+#include "Version_Info.h" // This IS required
 
 #include "Download_Progress_Bar.h"
 #include "Linter.h"
@@ -10,6 +10,7 @@
 #include <winhttp.h>
 
 #include <stdexcept>
+#include <string>
 
 #pragma comment(lib, "winhttp.lib")
 
@@ -138,7 +139,7 @@ void Downloader::winhttp_callback_handler(
 
         case WINHTTP_CALLBACK_STATUS_DATA_AVAILABLE:
         {
-            auto size = *((LPDWORD)information);
+            auto const size = *static_cast<LPDWORD>(information);
 
             if (size == 0)
             {
@@ -189,6 +190,9 @@ void Downloader::winhttp_callback_handler(
         case WINHTTP_CALLBACK_STATUS_REQUEST_ERROR:
             DownloadFailed();
             break;
+
+        default:
+            break;
     }
 }
 
@@ -215,7 +219,7 @@ bool Downloader::already_have_version()
         return false;
     }
     pos += match_start.length();
-    auto pos2 = code.find(match_end, pos);
+    auto const pos2 = code.find(match_end, pos);
     if (pos2 == std::string::npos)
     {
         // Nope, still don't know.

@@ -171,7 +171,7 @@ void JSLintNpp::jsLintAllFiles()
 
     int numJSFiles = 0;
 
-    auto numOpenFiles = send_to_notepad(NPPM_GETNBOPENFILES, 0, PRIMARY_VIEW);
+    auto const numOpenFiles = send_to_notepad(NPPM_GETNBOPENFILES, 0, PRIMARY_VIEW);
     if (numOpenFiles > 0)
     {
         createOutputWindow();
@@ -276,7 +276,7 @@ void JSLintNpp::doJSLint()
 {
     // get current file path and document index
     TCHAR filePath[MAX_PATH];
-    send_to_notepad(NPPM_GETFULLCURRENTPATH, 0, filePath);
+    send_to_notepad(NPPM_GETFULLCURRENTPATH, 0, &filePath[0]);
 
     // get all the text from the scintilla window
     Sci_TextRange tr;
@@ -284,7 +284,7 @@ void JSLintNpp::doJSLint()
     tr.chrg.cpMin = 0;
     tr.chrg.cpMax = -1;
 
-    int length = (int)send_to_editor(SCI_GETLENGTH);
+    auto const length = send_to_editor(SCI_GETLENGTH);
     tr.lpstrText = new char[length + 1];
     tr.lpstrText[0] = 0;
 
@@ -293,7 +293,7 @@ void JSLintNpp::doJSLint()
     delete tr.lpstrText;
 
     // get code page of the text
-    auto nSciCodePage = send_to_editor(SCI_GETCODEPAGE);
+    auto const nSciCodePage = send_to_editor(SCI_GETCODEPAGE);
     if (nSciCodePage != SC_CP_UTF8)
     {
         strScript = TextConversion::A_To_UTF8(strScript);    // convert to UTF-8
@@ -307,8 +307,8 @@ void JSLintNpp::doJSLint()
             TextConversion::T_To_UTF8(options_->GetOptionsJSONString());
         std::list<JSLintReportItem> lints;
 
-        int nppTabWidth = (int)send_to_editor(SCI_GETTABWIDTH);
-        int jsLintTabWidth = options_->GetTabWidth();
+        auto const nppTabWidth = send_to_editor(SCI_GETTABWIDTH);
+        auto const jsLintTabWidth = options_->GetTabWidth();
 
         jsLint.CheckScript(
             strOptions, strScript, nppTabWidth, jsLintTabWidth, lints
@@ -318,7 +318,7 @@ void JSLintNpp::doJSLint()
 
         DoEvents();
     }
-    catch (std::exception &e)
+    catch (std::exception const &e)
     {
         message_box(
             TextConversion::A_To_T(e.what()).c_str(), MB_OK | MB_ICONERROR
@@ -330,9 +330,12 @@ std::wstring JSLintNpp::get_config_dir() const
 {
     TCHAR szConfigDir[MAX_PATH];
     szConfigDir[0] = 0;
-    send_to_notepad(NPPM_GETPLUGINSCONFIGDIR, sizeof(szConfigDir), szConfigDir);
+    send_to_notepad(
+        NPPM_GETPLUGINSCONFIGDIR, sizeof(szConfigDir), &szConfigDir[0]
+    );
     return szConfigDir;
 }
+
 
 std::wstring JSLintNpp::get_config_file_name() const
 {

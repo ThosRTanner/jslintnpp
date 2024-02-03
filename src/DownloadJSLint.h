@@ -38,7 +38,7 @@ class DownloadJSLint
     };
     DownloadResult DownloadLatest(Linter linter, std::wstring &latestVersion);
 
-    Linter_Versions const &GetVersions(Linter linter) const;
+    Linter_Versions const &GetVersions(Linter linter) const noexcept;
 
     bool HasVersion(Linter linter, std::wstring const &version) const;
 
@@ -52,7 +52,7 @@ class DownloadJSLint
     Linter_Versions m_jsLintVersions;
     Linter_Versions m_jsHintVersions;
 
-    Linter_Versions &GetVersions(Linter linter)
+    Linter_Versions &GetVersions(Linter linter) noexcept
     {
         return const_cast<Linter_Versions &>(
             static_cast<DownloadJSLint const *>(this)->GetVersions(linter)

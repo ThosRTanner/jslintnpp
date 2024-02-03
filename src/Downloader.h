@@ -21,11 +21,12 @@
 #include "Linter_Versions.h"
 #include "Url_Components.h"
 
-#include <stdint.h>
+//#include <stdint.h>
 
-#include <memory>
+//#include <memory>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 // Forward includes from windows headers
 typedef struct _WINHTTP_URL_COMPONENTS URL_COMPONENTS;
@@ -48,7 +49,7 @@ class Downloader
 
     ~Downloader();
 
-    std::vector<uint8_t> const &data() const
+    std::vector<uint8_t> const &data() const noexcept
     {
         return out_buffer_;
     }

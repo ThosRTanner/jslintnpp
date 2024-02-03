@@ -85,8 +85,8 @@ class OutputDlg : public Docking_Dialogue_Interface
         UINT message, WPARAM wParam, LPARAM lParam
     ) override;
 
-    void InitializeTab();
-    void InitializeListView(int i);
+    void InitializeTab() noexcept;
+    void InitializeListView(int i) noexcept;
     void Resize();
     void OnTabSelChanged();
     void GetNameStrFromCmd(UINT resID, LPTSTR tip, UINT count);

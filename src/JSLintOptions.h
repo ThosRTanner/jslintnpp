@@ -40,23 +40,23 @@ class JSLintOptions
 
     void SaveOptions();
 
-    Linter GetSelectedLinter() const;
+    Linter GetSelectedLinter() const noexcept;
 
-    void SetSelectedLinter(Linter selectedLinter);
-
-    Linter_Options const* GetSelectedLinterOptions() const
+    void SetSelectedLinter(Linter selectedLinter) noexcept;
+ 
+    Linter_Options const* GetSelectedLinterOptions() const noexcept
     {
         return GetLinterOptions(m_selectedLinter);
     }
 
-    Linter_Options* GetSelectedLinterOptions()
+    Linter_Options* GetSelectedLinterOptions() noexcept
     {
         return GetLinterOptions(m_selectedLinter);
     }
 
-    Linter_Options const *GetLinterOptions(Linter) const;
+    Linter_Options const *GetLinterOptions(Linter) const noexcept;
 
-    Linter_Options* GetLinterOptions(Linter linter)
+    Linter_Options* GetLinterOptions(Linter linter) noexcept
     {
         return const_cast<Linter_Options *>(
             static_cast<JSLintOptions const *>(this)->GetLinterOptions(linter)

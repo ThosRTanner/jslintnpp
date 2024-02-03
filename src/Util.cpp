@@ -20,14 +20,13 @@
 #include "Util.h"
 
 #include <Shlwapi.h>
-#include <tchar.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::wstring TrimSpaces(std::wstring const &str)
 {
-    size_t first = str.find_first_not_of(L" \t\r\n");
-    size_t last = str.find_last_not_of(L" \t\r\n");
+    size_t const first = str.find_first_not_of(L" \t\r\n");
+    size_t const last = str.find_last_not_of(L" \t\r\n");
 
     if (first == std::string::npos || last == std::string::npos)
     {
@@ -86,12 +85,12 @@ void FindReplace(
     }
 }
 
-void DoEvents()
+void DoEvents() noexcept
 {
     MSG msg;
-    while (::PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
+    while (::PeekMessage(&msg, nullptr, 0, 0, PM_NOREMOVE))
     {
-        if (::GetMessage(&msg, NULL, 0, 0))
+        if (::GetMessage(&msg, nullptr, 0, 0))
         {
             ::TranslateMessage(&msg);
             ::DispatchMessage(&msg);
@@ -105,59 +104,9 @@ void DoEvents()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::wstring Path::GetDirectoryName(std::wstring const &strPath)
-{
-    TCHAR szPathCopy[MAX_PATH];
-    _tcsncpy_s(szPathCopy, _countof(szPathCopy), strPath.c_str(), _TRUNCATE);
-
-    ::PathRemoveFileSpec(szPathCopy);
-
-    return szPathCopy;
-}
-
 std::wstring Path::GetFileName(std::wstring const &strPath)
 {
     return ::PathFindFileName(strPath.c_str());
-}
-
-std::wstring Path::GetFileNameWithoutExtension(std::wstring const &strPath)
-{
-    TCHAR szPathCopy[MAX_PATH];
-    _tcsncpy_s(
-        szPathCopy,
-        _countof(szPathCopy),
-        GetFileName(strPath).c_str(),
-        _TRUNCATE
-    );
-
-    ::PathRemoveExtension(szPathCopy);
-
-    return szPathCopy;
-}
-
-std::wstring Path::GetPathNameWithoutExtension(std::wstring const &strPath)
-{
-    TCHAR szPathCopy[MAX_PATH];
-    _tcsncpy_s(szPathCopy, _countof(szPathCopy), strPath.c_str(), _TRUNCATE);
-
-    ::PathRemoveExtension(szPathCopy);
-
-    return szPathCopy;
-}
-
-std::wstring Path::GetExtension(std::wstring const &strPath)
-{
-    return ::PathFindExtension(strPath.c_str());
-}
-
-std::wstring Path::GetFullPath(std::wstring const &strPath)
-{
-    TCHAR strCurrentDirectory[MAX_PATH];
-    if (GetCurrentDirectory(MAX_PATH, strCurrentDirectory) == 0)
-    {
-        return L"";
-    }
-    return GetFullPath(strPath, strCurrentDirectory);
 }
 
 std::wstring Path::GetFullPath(
@@ -169,42 +118,22 @@ std::wstring Path::GetFullPath(
         return strPath;
     }
     TCHAR strFullPath[MAX_PATH];
-    return ::PathCombine(strFullPath, strBaseDir.c_str(), strPath.c_str());
+    return ::PathCombine(&strFullPath[0], strBaseDir.c_str(), strPath.c_str());
 }
 
-bool Path::IsRelative(std::wstring const &strPath)
+bool Path::IsRelative(std::wstring const &strPath) noexcept
 {
     return ::PathIsRelative(strPath.c_str()) ? true : false;
 }
 
-bool Path::IsDir(std::wstring const &strPath)
-{
-    return ::PathIsDirectory(strPath.c_str()) ? true : false;
-}
-
-bool Path::IsFileExists(std::wstring const &strPath)
+bool Path::FileExists(std::wstring const &strPath) noexcept
 {
     return ::PathFileExists(strPath.c_str()) ? true : false;
 }
 
-std::string TextConversion::UTF8_To_A(std::string const &str)
-{
-    int wsize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
-    wchar_t *wbuffer = new wchar_t[wsize];
-    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wbuffer, wsize);
-    int size =
-        WideCharToMultiByte(CP_ACP, 0, wbuffer, wsize, NULL, 0, NULL, NULL);
-    char *buffer = new char[size];
-    WideCharToMultiByte(CP_ACP, 0, wbuffer, wsize, buffer, size, NULL, NULL);
-    delete[] wbuffer;
-    std::string result(buffer);
-    delete[] buffer;
-    return result;
-}
-
 std::wstring TextConversion::UTF8_To_W(std::string const &str)
 {
-    int wsize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+    int const wsize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
     wchar_t *wbuffer = new wchar_t[wsize];
     MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wbuffer, wsize);
     std::wstring result(wbuffer);
@@ -214,13 +143,13 @@ std::wstring TextConversion::UTF8_To_W(std::string const &str)
 
 std::string TextConversion::A_To_UTF8(std::string const &str)
 {
-    int wsize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
+    int const wsize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, nullptr, 0);
     wchar_t *wbuffer = new wchar_t[wsize];
     MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, wbuffer, wsize);
-    int size =
-        WideCharToMultiByte(CP_UTF8, 0, wbuffer, wsize, NULL, 0, NULL, NULL);
+    int const size =
+        WideCharToMultiByte(CP_UTF8, 0, wbuffer, wsize, nullptr, 0, nullptr, nullptr);
     char *buffer = new char[size];
-    WideCharToMultiByte(CP_UTF8, 0, wbuffer, wsize, buffer, size, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, wbuffer, wsize, buffer, size, nullptr, nullptr);
     delete[] wbuffer;
     std::string result(buffer);
     delete[] buffer;
@@ -229,10 +158,10 @@ std::string TextConversion::A_To_UTF8(std::string const &str)
 
 std::string TextConversion::W_To_UTF8(std::wstring const &wstr)
 {
-    int size =
-        WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
+    int const size =
+        WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
     char *buffer = new char[size];
-    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buffer, size, NULL, NULL);
+    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buffer, size, nullptr, nullptr);
     std::string result(buffer);
     delete[] buffer;
     return result;
@@ -240,14 +169,10 @@ std::string TextConversion::W_To_UTF8(std::wstring const &wstr)
 
 std::wstring TextConversion::A_To_T(std::string const &str)
 {
-#if defined(UNICODE) || defined(_UNICODE)
-    int wsize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
+    int const wsize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, nullptr, 0);
     wchar_t *wbuffer = new wchar_t[wsize];
     MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, wbuffer, wsize);
     std::wstring result(wbuffer);
     delete[] wbuffer;
     return result;
-#else
-    return str;
-#endif
 }

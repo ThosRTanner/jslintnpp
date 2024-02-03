@@ -16,7 +16,7 @@ constexpr auto Buff_Size = 65536UL;
 
 Profile_Handler::Profile_Handler(std::wstring const &file) : profile_file_(file)
 {
-    if (! Path::IsFileExists(profile_file_))
+    if (! Path::FileExists(profile_file_))
     {
         return;
     }
@@ -28,7 +28,7 @@ Profile_Handler::Profile_Handler(std::wstring const &file) : profile_file_(file)
 
     // First we get all the section names
 
-    std::list<std::wstring> sections{get_section_list(NULL, buff.get())};
+    std::list<std::wstring> sections{get_section_list(nullptr, buff.get())};
 
     // Now we iterate through the sections reading the keys
     std::map<std::wstring, std::list<std::wstring>> keys_by_section;

@@ -39,16 +39,16 @@ class Download_Progress_Bar : public Modal_Dialogue_Interface
     ~Download_Progress_Bar();
 
     /** Show progress (sort of) */
-    void update(std::size_t transferred);
+    void update(std::size_t transferred) const noexcept;
 
     /** Flag operation is completed.
      *
      * Result will be returned via get_result
      */
-    void completed(int result);
+    void completed(int result) noexcept;
 
     /** Get the downloaded data */
-    std::vector<uint8_t> const &data() const;
+    std::vector<uint8_t> const &data() const noexcept;
 
     /** Get the version number of the downloaded code */
     std::wstring version() const;

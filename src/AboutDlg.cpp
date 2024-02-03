@@ -26,7 +26,10 @@
 #include "resource.h"
 
 #include <CommCtrl.h>
+#include <WinUser.h>
+#include <basetsd.h>
 #include <shellapi.h>
+#include <tchar.h>
 
 AboutDlg::AboutDlg(Plugin const *plugin) : Modal_Dialogue_Interface(plugin)
 {
@@ -47,33 +50,36 @@ std::optional<LONG_PTR> AboutDlg::on_dialogue_message(
 
             TCHAR szVersionFormat[50];
             ::GetWindowText(
-                hWndVersionStatic, szVersionFormat, _countof(szVersionFormat)
+                hWndVersionStatic, &szVersionFormat[0], _countof(szVersionFormat)
             );
 
             TCHAR szVersion[100];
             _stprintf(
-                szVersion, szVersionFormat, L"Unicode", MY_PRODUCT_VERSION
+                &szVersion[0], szVersionFormat, L"Unicode", MY_PRODUCT_VERSION
             );
 
-            ::SetWindowText(hWndVersionStatic, szVersion);
+            ::SetWindowText(hWndVersionStatic, &szVersion[0]);
 
             centre_dialogue();
         }
         break;
 
         case WM_NOTIFY:
-            switch (((LPNMHDR)lParam)->code)
+            switch (reinterpret_cast<LPNMHDR>(lParam)->code)
             {
                 case NM_CLICK:
                 case NM_RETURN:
                 {
-                    PNMLINK pNMLink = (PNMLINK)lParam;
-                    LITEM item = pNMLink->item;
+                    auto const pNMLink = reinterpret_cast<NMLINK const *>(lParam);
+                    LITEM const item = pNMLink->item;
                     ShellExecute(
-                        NULL, L"open", item.szUrl, NULL, NULL, SW_SHOW
+                        nullptr, L"open", &item.szUrl[0], nullptr, nullptr, SW_SHOW
                     );
                     break;
                 }
+
+                default:
+                    break;
             }
             break;
 

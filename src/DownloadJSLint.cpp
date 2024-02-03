@@ -25,6 +25,8 @@
 #include "Util.h"
 #include "Version_Info.h"
 
+#include <tchar.h>
+
 #include <stdio.h>
 
 DownloadJSLint::DownloadJSLint(JSLintNpp const *plugin) :
@@ -32,9 +34,9 @@ DownloadJSLint::DownloadJSLint(JSLintNpp const *plugin) :
     config_dir_(plugin_->config_dir()),
     m_versionsFolder(Path::GetFullPath(L"JSLint", config_dir_))
 {
-    if (! Path::IsFileExists(m_versionsFolder))
+    if (! Path::FileExists(m_versionsFolder))
     {
-        CreateDirectory(m_versionsFolder.c_str(), NULL);
+        CreateDirectory(m_versionsFolder.c_str(), nullptr);
     }
 
     LoadVersions(L"jslint.*.js", m_jsLintVersions);
@@ -66,7 +68,7 @@ void DownloadJSLint::LoadVersions(
     }
 }
 
-Linter_Versions const &DownloadJSLint::GetVersions(Linter linter) const
+Linter_Versions const &DownloadJSLint::GetVersions(Linter linter) const noexcept
 {
     return linter == Linter::LINTER_JSLINT ? m_jsLintVersions
                                            : m_jsHintVersions;
@@ -101,7 +103,7 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
 
             TCHAR szTime[1024];
             _stprintf(
-                szTime,
+                &szTime[0],
                 L"%.4d-%.2d-%.2d %.2d-%.2d-%.2d",
                 time.wYear,
                 time.wMonth,
@@ -124,7 +126,7 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
 
         size_t written = 0;
         FILE *fp = _tfopen(fileName.c_str(), L"wb+");
-        if (fp != NULL)
+        if (fp != nullptr)
         {
             written = fwrite(&data[0], 1, data.size(), fp);
             fclose(fp);

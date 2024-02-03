@@ -103,7 +103,7 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
             else if (LOWORD(wParam) == ID_SHOW_LINT)
             {
                 int iTab = TabCtrl_GetCurSel(m_hWndTab);
-                int iLint = ListView_GetNextItem(
+                int const iLint = ListView_GetNextItem(
                     m_hWndListViews[iTab], -1, LVIS_FOCUSED | LVIS_SELECTED
                 );
                 if (iLint != -1)
@@ -115,7 +115,7 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
             else if (LOWORD(wParam) == ID_ADD_PREDEFINED)
             {
                 int iTab = TabCtrl_GetCurSel(m_hWndTab);
-                int iLint = ListView_GetNextItem(
+                int const iLint = ListView_GetNextItem(
                     m_hWndListViews[iTab], -1, LVIS_FOCUSED | LVIS_SELECTED
                 );
                 if (iLint != -1)
@@ -144,12 +144,12 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
 
         case WM_NOTIFY:
         {
-            LPNMHDR pNMHDR = (LPNMHDR)lParam;
+            LPNMHDR pNMHDR = reinterpret_cast<LPNMHDR>(lParam);
             if (pNMHDR->idFrom
                     == m_tabs[TabCtrl_GetCurSel(m_hWndTab)].m_listViewID
                 && pNMHDR->code == LVN_KEYDOWN)
             {
-                LPNMLVKEYDOWN pnkd = (LPNMLVKEYDOWN)lParam;
+                auto pnkd = reinterpret_cast<NMLVKEYDOWN const *>(lParam);
                 if (pnkd->wVKey == 'A' && (::GetKeyState(VK_CONTROL) >> 15 & 1))
                 {
                     ListView_SetItemState(
@@ -166,8 +166,8 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
             }
             else if (pNMHDR->idFrom == m_tabs[TabCtrl_GetCurSel(m_hWndTab)].m_listViewID && pNMHDR->code == NM_DBLCLK)
             {
-                LPNMITEMACTIVATE lpnmitem = (LPNMITEMACTIVATE)lParam;
-                int iFocused = lpnmitem->iItem;
+                auto lpnmitem = reinterpret_cast<NMITEMACTIVATE const *>(lParam);
+                int const iFocused = lpnmitem->iItem;
                 if (iFocused != -1)
                 {
                     ShowLint(iFocused);
@@ -175,18 +175,16 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
             }
             else if (pNMHDR->code == TTN_GETDISPINFO)
             {
-                LPTOOLTIPTEXT lpttt;
-
-                lpttt = (LPTOOLTIPTEXT)pNMHDR;
+                LPTOOLTIPTEXT lpttt = reinterpret_cast<LPTOOLTIPTEXT>(pNMHDR);
                 lpttt->hinst = plugin_->module();
 
                 // Specify the resource identifier of the descriptive
                 // text for the given button.
-                int resId = int(lpttt->hdr.idFrom);
+                auto const resId = lpttt->hdr.idFrom;
 
                 TCHAR tip[MAX_PATH];
-                GetNameStrFromCmd(resId, tip, sizeof(tip));
-                lpttt->lpszText = tip;
+                GetNameStrFromCmd(resId, &tip[0], sizeof(tip));
+                lpttt->lpszText = &tip[0];
                 return TRUE;
             }
             else if (pNMHDR->idFrom == IDC_TAB && pNMHDR->code == TCN_SELCHANGE)
@@ -203,7 +201,7 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
             // build context menu
             HMENU menu = ::CreatePopupMenu();
 
-            int numSelected = ListView_GetSelectedCount(
+            int const numSelected = ListView_GetSelectedCount(
                 m_hWndListViews[TabCtrl_GetCurSel(m_hWndTab)]
             );
 
@@ -241,7 +239,7 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
 
             if (GetMenuItemCount(menu) > 0)
             {
-                AppendMenu(menu, MF_SEPARATOR, 0, NULL);
+                AppendMenu(menu, MF_SEPARATOR, 0, nullptr);
             }
 
             if (numSelected > 0)
@@ -265,7 +263,7 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
             }
 
             // show context menu
-            TrackPopupMenu(menu, 0, point.x, point.y, 0, window(), NULL);
+            TrackPopupMenu(menu, 0, point.x, point.y, 0, window(), nullptr);
         }
         break;
 
@@ -277,7 +275,7 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
 
         case WM_PAINT:
             // FIXME Should we just drop through?
-            /*::RedrawWindow(m_toolbar.getHSelf(), NULL, NULL, TRUE);*/
+            /*::RedrawWindow(m_toolbar.getHSelf(), nullptr, nullptr, TRUE);*/
             break;
 
         default:
@@ -287,7 +285,7 @@ std::optional<LONG_PTR> OutputDlg::on_dialogue_message(
     return std::nullopt;
 }
 
-void OutputDlg::InitializeTab()
+void OutputDlg::InitializeTab() noexcept
 {
     m_hWndTab = GetDlgItem(IDC_TAB);
 
@@ -298,12 +296,12 @@ void OutputDlg::InitializeTab()
 
     for (int i = 0; i < NUM_LIST_VIEWS; ++i)
     {
-        tie.pszText = (LPTSTR)m_tabs[i].m_strTabName;
+        tie.pszText = const_cast<LPTSTR>(m_tabs[i].m_strTabName);
         TabCtrl_InsertItem(m_hWndTab, i, &tie);
     }
 }
 
-void OutputDlg::InitializeListView(int i)
+void OutputDlg::InitializeListView(int i) noexcept
 {
     m_hWndListViews[i] = GetDlgItem(m_tabs[i].m_listViewID);
 
@@ -399,14 +397,14 @@ HICON OutputDlg::GetTabIcon()
 {
     // Possibly one should free this up, but I don't see the dialogue memory
     // being freed up anywhere.
-    return (HICON)::LoadImage(
+    return static_cast<HICON>(::LoadImage(
         plugin_->module(),
         MAKEINTRESOURCE(IDI_JSLINT_TAB),
         IMAGE_ICON,
         0,
         0,
         LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT
-    );
+    ));
 }
 
 void OutputDlg::GetNameStrFromCmd(UINT resID, LPTSTR tip, UINT count)
@@ -455,7 +453,7 @@ void OutputDlg::AddLints(
         stream << lvI.iItem + 1;
         std::wstring strNum = stream.str();
 
-        lvI.pszText = (LPTSTR)strNum.c_str();
+        lvI.pszText = const_cast<LPTSTR>(strNum.c_str());
 
         ListView_InsertItem(hWndListView, &lvI);
 
@@ -518,7 +516,7 @@ void OutputDlg::AddLints(
         }
         TCITEM tie;
         tie.mask = TCIF_TEXT;
-        tie.pszText = (LPTSTR)strTabName.c_str();
+        tie.pszText = const_cast<LPTSTR>(strTabName.c_str());
         TabCtrl_SetItem(m_hWndTab, i, &tie);
     }
 
@@ -604,8 +602,8 @@ void OutputDlg::ShowLint(int i)
         );
         if (lRes)
         {
-            HWND hWndScintilla = plugin_->get_scintilla_window();
-            if (hWndScintilla != NULL)
+            HWND const hWndScintilla = plugin_->get_scintilla_window();
+            if (hWndScintilla != nullptr)
             {
                 plugin_->send_to_editor(SCI_GOTOLINE, line);
                 // since there is no SCI_GOTOCOLUMN, we move to the right until
@@ -692,17 +690,12 @@ void OutputDlg::CopyToClipboard()
         {
             size_t size = (str.size() + 1) * sizeof(TCHAR);
             HGLOBAL hResult = GlobalAlloc(GMEM_MOVEABLE, size);
-            LPTSTR lpsz = (LPTSTR)GlobalLock(hResult);
+            LPTSTR lpsz = static_cast<LPTSTR>(GlobalLock(hResult));
             memcpy(lpsz, str.c_str(), size);
             GlobalUnlock(hResult);
 
-#ifndef _UNICODE
-            if (SetClipboardData(CF_TEXT, hResult) == NULL)
+            if (SetClipboardData(CF_UNICODETEXT, hResult) == nullptr)
             {
-#else
-            if (SetClipboardData(CF_UNICODETEXT, hResult) == NULL)
-            {
-#endif
                 GlobalFree(hResult);
                 message_box(
                     L"Unable to set Clipboard data", MB_OK | MB_ICONERROR

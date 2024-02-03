@@ -44,9 +44,9 @@ class Options_Dialogue : public Modal_Dialogue_Interface
   private:
     std::optional<INT_PTR> on_dialogue_message(
         UINT message, WPARAM wParam, LPARAM lParam
-    ) noexcept override;
+    ) override;
 
-    std::optional<INT_PTR> on_command(WPARAM wParam) noexcept;
+    std::optional<INT_PTR> on_command(WPARAM wParam);
 
     std::optional<LRESULT> Item_Callback_Function(
         HWND, UINT, WPARAM, LPARAM

@@ -81,17 +81,17 @@ void JSLintOptions::SaveOptions()
     m_jsHintOptions.SaveOptions();
 }
 
-Linter JSLintOptions::GetSelectedLinter() const
+Linter JSLintOptions::GetSelectedLinter() const noexcept
 {
     return m_selectedLinter;
 }
 
-void JSLintOptions::SetSelectedLinter(Linter selectedLinter)
+void JSLintOptions::SetSelectedLinter(Linter selectedLinter) noexcept
 {
     m_selectedLinter = selectedLinter;
 }
 
-Linter_Options const *JSLintOptions::GetLinterOptions(Linter linter) const
+Linter_Options const *JSLintOptions::GetLinterOptions(Linter linter) const noexcept
 {
     if (linter == Linter::LINTER_JSLINT)
     {

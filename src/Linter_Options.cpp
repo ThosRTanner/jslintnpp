@@ -44,6 +44,10 @@ Linter_Options::Linter_Options(
         Option(OPTION_TYPE_ARR_STRING, L"jslintnpp_additional_options", L"");
 }
 
+Linter_Options::~Linter_Options()
+{
+}
+
 void Linter_Options::ReadOptions()
 {
     if (profile_handler_ == nullptr)

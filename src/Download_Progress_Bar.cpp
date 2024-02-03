@@ -7,8 +7,12 @@
 
 #include "resource.h"
 
-#include <tchar.h>
 #include <WinUser.h>
+#include <tchar.h>
+
+#include <cstdint>
+#include <exception>
+#include <string>
 
 #define JSLINT_GITHUB_URL \
     L"https://raw.github.com/jslint-org/jslint/master/jslint.mjs"
@@ -30,19 +34,19 @@ Download_Progress_Bar::Download_Progress_Bar(
 
 Download_Progress_Bar::~Download_Progress_Bar() = default;
 
-void Download_Progress_Bar::update(std::size_t transferred)
+void Download_Progress_Bar::update(std::size_t transferred) const noexcept
 {
     TCHAR szStatus[1024];
-    _stprintf(szStatus, L"Received %lld bytes", transferred);
-    SetWindowText(GetDlgItem(IDC_PROGRESS), szStatus);
+    _stprintf(&szStatus[0], L"Received %llu bytes", transferred);
+    SetWindowText(GetDlgItem(IDC_PROGRESS), &szStatus[0]);
 }
 
-void Download_Progress_Bar::completed(int result)
+void Download_Progress_Bar::completed(int result) noexcept
 {
     PostMessage(window(), WM_DOWNLOAD_FINISHED, result, 0);
 }
 
-std::vector<uint8_t> const &Download_Progress_Bar::data() const
+std::vector<uint8_t> const &Download_Progress_Bar::data() const noexcept
 {
     return downloader_->data();
 }
@@ -61,15 +65,15 @@ std::optional<LONG_PTR> Download_Progress_Bar::on_dialogue_message(
         case WM_INITDIALOG:
         {
             TCHAR szTitleFormat[100];
-            GetWindowText(window(), szTitleFormat, _countof(szTitleFormat));
+            GetWindowText(window(), &szTitleFormat[0], _countof(szTitleFormat));
 
             TCHAR szTitle[100];
             _stprintf(
-                szTitle,
+                &szTitle[0],
                 szTitleFormat,
                 linter_ == Linter::LINTER_JSLINT ? L"JSLint" : L"JSHint"
             );
-            SetWindowText(window(), szTitle);
+            SetWindowText(window(), &szTitle[0]);
 
             wchar_t const *const url = linter_ == Linter::LINTER_JSLINT
                 ? JSLINT_GITHUB_URL

@@ -21,6 +21,8 @@
 
 #include "resource.h"
 
+#include <string>
+
 JSHintLinterOptions::JSHintLinterOptions(Profile_Handler *profile_handler) :
     Linter_Options(L"JSHint Options", profile_handler)
 {

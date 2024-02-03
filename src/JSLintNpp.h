@@ -57,22 +57,22 @@ class JSLintNpp : public Plugin
         FUNC_INDEX_ABOUT
     };
 
-    auto const &config_dir() const
+    auto const &config_dir() const noexcept
     {
         return config_dir_;
     }
 
-    DownloadJSLint const *downloader() const
+    DownloadJSLint const *downloader() const noexcept
     {
         return downloader_.get();
     }
 
-    JSLintOptions const *options() const
+    JSLintOptions const *options() const noexcept
     {
         return options_.get();
     }
 
-    Settings const *settings() const
+    Settings const *settings() const noexcept
     {
         return settings_.get();
     }

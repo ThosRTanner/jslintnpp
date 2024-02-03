@@ -30,6 +30,8 @@ class Linter_Options
   public:
     Linter_Options(LPCTSTR optionsGroupName, Profile_Handler *profile_handler);
 
+    virtual ~Linter_Options();
+
     void ReadOptions();
     void SaveOptions();
 

@@ -49,7 +49,7 @@ Options_Dialogue::~Options_Dialogue()
 
 std::optional<INT_PTR> Options_Dialogue::on_dialogue_message(
     UINT message, WPARAM wParam, LPARAM lParam
-) noexcept
+)
 {
     switch (message)
     {
@@ -99,11 +99,14 @@ std::optional<INT_PTR> Options_Dialogue::on_dialogue_message(
 
         case WM_COMMAND:
             return on_command(wParam);
+
+        default:
+            break;
     }
     return std::nullopt;
 }
 
-std::optional<INT_PTR> Options_Dialogue::on_command(WPARAM wParam) noexcept
+std::optional<INT_PTR> Options_Dialogue::on_command(WPARAM wParam)
 {
     switch (HIWORD(wParam))
     {
@@ -191,13 +194,13 @@ std::optional<INT_PTR> Options_Dialogue::Item_Callback_Function(
     {
         if (IsClipboardFormatAvailable(CF_TEXT))
         {
-            if (OpenClipboard(NULL))
+            if (OpenClipboard(nullptr))
             {
                 HGLOBAL hGlobal = GetClipboardData(CF_TEXT);
                 if (hGlobal)
                 {
-                    LPSTR lpData = (LPSTR)GlobalLock(hGlobal);
-                    if (lpData != NULL)
+                    auto const lpData = static_cast<CHAR const *>(GlobalLock(hGlobal));
+                    if (lpData != nullptr)
                     {
                         std::wstring str(TextConversion::A_To_T(lpData));
 
@@ -206,7 +209,7 @@ std::optional<INT_PTR> Options_Dialogue::Item_Callback_Function(
                         str = StringJoin(results, L", ");
 
                         SendMessage(
-                            handle, EM_REPLACESEL, TRUE, (LPARAM)str.c_str()
+                            handle, EM_REPLACESEL, TRUE, reinterpret_cast<LPARAM>(str.c_str())
                         );
                     }
                     GlobalUnlock(hGlobal);
