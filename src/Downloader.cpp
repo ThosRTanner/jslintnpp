@@ -200,7 +200,7 @@ bool Downloader::already_have_version()
 {
     if (not version_.empty())
     {
-        // If we know the version and haven't baled out already, we need to
+        // If we know the version and haven't bailed out already, we need to
         // carry on downloading.
         return false;
     }
@@ -225,6 +225,7 @@ bool Downloader::already_have_version()
         // Nope, still don't know.
         return false;
     }
-    version_ = TextConversion::A_To_T(code.substr(pos, pos2 - pos));
+    std::string version = code.substr(pos, pos2 - pos);
+    version_ = std::wstring(version.begin(), version.end());
     return versions_.contains(version_);
 }

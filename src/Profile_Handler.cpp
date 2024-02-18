@@ -135,7 +135,7 @@ std::list<std::wstring> Profile_Handler::get_section_list(
 ) const
 {
     std::list<std::wstring> list;
-    auto res = GetPrivateProfileString(
+    auto const res = GetPrivateProfileString(
         section, nullptr, nullptr, pointer, Buff_Size, profile_file_.c_str()
     );
     if (res >= Buff_Size - 1)
@@ -145,9 +145,9 @@ std::list<std::wstring> Profile_Handler::get_section_list(
 
     while (*pointer != 0)
     {
-        std::wstring const section{pointer};
-        list.push_back(section);
-        pointer += section.size() + 1;
+        std::wstring const key{pointer};
+        list.push_back(key);
+        pointer += key.size() + 1;
     }
     return list;
 }

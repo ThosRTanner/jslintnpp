@@ -19,6 +19,7 @@
 
 #include "OutputDlg.h"
 
+#include "JSLint.h"
 #include "JSLintNpp.h"
 #include "JSLintOptions.h"
 #include "Util.h"
@@ -362,7 +363,7 @@ void OutputDlg::InitializeListView(int i) noexcept
 
 void OutputDlg::Resize()
 {
-    RECT rc = getClientRect();
+    RECT const rc = getClientRect();
 
     ::MoveWindow(
         m_hWndTab, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE
@@ -386,7 +387,7 @@ void OutputDlg::Resize()
 
 void OutputDlg::OnTabSelChanged()
 {
-    int iSel = TabCtrl_GetCurSel(m_hWndTab);
+    int const iSel = TabCtrl_GetCurSel(m_hWndTab);
     for (int i = 0; i < NUM_LIST_VIEWS; ++i)
     {
         ShowWindow(m_hWndListViews[i], iSel == i ? SW_SHOW : SW_HIDE);
@@ -503,7 +504,7 @@ void OutputDlg::AddLints(
     for (int i = 0; i < NUM_LIST_VIEWS; ++i)
     {
         std::wstring strTabName;
-        int count = ListView_GetItemCount(m_hWndListViews[i]);
+        int const count = ListView_GetItemCount(m_hWndListViews[i]);
         if (count > 0)
         {
             stream.str(L"");
@@ -528,7 +529,7 @@ void OutputDlg::SelectNextLint()
     int iTab = TabCtrl_GetCurSel(m_hWndTab);
     HWND hWndListView = m_hWndListViews[iTab];
 
-    int count = ListView_GetItemCount(hWndListView);
+    int const count = ListView_GetItemCount(hWndListView);
     if (count == 0)
     {
         // no lints, set focus to editor
@@ -560,7 +561,7 @@ void OutputDlg::SelectPrevLint()
     int iTab = TabCtrl_GetCurSel(m_hWndTab);
     HWND hWndListView = m_hWndListViews[iTab];
 
-    int count = ListView_GetItemCount(hWndListView);
+    int const count = ListView_GetItemCount(hWndListView);
     if (count == 0)
     {
         // no lints, set focus to editor
@@ -592,12 +593,12 @@ void OutputDlg::ShowLint(int i)
     int iTab = TabCtrl_GetCurSel(m_hWndTab);
     FileLint const &fileLint = m_fileLints[iTab][i];
 
-    int line = fileLint.lint.GetLine();
-    int column = fileLint.lint.GetCharacter();
+    int const line = fileLint.lint.GetLine();
+    int const column = fileLint.lint.GetCharacter();
 
     if (! fileLint.strFilePath.empty() && line >= 0 && column >= 0)
     {
-        LRESULT lRes = plugin_->send_to_notepad(
+        LRESULT const lRes = plugin_->send_to_notepad(
             NPPM_SWITCHTOFILE, 0, fileLint.strFilePath.c_str()
         );
         if (lRes)
@@ -612,9 +613,9 @@ void OutputDlg::ShowLint(int i)
                 {
                     plugin_->send_to_editor(SCI_CHARRIGHT);
 
-                    LRESULT curPos = plugin_->send_to_editor(SCI_GETCURRENTPOS);
+                    LRESULT const curPos = plugin_->send_to_editor(SCI_GETCURRENTPOS);
 
-                    LRESULT curLine =
+                    LRESULT const curLine =
                         plugin_->send_to_editor(SCI_LINEFROMPOSITION, curPos);
 
                     if (curLine > line)
@@ -624,7 +625,7 @@ void OutputDlg::ShowLint(int i)
                         break;
                     }
 
-                    LRESULT curCol =
+                    LRESULT const curCol =
                         plugin_->send_to_editor(SCI_GETCOLUMN, curPos);
                     if (curCol > column)
                     {
@@ -688,7 +689,7 @@ void OutputDlg::CopyToClipboard()
     {
         if (EmptyClipboard())
         {
-            size_t size = (str.size() + 1) * sizeof(TCHAR);
+            size_t const size = (str.size() + 1) * sizeof(TCHAR);
             HGLOBAL hResult = GlobalAlloc(GMEM_MOVEABLE, size);
             LPTSTR lpsz = static_cast<LPTSTR>(GlobalLock(hResult));
             memcpy(lpsz, str.c_str(), size);

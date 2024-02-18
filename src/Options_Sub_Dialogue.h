@@ -36,9 +36,9 @@ class Options_Sub_Dialogue : public Non_Modal_Dialogue_Interface
   private:
     std::optional<LONG_PTR> on_dialogue_message(
         UINT message, WPARAM wParam, LPARAM lParam
-    ) noexcept override;
+    ) override;
 
-    void update_comment_string() const noexcept;
+    void update_comment_string() const;
 
     Options_Dialogue const *parent_;
     Linter_Options *options_;

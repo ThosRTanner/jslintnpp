@@ -32,7 +32,7 @@ namespace
 /** Returns true if the selected option is displayed in the parent dialogue
  * rather than the linter specific dialogue
  */
-bool is_in_parent(UINT item)
+constexpr bool is_in_parent(UINT item)
 {
     return item == IDC_PREDEFINED || item == IDC_ADDITIONAL_OPTIONS;
 }
@@ -73,27 +73,26 @@ Options_Sub_Dialogue::~Options_Sub_Dialogue()
 
 void Options_Sub_Dialogue::show()
 {
-    for (auto const &option : options_->get_options())
+    for (auto const &[key, option] : options_->get_options())
     {
-        if (is_in_parent(option.first))
+        if (is_in_parent(key))
         {
             SetWindowText(
-                ::GetDlgItem(parent_->window(), option.first),
-                option.second.value.c_str()
+                ::GetDlgItem(parent_->window(), key), option.value.c_str()
             );
             continue;
         }
 
-        switch (option.second.type)
+        switch (option.type)
         {
             case OPTION_TYPE_BOOL:
             {
                 int checkState;
-                if (option.second.value == L"false")
+                if (option.value == L"false")
                 {
                     checkState = BST_UNCHECKED;
                 }
-                else if (option.second.value == L"true")
+                else if (option.value == L"true")
                 {
                     checkState = BST_CHECKED;
                 }
@@ -101,15 +100,13 @@ void Options_Sub_Dialogue::show()
                 {
                     checkState = BST_INDETERMINATE;
                 }
-                Button_SetCheck(GetDlgItem(option.first), checkState);
+                Button_SetCheck(GetDlgItem(key), checkState);
                 break;
             }
 
             case OPTION_TYPE_INT:
             case OPTION_TYPE_ARR_STRING:
-                SetWindowText(
-                    GetDlgItem(option.first), option.second.value.c_str()
-                );
+                SetWindowText(GetDlgItem(key), option.value.c_str());
                 break;
         }
     }
@@ -132,7 +129,8 @@ bool Options_Sub_Dialogue::update(bool validate)
         {
             case OPTION_TYPE_BOOL:
             {
-                int checkState = Button_GetCheck(GetDlgItem(option.first));
+                int const checkState =
+                    Button_GetCheck(GetDlgItem(option.first));
                 if (checkState == BST_UNCHECKED)
                 {
                     options_->UncheckOption(option.first);
@@ -188,7 +186,7 @@ bool Options_Sub_Dialogue::update(bool validate)
 
 std::optional<LONG_PTR> Options_Sub_Dialogue::on_dialogue_message(
     UINT message, WPARAM wParam, LPARAM lParam
-) noexcept
+)
 {
     if (message == WM_COMMAND)
     {
@@ -196,7 +194,7 @@ std::optional<LONG_PTR> Options_Sub_Dialogue::on_dialogue_message(
         {
             case BN_CLICKED:
             {
-                UINT id = LOWORD(wParam);
+                UINT const id = LOWORD(wParam);
                 if (IDC_CHECK_FIRST_OPTION <= id && id <= IDC_CHECK_LAST_OPTION)
                 {
                     auto const item = GetDlgItem(id);
@@ -226,34 +224,43 @@ std::optional<LONG_PTR> Options_Sub_Dialogue::on_dialogue_message(
 
             case EN_KILLFOCUS:
             {
-                UINT id = LOWORD(wParam);
+                UINT const id = LOWORD(wParam);
                 switch (id)
                 {
                     case IDC_IDENT:
                     case IDC_MAXLEN:
                     case IDC_MAXERR:
+                    {
                         auto const value{TrimSpaces(get_window_text(id))};
-                        auto message = options_->check_valid(id, value);
-                        if (message.has_value())
+                        auto errmsg = options_->check_valid(id, value);
+                        if (errmsg.has_value())
                         {
                             message_box(
-                                message.value().c_str(), MB_OK | MB_ICONERROR
+                                errmsg.value().c_str(), MB_OK | MB_ICONERROR
                             );
                             SetFocus(id);
                             return false;
                         }
                         options_->SetOption(id, value);
+                        break;
+                    }
+
+                    default:
+                        break;
                 }
                 update_comment_string();
                 return TRUE;
             }
+
+            default:
+                break;
         }
     }
 
     return std::nullopt;
 }
 
-void Options_Sub_Dialogue::update_comment_string() const noexcept
+void Options_Sub_Dialogue::update_comment_string() const
 {
     SetWindowText(
         ::GetDlgItem(parent_->window(), IDC_PREVIEW),

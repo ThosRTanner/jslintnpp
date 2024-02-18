@@ -20,7 +20,7 @@ std::string Version_Info::GetContent() const
                 fseek(fp, 0, SEEK_SET);
                 std::vector<char> buffer;
                 buffer.resize(size);
-                size_t const nRead = fread(&buffer[0], 1, size, fp);
+                size_t const nRead = fread(&*buffer.begin(), 1, size, fp);
                 if (nRead == size)
                 {
                     m_content = std::string(buffer.begin(), buffer.end());

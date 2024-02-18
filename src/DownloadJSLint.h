@@ -59,5 +59,5 @@ class DownloadJSLint
         );
     }
 
-    void LoadVersions(std::wstring const &fileSpec, Linter_Versions &versions);
+    void LoadVersions(std::wstring const &fileSpec, Linter_Versions &versions) const;
 };

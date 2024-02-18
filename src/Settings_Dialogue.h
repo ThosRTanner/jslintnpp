@@ -33,6 +33,11 @@ class Settings_Dialogue : public Modal_Dialogue_Interface
 
     ~Settings_Dialogue();
 
+    Settings* get_settings() const noexcept
+    {
+        return settings_.get();
+    }
+
   private:
     JSLintNpp const *plugin_;
     std::unique_ptr<Settings> settings_;
@@ -44,9 +49,9 @@ class Settings_Dialogue : public Modal_Dialogue_Interface
 
     void LoadVersions(int versionsComboBoxID, Linter linter);
     void display_options() const noexcept;
-    BOOL update_options() noexcept;
+    BOOL update_options();
 
-    void UpdateControls();
+    void UpdateControls() noexcept;
 
     UINT IsDlgButtonChecked(int button) const noexcept;
 

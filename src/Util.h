@@ -71,6 +71,4 @@ class TextConversion
     {
         return W_To_UTF8(tstr);
     }
-
-    static std::wstring A_To_T(std::string const &str);
 };

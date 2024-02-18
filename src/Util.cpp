@@ -20,6 +20,7 @@
 #include "Util.h"
 
 #include <Shlwapi.h>
+#include <comutil.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -133,12 +134,8 @@ bool Path::FileExists(std::wstring const &strPath) noexcept
 
 std::wstring TextConversion::UTF8_To_W(std::string const &str)
 {
-    int const wsize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
-    wchar_t *wbuffer = new wchar_t[wsize];
-    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wbuffer, wsize);
-    std::wstring result(wbuffer);
-    delete[] wbuffer;
-    return result;
+    _bstr_t bstring(str.c_str());
+    return std::wstring(bstring);
 }
 
 std::string TextConversion::A_To_UTF8(std::string const &str)
@@ -158,21 +155,6 @@ std::string TextConversion::A_To_UTF8(std::string const &str)
 
 std::string TextConversion::W_To_UTF8(std::wstring const &wstr)
 {
-    int const size =
-        WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
-    char *buffer = new char[size];
-    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, buffer, size, nullptr, nullptr);
-    std::string result(buffer);
-    delete[] buffer;
-    return result;
-}
-
-std::wstring TextConversion::A_To_T(std::string const &str)
-{
-    int const wsize = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, nullptr, 0);
-    wchar_t *wbuffer = new wchar_t[wsize];
-    MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, wbuffer, wsize);
-    std::wstring result(wbuffer);
-    delete[] wbuffer;
-    return result;
+    _bstr_t bstring(wstr.c_str());
+    return std::string(bstring);
 }

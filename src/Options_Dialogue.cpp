@@ -192,17 +192,17 @@ std::optional<INT_PTR> Options_Dialogue::Item_Callback_Function(
 {
     if (message == WM_PASTE)
     {
-        if (IsClipboardFormatAvailable(CF_TEXT))
+        if (IsClipboardFormatAvailable(CF_UNICODETEXT))
         {
             if (OpenClipboard(nullptr))
             {
-                HGLOBAL hGlobal = GetClipboardData(CF_TEXT);
+                HGLOBAL hGlobal = GetClipboardData(CF_UNICODETEXT);
                 if (hGlobal)
                 {
-                    auto const lpData = static_cast<CHAR const *>(GlobalLock(hGlobal));
+                    auto const lpData = static_cast<wchar_t const *>(GlobalLock(hGlobal));
                     if (lpData != nullptr)
                     {
-                        std::wstring str(TextConversion::A_To_T(lpData));
+                        std::wstring str(lpData);
 
                         std::vector<std::wstring> results;
                         StringSplit(str, L" \t\r\n", results);

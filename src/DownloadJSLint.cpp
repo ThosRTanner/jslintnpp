@@ -27,7 +27,7 @@
 
 #include <tchar.h>
 
-#include <stdio.h>
+#include <fstream>
 
 DownloadJSLint::DownloadJSLint(JSLintNpp const *plugin) :
     plugin_(plugin),
@@ -45,7 +45,7 @@ DownloadJSLint::DownloadJSLint(JSLintNpp const *plugin) :
 
 void DownloadJSLint::LoadVersions(
     std::wstring const &fileSpec, Linter_Versions &versions
-)
+) const
 {
     WIN32_FIND_DATA findFileData;
     HANDLE findFileHandle = FindFirstFile(
@@ -57,11 +57,11 @@ void DownloadJSLint::LoadVersions(
         do
         {
             versions.insert(std::make_pair<std::wstring, Version_Info>(
-                std::wstring(findFileData.cFileName)
-                    .substr(7, _tcslen(findFileData.cFileName) - 10),
-                Version_Info(
-                    Path::GetFullPath(findFileData.cFileName, m_versionsFolder)
-                )
+                std::wstring(&findFileData.cFileName[0])
+                    .substr(7, _tcslen(&findFileData.cFileName[0]) - 10),
+                Version_Info(Path::GetFullPath(
+                    &findFileData.cFileName[0], m_versionsFolder
+                ))
             ));
         } while (FindNextFile(findFileHandle, &findFileData));
         FindClose(findFileHandle);
@@ -92,57 +92,55 @@ DownloadJSLint::DownloadResult DownloadJSLint::DownloadLatest(
 )
 {
     Download_Progress_Bar progress_bar{plugin_, linter, GetVersions(linter)};
-    DownloadResult res = static_cast<DownloadResult>(progress_bar.get_result());
-    if (res == DOWNLOAD_OK)
+    DownloadResult const res = static_cast<DownloadResult>(progress_bar.get_result());
+    if (res != DOWNLOAD_OK)
     {
-        latestVersion = progress_bar.version();
-        if (latestVersion.empty())
-        {
-            SYSTEMTIME time;
-            GetLocalTime(&time);
+        return res;
+    }
 
-            TCHAR szTime[1024];
-            _stprintf(
-                &szTime[0],
-                L"%.4d-%.2d-%.2d %.2d-%.2d-%.2d",
-                time.wYear,
-                time.wMonth,
-                time.wDay,
-                time.wHour,
-                time.wMinute,
-                time.wSecond
-            );
+    latestVersion = progress_bar.version();
+    if (latestVersion.empty())
+    {
+        SYSTEMTIME time;
+        GetLocalTime(&time);
 
-            latestVersion = szTime;
-        }
-
-        std::wstring fileName = Path::GetFullPath(
-            (linter == Linter::LINTER_JSLINT ? L"jslint." : L"jshint.")
-                + latestVersion + L".js",
-            m_versionsFolder
+        TCHAR szTime[1024];
+        _stprintf(
+            &szTime[0],
+            L"%.4u-%.2u-%.2u %.2u-%.2u-%.2u",
+            time.wYear,
+            time.wMonth,
+            time.wDay,
+            time.wHour,
+            time.wMinute,
+            time.wSecond
         );
 
-        auto const &data = progress_bar.data();
+        latestVersion = szTime;
+    }
 
-        size_t written = 0;
-        FILE *fp = _tfopen(fileName.c_str(), L"wb+");
-        if (fp != nullptr)
-        {
-            written = fwrite(&data[0], 1, data.size(), fp);
-            fclose(fp);
-        }
+    std::wstring const fileName = Path::GetFullPath(
+        (linter == Linter::LINTER_JSLINT ? L"jslint." : L"jshint.")
+            + latestVersion + L".js",
+        m_versionsFolder
+    );
 
-        if (written == data.size())
+    auto const &data = progress_bar.data();
+    std::string const content(data.begin(), data.end());
+
+    {
+        std::ofstream outfile{fileName.c_str(), std::ofstream::binary};
+        outfile << content;
+        outfile.close();
+        if (outfile.fail())
         {
-            std::string content(data.begin(), data.end());
-            GetVersions(linter).insert(
-                std::make_pair(latestVersion, Version_Info(fileName, content))
-            );
-        }
-        else
-        {
-            res = DOWNLOAD_FAILED;
+            return DOWNLOAD_FAILED;
         }
     }
+
+    GetVersions(linter).insert(
+        std::make_pair(latestVersion, Version_Info(fileName, content))
+    );
+
     return res;
 }

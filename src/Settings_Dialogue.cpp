@@ -28,6 +28,7 @@
 
 #include "resource.h"
 
+#include <WinUser.h>
 #include <windowsx.h>
 
 #include <string>
@@ -143,7 +144,7 @@ std::optional<LONG_PTR> Settings_Dialogue::on_dialogue_message(
                     case IDOK:
                         if (update_options())
                         {
-                            EndDialog(settings_.get());
+                            EndDialog(Clicked_OK);
                         }
                         return 1;
 
@@ -231,7 +232,7 @@ void Settings_Dialogue::display_options() const noexcept
     );
 }
 
-BOOL Settings_Dialogue::update_options() noexcept
+BOOL Settings_Dialogue::update_options()
 {
     if (IsDlgButtonChecked(IDC_RADIO1))
     {
@@ -241,7 +242,7 @@ BOOL Settings_Dialogue::update_options() noexcept
     {
         settings_->m_jsLintScript.m_scriptSource = SCRIPT_SOURCE_DOWNLOADED;
 
-        int nCurSel = ComboBox_GetCurSel(GetDlgItem(IDC_JSLINT_SCRIPT_VERSION));
+        int const nCurSel = ComboBox_GetCurSel(GetDlgItem(IDC_JSLINT_SCRIPT_VERSION));
         if (nCurSel == CB_ERR)
         {
             MessageBox(
@@ -288,7 +289,7 @@ BOOL Settings_Dialogue::update_options() noexcept
     {
         settings_->m_jsHintScript.m_scriptSource = SCRIPT_SOURCE_DOWNLOADED;
 
-        int nCurSel = ComboBox_GetCurSel(GetDlgItem(IDC_JSHINT_SCRIPT_VERSION));
+        int const nCurSel = ComboBox_GetCurSel(GetDlgItem(IDC_JSHINT_SCRIPT_VERSION));
         if (nCurSel == CB_ERR)
         {
             message_box(
@@ -326,7 +327,7 @@ BOOL Settings_Dialogue::update_options() noexcept
     return TRUE;
 }
 
-void Settings_Dialogue::UpdateControls()
+void Settings_Dialogue::UpdateControls() noexcept
 {
     BOOL bDownload;
 

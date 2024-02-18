@@ -32,6 +32,7 @@
 
 #include "Plugin/Callback_Context.h"
 
+#include <exception>
 #include <memory>
 
 DEFINE_PLUGIN_MENU_CALLBACKS(JSLintNpp);
@@ -171,7 +172,8 @@ void JSLintNpp::jsLintAllFiles()
 
     int numJSFiles = 0;
 
-    auto const numOpenFiles = send_to_notepad(NPPM_GETNBOPENFILES, 0, PRIMARY_VIEW);
+    auto const numOpenFiles =
+        send_to_notepad(NPPM_GETNBOPENFILES, 0, PRIMARY_VIEW);
     if (numOpenFiles > 0)
     {
         createOutputWindow();
@@ -274,28 +276,13 @@ void JSLintNpp::createOutputWindow()
 
 void JSLintNpp::doJSLint()
 {
-    // get current file path and document index
-    TCHAR filePath[MAX_PATH];
-    send_to_notepad(NPPM_GETFULLCURRENTPATH, 0, &filePath[0]);
-
-    // get all the text from the scintilla window
-    Sci_TextRange tr;
-
-    tr.chrg.cpMin = 0;
-    tr.chrg.cpMax = -1;
-
-    auto const length = send_to_editor(SCI_GETLENGTH);
-    tr.lpstrText = new char[length + 1];
-    tr.lpstrText[0] = 0;
-
-    send_to_editor(SCI_GETTEXTRANGE, 0, &tr);
-    std::string strScript = tr.lpstrText;
-    delete tr.lpstrText;
+    std::string strScript = get_text_range();
 
     // get code page of the text
     auto const nSciCodePage = send_to_editor(SCI_GETCODEPAGE);
     if (nSciCodePage != SC_CP_UTF8)
     {
+        // this is just wrong. it should use the codepage in use...
         strScript = TextConversion::A_To_UTF8(strScript);    // convert to UTF-8
     }
 
@@ -314,30 +301,37 @@ void JSLintNpp::doJSLint()
             strOptions, strScript, nppTabWidth, jsLintTabWidth, lints
         );
 
-        output_dialogue_->AddLints(filePath, lints);
+        // get current file path and document index
+        TCHAR filePath[MAX_PATH];
+        send_to_notepad(NPPM_GETFULLCURRENTPATH, 0, &filePath[0]);
+
+        output_dialogue_->AddLints(&filePath[0], lints);
 
         DoEvents();
     }
     catch (std::exception const &e)
     {
         message_box(
-            TextConversion::A_To_T(e.what()).c_str(), MB_OK | MB_ICONERROR
+            TextConversion::UTF8_To_W(e.what()).c_str(), MB_OK | MB_ICONERROR
         );
     }
 }
 
-std::wstring JSLintNpp::get_config_dir() const
-{
-    TCHAR szConfigDir[MAX_PATH];
-    szConfigDir[0] = 0;
-    send_to_notepad(
-        NPPM_GETPLUGINSCONFIGDIR, sizeof(szConfigDir), &szConfigDir[0]
-    );
-    return szConfigDir;
-}
-
-
 std::wstring JSLintNpp::get_config_file_name() const
 {
     return Path::GetFullPath(L"JSLint.ini", config_dir_);
+}
+
+std::string JSLintNpp::get_text_range(Sci_Position min, Sci_Position max)
+    const
+{
+    auto const length = max == -1 ? send_to_editor(SCI_GETLENGTH) : max - min;
+    std::vector<char> buff;
+    buff.resize(length + 1);
+    Sci_TextRangeFull const tr = {
+        .chrg = {.cpMin = min, .cpMax = max},
+          .lpstrText = &*buff.begin()
+    };
+    send_to_editor(SCI_GETTEXTRANGEFULL, 0, &tr);
+    return std::string(tr.lpstrText);
 }

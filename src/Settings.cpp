@@ -38,10 +38,10 @@ void Settings::ShowDialog()
 {
     //FIXME make it return ok, etc and provide a method to get a copy of the contents
     Settings_Dialogue dlg(plugin_, this, downloader_);
-    auto res = dlg.get_result();
-    if (res > 0)
+    auto const res = dlg.get_result();
+    if (res == Settings_Dialogue::Clicked_OK)
     {
-        *this = *reinterpret_cast<Settings *>(res);
+        *this = *dlg.get_settings();
     }
 }
 

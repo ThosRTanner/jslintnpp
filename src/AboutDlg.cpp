@@ -55,7 +55,10 @@ std::optional<LONG_PTR> AboutDlg::on_dialogue_message(
 
             TCHAR szVersion[100];
             _stprintf(
-                &szVersion[0], szVersionFormat, L"Unicode", MY_PRODUCT_VERSION
+                &szVersion[0],
+                &szVersionFormat[0],
+                L"Unicode",
+                MY_PRODUCT_VERSION
             );
 
             ::SetWindowText(hWndVersionStatic, &szVersion[0]);

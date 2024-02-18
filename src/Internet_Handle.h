@@ -27,7 +27,7 @@ class Internet_Handle
 
     ~Internet_Handle();
 
-    operator HINTERNET() const
+    operator HINTERNET() const noexcept
     {
         return handle_;
     }
