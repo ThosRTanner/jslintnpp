@@ -6,6 +6,22 @@
 
 #include <vector>
 
+Version_Info::Version_Info() noexcept
+{
+}
+
+Version_Info::Version_Info(std::wstring const &fileName) : m_fileName(fileName)
+{
+}
+
+Version_Info::Version_Info(
+    std::wstring const &fileName, std::string const &content
+) :
+    m_fileName(fileName),
+    m_content(content)
+{
+}
+
 std::string Version_Info::GetContent() const
 {
     if (m_content.empty())

@@ -30,6 +30,8 @@
 #include <libplatform/libplatform.h>
 #include <v8.h>
 
+#include <libloaderapi.h>
+
 #include <cfloat>
 #include <cstdint>
 #include <exception>

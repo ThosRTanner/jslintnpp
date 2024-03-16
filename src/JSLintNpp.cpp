@@ -28,12 +28,15 @@
 #include "Profile_Handler.h"
 #include "Settings.h"
 #include "Util.h"
-#include "Version_Info.h"
+#include "Version_Info.h" // do NOT remove this.
 
-#include "Plugin/Callback_Context.h"
+#include "Plugin/Callback_Context.h"    //do NOT remove this.
+
+#include "Notepad_plus_msgs.h"
 
 #include <exception>
 #include <memory>
+#include <string>
 
 DEFINE_PLUGIN_MENU_CALLBACKS(JSLintNpp);
 
@@ -276,7 +279,7 @@ void JSLintNpp::createOutputWindow()
 
 void JSLintNpp::doJSLint()
 {
-    std::string strScript = get_text_range();
+    std::string strScript = get_document_text();
 
     // get code page of the text
     auto const nSciCodePage = send_to_editor(SCI_GETCODEPAGE);
@@ -301,11 +304,7 @@ void JSLintNpp::doJSLint()
             strOptions, strScript, nppTabWidth, jsLintTabWidth, lints
         );
 
-        // get current file path and document index
-        TCHAR filePath[MAX_PATH];
-        send_to_notepad(NPPM_GETFULLCURRENTPATH, 0, &filePath[0]);
-
-        output_dialogue_->AddLints(&filePath[0], lints);
+        output_dialogue_->AddLints(get_document_path(), lints);
 
         DoEvents();
     }
@@ -320,18 +319,4 @@ void JSLintNpp::doJSLint()
 std::wstring JSLintNpp::get_config_file_name() const
 {
     return Path::GetFullPath(L"JSLint.ini", config_dir_);
-}
-
-std::string JSLintNpp::get_text_range(Sci_Position min, Sci_Position max)
-    const
-{
-    auto const length = max == -1 ? send_to_editor(SCI_GETLENGTH) : max - min;
-    std::vector<char> buff;
-    buff.resize(length + 1);
-    Sci_TextRangeFull const tr = {
-        .chrg = {.cpMin = min, .cpMax = max},
-          .lpstrText = &*buff.begin()
-    };
-    send_to_editor(SCI_GETTEXTRANGEFULL, 0, &tr);
-    return std::string(tr.lpstrText);
 }

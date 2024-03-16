@@ -19,8 +19,6 @@
 
 #include "Plugin/Plugin.h"
 
-#include "Sci_Position.h"
-
 #include <memory>
 #include <string>
 
@@ -108,7 +106,4 @@ class JSLintNpp : public Plugin
     std::unique_ptr<DownloadJSLint> downloader_;
     std::unique_ptr<Settings> settings_;
     std::unique_ptr<OutputDlg> output_dialogue_;
-
-    std::string get_text_range(Sci_Position min = 0, Sci_Position max = -1)
-        const;
 };
