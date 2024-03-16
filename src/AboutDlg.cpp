@@ -31,6 +31,8 @@
 #include <shellapi.h>
 #include <tchar.h>
 
+#include <optional>
+
 AboutDlg::AboutDlg(Plugin const *plugin) : Modal_Dialogue_Interface(plugin)
 {
     create_modal_dialogue(IDD_ABOUT);

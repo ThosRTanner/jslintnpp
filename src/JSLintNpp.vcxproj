@@ -91,7 +91,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;.\Notepad++;..\..\Docking_Dialogue_Interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\Docking_Dialogue_Interface;..\Docking_Dialogue_Interface\plugintemplate\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;JSLINTNPP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -123,7 +123,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;.\Notepad++;..\..\Docking_Dialogue_Interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\Docking_Dialogue_Interface;..\Docking_Dialogue_Interface\plugintemplate\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;JSLINTNPP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -162,7 +162,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;.\Notepad++;..\..\Docking_Dialogue_Interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\Docking_Dialogue_Interface;..\Docking_Dialogue_Interface\plugintemplate\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;JSLINTNPP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -197,7 +197,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;.\Notepad++;..\..\Docking_Dialogue_Interface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\Docking_Dialogue_Interface;..\Docking_Dialogue_Interface\plugintemplate\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;JSLINTNPP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -235,37 +235,37 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.cpp">
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.cpp">
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.cpp">
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Base.cpp">
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Base.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Interface.cpp">
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Interface.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.cpp">
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Plugin.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -329,13 +329,18 @@
     <ClCompile Include="Version_Info.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Callback_Context.h" />
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.h" />
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.h" />
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.h" />
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Base.h" />
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Interface.h" />
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\plugintemplate\src\menuCmdID.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\plugintemplate\src\Notepad_plus_msgs.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\plugintemplate\src\PluginInterface.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\plugintemplate\src\Scintilla.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\plugintemplate\src\Sci_Position.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Callback_Context.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Base.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Interface.h" />
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Plugin.h" />
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="afxres.h" />
     <ClInclude Include="Downloader.h" />
@@ -350,10 +355,6 @@
     <ClInclude Include="Linter.h" />
     <ClInclude Include="Linter_Options.h" />
     <ClInclude Include="Linter_Versions.h" />
-    <ClInclude Include="Notepad++\menuCmdID.h" />
-    <ClInclude Include="Notepad++\Notepad_plus_msgs.h" />
-    <ClInclude Include="Notepad++\PluginInterface.h" />
-    <ClInclude Include="Notepad++\Scintilla.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="Options_Dialogue.h" />
     <ClInclude Include="Options_Sub_Dialogue.h" />

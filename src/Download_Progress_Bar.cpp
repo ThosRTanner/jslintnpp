@@ -12,7 +12,10 @@
 
 #include <cstdint>
 #include <exception>
+#include <memory>
+#include <optional>
 #include <string>
+#include <vector>
 
 #define JSLINT_GITHUB_URL \
     L"https://raw.github.com/jslint-org/jslint/master/jslint.mjs"

@@ -48,12 +48,6 @@
     <ClCompile Include="Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.cpp">
-      <Filter>DockingDialog</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.cpp">
-      <Filter>DockingDialog</Filter>
-    </ClCompile>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,20 +60,8 @@
     <ClCompile Include="Profile_Handler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.cpp">
-      <Filter>DockingDialog</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.cpp">
-      <Filter>DockingDialog</Filter>
-    </ClCompile>
     <ClCompile Include="Version_Info.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Base.cpp">
-      <Filter>DockingDialog</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Interface.cpp">
-      <Filter>DockingDialog</Filter>
     </ClCompile>
     <ClCompile Include="Option.cpp">
       <Filter>Source Files</Filter>
@@ -110,6 +92,24 @@
     </ClCompile>
     <ClCompile Include="JSLintLinterOptions.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.cpp">
+      <Filter>DockingDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.cpp">
+      <Filter>DockingDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.cpp">
+      <Filter>DockingDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Base.cpp">
+      <Filter>DockingDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Interface.cpp">
+      <Filter>DockingDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Docking_Dialogue_Interface\Plugin\Plugin.cpp">
+      <Filter>DockingDialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -143,27 +143,6 @@
     <ClInclude Include="Version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Notepad++\menuCmdID.h">
-      <Filter>Notepad++</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad++\Notepad_plus_msgs.h">
-      <Filter>Notepad++</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad++\PluginInterface.h">
-      <Filter>Notepad++</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad++\Scintilla.h">
-      <Filter>Notepad++</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Callback_Context.h">
-      <Filter>DockingDialog</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.h">
-      <Filter>DockingDialog</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Plugin.h">
-      <Filter>DockingDialog</Filter>
-    </ClInclude>
     <ClInclude Include="JSLintNpp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -176,23 +155,11 @@
     <ClInclude Include="Profile_Handler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.h">
-      <Filter>DockingDialog</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.h">
-      <Filter>DockingDialog</Filter>
-    </ClInclude>
     <ClInclude Include="Version_Info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="afxres.h">
       <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Base.h">
-      <Filter>DockingDialog</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Interface.h">
-      <Filter>DockingDialog</Filter>
     </ClInclude>
     <ClInclude Include="Linter.h">
       <Filter>Header Files</Filter>
@@ -232,6 +199,42 @@
     </ClInclude>
     <ClInclude Include="JSHintLinterOptions.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Callback_Context.h">
+      <Filter>DockingDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Dialogue_Interface.h">
+      <Filter>DockingDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Docking_Dialogue_Interface.h">
+      <Filter>DockingDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Modal_Dialogue_Interface.h">
+      <Filter>DockingDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Base.h">
+      <Filter>DockingDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Non_Modal_Dialogue_Interface.h">
+      <Filter>DockingDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\Plugin\Plugin.h">
+      <Filter>DockingDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\plugintemplate\src\menuCmdID.h">
+      <Filter>Notepad++</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\plugintemplate\src\Notepad_plus_msgs.h">
+      <Filter>Notepad++</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\plugintemplate\src\PluginInterface.h">
+      <Filter>Notepad++</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\plugintemplate\src\Sci_Position.h">
+      <Filter>Notepad++</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Docking_Dialogue_Interface\plugintemplate\src\Scintilla.h">
+      <Filter>Notepad++</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
